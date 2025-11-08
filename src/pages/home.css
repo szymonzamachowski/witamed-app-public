@@ -1,0 +1,132 @@
+.hero{
+  position:relative;
+  width:100%;
+  height:calc(100vh - 68px);
+  display:block;
+  overflow:hidden;
+}
+
+.hero-next{
+  width:min(820px,88%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border-radius:12px;
+  padding:36px 22px 22px 22px; /* extra top padding so heading isn't fully covered */
+  backdrop-filter: blur(6px);
+  box-shadow:0 8px 30px rgba(2,8,23,0.55);
+  position:relative; /* containing block for player image */
+  overflow:visible;
+}
+
+/* Center the overlay container and lower it so the player has room
+   (prevents the player image from covering the heading) */
+.hero-overlay{
+  position:absolute;
+  left:50%;
+  top:42%; /* lowered from top so the card sits further down */
+  transform:translateX(-50%);
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:0 12px;
+  z-index:3;
+}
+
+/* subtitle/banner directly under navbar in the Home section */
+/* hero brand pill and subtitle removed */
+
+.hero-player{
+  position:absolute;
+  left:50%;
+  top:-225px; /* moved slightly down as requested */
+  transform:translateX(-50%) rotate(-2deg);
+  width:560px; /* a bit bigger */
+  max-width:54%;
+  height:auto;
+  z-index:6;
+  object-fit:cover;
+  filter: drop-shadow(0 22px 50px rgba(2,8,23,0.68));
+}
+
+/* big hero heading matching the screenshot style */
+.hero-heading{
+  position:absolute;
+  left:80px; /* shifted more to the left as requested */
+  top:36px; /* sits below the navbar */
+  color:#9bd83a; /* bright green */
+  font-weight:800;
+  font-size:64px;
+  line-height:1;
+  letter-spacing:-0.5px;
+  margin:0;
+  z-index:9; /* above player image so text stays visible */
+  text-shadow: 0 2px 0 rgba(0,0,0,0.08);
+}
+
+@media (max-width:900px){
+  .hero-heading{font-size:44px;left:28px;top:28px}
+}
+
+@media (max-width:640px){
+  .hero-heading{display:none} /* hide large heading on small screens */
+}
+
+.hero-next::before{
+  content:'';
+  position:absolute;
+  left:0;right:0;top:0;height:36px;
+  pointer-events:none;
+  background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0));
+  border-top-left-radius:12px;border-top-right-radius:12px;z-index:4
+}
+
+.hero-next h2{margin:0 0 8px 0;color:#ffd;}
+
+.home-content{margin-top:26px;padding-bottom:80px}
+
+/* Make news look similar but slightly elevated (legacy list styles kept) */
+.news-list{background:transparent}
+.news-list ul{background:#fff;border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(2,8,23,0.06)}
+.news-list li{padding:12px;border-bottom:1px solid #f3f3f3}
+
+/* Card-based news section (current component) */
+.news-section{margin-top:28px;padding:28px 0}
+.news-section{background: linear-gradient(180deg, #f7fbf6 0%, #f3f9f3 100%);border-radius:14px;box-shadow:0 8px 30px rgba(2,8,23,0.04)}
+.news-title{font-size:28px;text-align:center;margin:0 0 18px 0;color:#0b2b3b}
+.news-cards{display:flex;flex-direction:column;gap:14px;align-items:center}
+.news-card{width:min(920px,96%);background:#fff;border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,8,23,0.08)}
+.news-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.news-card-title{font-size:20px;color:#071a2a}
+.news-card-date{font-size:13px;color:#6b6b6b}
+.news-card-body{color:#222;line-height:1.45}
+
+@media (max-width:720px){
+  .news-card{width:100%;padding:14px}
+  .news-title{font-size:22px}
+}
+
+/* Make the event calendar button match the navbar 'Witamed Murarska' pill */
+.event-actions{margin-top:12px}
+.event-calendar-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#1f9d55,#27ae60);
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+  box-shadow:0 6px 18px rgba(39,174,96,0.12);
+}
+.event-calendar-btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
+
+@media (max-width:900px){
+  .hero{height:56vh}
+  /* center the player on medium screens and keep it a bit higher above the card */
+  .hero-player{left:50%;transform:translateX(-50%) rotate(-2deg);width:440px;top:-130px}
+  .hero-next{width:92%}
+}
+
+@media (max-width:640px){
+  .hero-player{display:none} /* hide overlapping image on small screens to avoid layout issues */
+}

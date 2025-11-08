@@ -1,8 +1,17 @@
+.app-root{min-height:100vh;display:flex;flex-direction:column;color:#111}
+.container{max-width:1200px;width:100%;margin:24px auto;padding:0 24px}
+.app-root main{padding-top:80px}
+.home{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.event-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.news-list ul{list-style:none;padding:0;margin:0}
+.news-list li{padding:8px 0;border-bottom:1px solid #eee}
+.meta{color:#666;font-size:0.9em}
+.video-placeholder{background:#000;height:180px;color:#fff;display:flex;align-items:center;justify-content:center}
+.match-item{margin:12px 0;padding:12px;border-radius:6px;background:#fff}
+.attendance .row{display:flex;justify-content:space-between;align-items:center}
+.primary{background:#0b74ff;color:#fff}
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width:100%;
 }
 
 .logo {

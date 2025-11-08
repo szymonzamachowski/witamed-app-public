@@ -1,0 +1,15 @@
+{
+  "name": "Witamed Team",
+  "short_name": "Witamed",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#071f2a",
+  "background_color": "#071f2a"
+}

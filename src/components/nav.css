@@ -1,0 +1,40 @@
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 28px;
+  background: linear-gradient(90deg,#06283a 0%, #042f2f 100%);
+  color: #fff;
+  position:fixed;
+  top:0;left:0;right:0;
+  height:68px;
+  z-index:1000;
+  box-shadow: 0 6px 18px rgba(2,8,23,0.45);
+}
+.nav .brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:700;
+}
+.nav-logo{width:74px;height:74px;object-fit:contain;border-radius:50%;box-shadow:0 6px 20px rgba(2,8,23,0.35);margin-right:8px}
+.team-name{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;padding:8px 14px;border-radius:999px;background:linear-gradient(90deg,#1f9d55,#27ae60);box-shadow:0 6px 18px rgba(39,174,96,0.12)}
+.team-main{font-weight:800;color:#fff;font-size:15px;line-height:1}
+.team-sub{font-weight:600;color:rgba(255,255,255,0.95);font-size:13px;line-height:1;opacity:0.95}
+.nav .links a{
+  margin-left:20px;
+  color:rgba(255,255,255,0.95);
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 6px;
+  border-radius:6px;
+}
+.nav .links a:hover{background:rgba(255,255,255,0.03)}
+.nav .links a.active{
+  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+}
+
+@media (max-width:640px){
+  .nav-logo{width:56px;height:56px}
+  .team-name{padding:6px 10px;font-size:13px}
+}
