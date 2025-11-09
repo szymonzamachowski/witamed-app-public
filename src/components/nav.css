@@ -42,7 +42,106 @@
   background: linear-gradient(90deg, var(--color-white-05), var(--color-white-03));
 }
 
-@media (max-width:640px){
-  .nav-logo{width:56px;height:56px}
-  .team-name{padding:6px 10px;font-size:13px}
+/* Mobile Menu Toggle (Hamburger) */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+}
+
+.mobile-menu-toggle span {
+  width: 25px;
+  height: 3px;
+  background: var(--color-white);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .nav .links {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, var(--color-navy-blue-dark) 0%, var(--color-navy-blue-darker) 100%);
+    flex-direction: column;
+    padding: 1rem 0;
+    box-shadow: var(--shadow-xl);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    max-height: calc(100vh - 68px);
+    overflow-y: auto;
+  }
+
+  .nav .links.mobile-open {
+    transform: translateX(0);
+  }
+
+  .nav .links a {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
+  }
+
+  .nav .links a:last-child {
+    border-bottom: none;
+  }
+
+  .nav-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .team-name {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 12px 16px;
+  }
+
+  .nav-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .team-name {
+    padding: 5px 8px;
+  }
+
+  .team-main {
+    font-size: 13px;
+  }
+
+  .team-sub {
+    font-size: 11px;
+  }
 }

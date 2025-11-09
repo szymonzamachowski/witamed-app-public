@@ -158,15 +158,54 @@
 
 @media (max-width: 768px) {
   .page.admin {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
 
   .admin-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .admin-header h1 {
     font-size: 1.5rem;
+  }
+
+  .admin-section h2,
+  .admin-section h3 {
+    font-size: 1.25rem;
+  }
+
+  .admin-form {
+    gap: 1.25rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+
+  .admin-button {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page.admin {
+    padding: 0.75rem 0.25rem;
+  }
+
+  .admin-section {
+    padding: 1rem;
+  }
+
+  .admin-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .admin-section h2,
+  .admin-section h3 {
+    font-size: 1.1rem;
   }
 }
 

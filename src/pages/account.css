@@ -368,25 +368,71 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .page.account {
+    padding: 1rem 0.5rem;
+  }
+
   .account-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .account-header h1 {
+    font-size: 1.5rem;
   }
 
   .account-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .account-section h2 {
+    font-size: 1.25rem;
   }
 
   .info-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .stats-summary {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
   }
 
   .stats-details {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stats-category {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page.account {
+    padding: 0.75rem 0.25rem;
+  }
+
+  .account-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .account-section {
+    padding: 1rem;
+  }
+
+  .stats-summary {
     grid-template-columns: 1fr;
   }
 
