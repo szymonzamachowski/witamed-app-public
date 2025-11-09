@@ -110,19 +110,27 @@
   }
 
   .hero {
-    height: calc(100vh - 68px);
-    overflow: hidden; /* przywróć hidden żeby nie przesuwać contentu */
+    height: auto;
+    min-height: calc(100vh - 68px);
+    overflow: visible; /* pozwól na widoczność całej karty z przyciskiem */
+    padding-bottom: 2rem; /* dodatkowy padding żeby przycisk był widoczny */
   }
 
   .hero-overlay {
-    top: 42%; /* takie samo jak desktop */
-    transform: translateX(-50%);
+    position: relative; /* zmień na relative na mobile żeby nie było obcinane */
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: 0 auto;
+    padding-top: 2rem; /* dodaj padding-top żeby zawodnik miał miejsce */
+    margin-bottom: 1rem;
   }
 
   .hero-next {
     width: 95%;
     padding: 36px 22px 22px 22px; /* takie samo jak desktop */
     overflow: visible; /* upewnij się że zawodnik jest widoczny */
+    margin-bottom: 0;
   }
 
   .hero-next h2 {
@@ -145,13 +153,27 @@
 
 @media (max-width: 480px) {
   .hero {
-    overflow: hidden; /* przywróć hidden żeby nie przesuwać contentu */
+    height: auto;
+    min-height: calc(100vh - 68px);
+    overflow: visible; /* pozwól na widoczność całej karty z przyciskiem */
+    padding-bottom: 2rem; /* dodatkowy padding żeby przycisk był widoczny */
+  }
+
+  .hero-overlay {
+    position: relative; /* zmień na relative na mobile żeby nie było obcinane */
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: 0 auto;
+    padding-top: 2rem; /* dodaj padding-top żeby zawodnik miał miejsce */
+    margin-bottom: 1rem;
   }
 
   .hero-next {
     width: 98%;
     padding: 36px 18px 22px 18px; /* zachowaj top padding jak desktop */
     overflow: visible; /* upewnij się że zawodnik jest widoczny */
+    margin-bottom: 0;
   }
 
   .hero-next h2 {
