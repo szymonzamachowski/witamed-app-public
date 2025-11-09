@@ -39,7 +39,7 @@ CREATE TABLE events (
   title TEXT NOT NULL,
   date TIMESTAMP WITH TIME ZONE NOT NULL,
   location TEXT NOT NULL,
-  type TEXT CHECK (type IN ('match', 'training', 'other')) NOT NULL,
+  type TEXT CHECK (type IN ('match', 'training', 'friendly', 'other')) NOT NULL,
   description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
