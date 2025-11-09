@@ -134,15 +134,41 @@
   opacity: 0.3;
 }
 
-.calendar-day.has-match {
-  border-color: var(--color-pear-green);
-  background: rgba(127, 176, 105, 0.25);
+.calendar-day.has-event {
   border-width: 2px;
 }
 
-.calendar-day.has-match:hover {
+/* Mecze ligowe - zielony */
+.calendar-day.has-event.event-match {
+  border-color: var(--color-pear-green);
+  background: rgba(127, 176, 105, 0.25);
+}
+
+.calendar-day.has-event.event-match:hover {
   border-color: var(--color-pear-green-light);
   background: rgba(127, 176, 105, 0.15);
+}
+
+/* Treningi - niebieski */
+.calendar-day.has-event.event-training {
+  border-color: #4A90E2;
+  background: rgba(74, 144, 226, 0.25);
+}
+
+.calendar-day.has-event.event-training:hover {
+  border-color: #5BA0F2;
+  background: rgba(74, 144, 226, 0.15);
+}
+
+/* Sparingi - pomarańczowy */
+.calendar-day.has-event.event-friendly {
+  border-color: #F39C12;
+  background: rgba(243, 156, 18, 0.25);
+}
+
+.calendar-day.has-event.event-friendly:hover {
+  border-color: #F5B041;
+  background: rgba(243, 156, 18, 0.15);
 }
 
 .calendar-day.selected {
@@ -159,20 +185,65 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.match-indicator {
+.event-indicator {
   margin-top: auto;
   display: flex;
   justify-content: center;
   width: 100%;
+  margin-bottom: 0.25rem;
 }
 
-.match-dot {
+.event-dot {
   width: 10px;
   height: 10px;
-  background: var(--color-pear-green);
   border-radius: 50%;
   display: block;
+}
+
+/* Kropki dla różnych typów wydarzeń */
+.event-dot.event-match {
+  background: var(--color-pear-green);
   box-shadow: 0 0 4px rgba(127, 176, 105, 0.6);
+}
+
+.event-dot.event-training {
+  background: #4A90E2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.6);
+}
+
+.event-dot.event-friendly {
+  background: #F39C12;
+  box-shadow: 0 0 4px rgba(243, 156, 18, 0.6);
+}
+
+/* Etykiety wydarzeń */
+.event-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.15rem 0.25rem;
+  border-radius: 4px;
+  margin-top: 0.15rem;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.event-label.event-match {
+  background: rgba(127, 176, 105, 0.3);
+  color: var(--color-pear-green-bright);
+}
+
+.event-label.event-training {
+  background: rgba(74, 144, 226, 0.3);
+  color: #6BB6FF;
+}
+
+.event-label.event-friendly {
+  background: rgba(243, 156, 18, 0.3);
+  color: #F7C96B;
 }
 
 /* Popup overlay */
@@ -353,10 +424,23 @@
     border: 1px solid rgba(255, 255, 255, 0.25);
   }
 
-  .calendar-day.has-match {
+  .calendar-day.has-event {
+    border-width: 2px;
+  }
+
+  .calendar-day.has-event.event-match {
     background: rgba(127, 176, 105, 0.3);
     border-color: var(--color-pear-green);
-    border-width: 2px;
+  }
+
+  .calendar-day.has-event.event-training {
+    background: rgba(74, 144, 226, 0.3);
+    border-color: #4A90E2;
+  }
+
+  .calendar-day.has-event.event-friendly {
+    background: rgba(243, 156, 18, 0.3);
+    border-color: #F39C12;
   }
 
   .day-number {
@@ -364,9 +448,14 @@
     font-weight: 700;
   }
 
-  .match-dot {
+  .event-dot {
     width: 12px;
     height: 12px;
+  }
+
+  .event-label {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.2rem;
   }
 
   .match-popup {
@@ -412,9 +501,14 @@
     font-size: 0.95rem;
   }
 
-  .match-dot {
+  .event-dot {
     width: 10px;
     height: 10px;
+  }
+
+  .event-label {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.15rem;
   }
 }
 

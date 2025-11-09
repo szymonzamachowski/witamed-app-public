@@ -1,25 +1,59 @@
 import { useState, useMemo } from 'react'
 import { useMatches } from '../hooks/useMatches'
+import { useEvents } from '../hooks/useEvents'
 import { Link } from 'react-router-dom'
-import type { Match } from '../types/database'
+import type { Match, Event } from '../types/database'
 import './calendar.css'
 
-export default function CalendarPage() {
-  const { data: matches, isLoading } = useMatches()
-  const [currentDate, setCurrentDate] = useState(new Date())
+type CalendarEvent = 
+  | { type: 'match'; data: Match }
+  | { type: 'training'; data: Event }
+  | { type: 'friendly'; data: Event }
 
-  // Filtruj tylko mecze ligowe (wszystkie mecze z tabeli matches to mecze ligowe)
-  // i sortuj chronologicznie (rosnąco)
-  const leagueMatches = useMemo(() => {
-    if (!matches) return []
-    return matches
-      .filter(match => {
+export default function CalendarPage() {
+  const { data: matches, isLoading: matchesLoading } = useMatches()
+  const { data: events, isLoading: eventsLoading } = useEvents()
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const isLoading = matchesLoading || eventsLoading
+
+  // Połącz wszystkie wydarzenia (mecze, treningi, sparingi) dla bieżącego miesiąca
+  const allEvents = useMemo(() => {
+    const eventsList: CalendarEvent[] = []
+    
+    // Dodaj mecze ligowe
+    if (matches) {
+      matches.forEach(match => {
         const matchDate = new Date(match.date)
-        return matchDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) &&
-               matchDate < new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+        if (matchDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) &&
+            matchDate < new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)) {
+          eventsList.push({ type: 'match', data: match })
+        }
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }, [matches, currentDate])
+    }
+    
+    // Dodaj treningi i sparingi
+    if (events) {
+      events.forEach(event => {
+        if (event.type === 'training' || event.type === 'friendly') {
+          const eventDate = new Date(event.date)
+          if (eventDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) &&
+              eventDate < new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)) {
+            eventsList.push({ 
+              type: event.type === 'training' ? 'training' : 'friendly', 
+              data: event 
+            })
+          }
+        }
+      })
+    }
+    
+    // Sortuj chronologicznie
+    return eventsList.sort((a, b) => {
+      const dateA = new Date(a.data.date).getTime()
+      const dateB = new Date(b.data.date).getTime()
+      return dateA - dateB
+    })
+  }, [matches, events, currentDate])
 
   // Generuj dni miesiąca
   const calendarDays = useMemo(() => {
@@ -31,27 +65,27 @@ export default function CalendarPage() {
     const daysInMonth = lastDay.getDate()
     const startingDayOfWeek = firstDay.getDay() // 0 = niedziela, 1 = poniedziałek, etc.
     
-    const days: Array<{ date: number; match: Match | null }> = []
+    const days: Array<{ date: number; event: CalendarEvent | null }> = []
     
     // Dni z poprzedniego miesiąca (jeśli miesiąc nie zaczyna się od poniedziałku)
     const adjustedStartDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1 // Konwertuj na poniedziałek = 0
     for (let i = 0; i < adjustedStartDay; i++) {
-      days.push({ date: 0, match: null })
+      days.push({ date: 0, event: null })
     }
     
     // Dni bieżącego miesiąca
     for (let day = 1; day <= daysInMonth; day++) {
-      const match = leagueMatches.find(m => {
-        const matchDate = new Date(m.date)
-        return matchDate.getDate() === day &&
-               matchDate.getMonth() === month &&
-               matchDate.getFullYear() === year
+      const event = allEvents.find(e => {
+        const eventDate = new Date(e.data.date)
+        return eventDate.getDate() === day &&
+               eventDate.getMonth() === month &&
+               eventDate.getFullYear() === year
       }) || null
-      days.push({ date: day, match })
+      days.push({ date: day, event })
     }
     
     return days
-  }, [currentDate, leagueMatches])
+  }, [currentDate, allEvents])
 
   const monthNames = [
     'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
@@ -77,7 +111,7 @@ export default function CalendarPage() {
   return (
     <div className="page calendar">
       <div className="calendar-header">
-        <h2>Terminarz meczów ligowych</h2>
+        <h2>Terminarz</h2>
         <div className="calendar-navigation">
           <button onClick={goToPreviousMonth} className="nav-button">‹</button>
           <div className="current-month">
@@ -90,7 +124,7 @@ export default function CalendarPage() {
       </div>
 
       {isLoading ? (
-        <div className="loading">Ładowanie meczów...</div>
+        <div className="loading">Ładowanie wydarzeń...</div>
       ) : (
         <>
           <div className="calendar-grid">
@@ -106,20 +140,38 @@ export default function CalendarPage() {
                   return <div key={`empty-${index}`} className="calendar-day empty"></div>
                 }
                 
-                const hasMatch = day.match !== null
+                const hasEvent = day.event !== null
                 const isSelected = selectedDay === day.date
+                const eventType = day.event?.type || null
+                
+                // Tekst do wyświetlenia w komórce
+                let eventLabel = ''
+                if (day.event) {
+                  if (day.event.type === 'match') {
+                    eventLabel = `vs ${day.event.data.opponent}`
+                  } else if (day.event.type === 'training') {
+                    eventLabel = 'Trening'
+                  } else if (day.event.type === 'friendly') {
+                    eventLabel = 'Sparing'
+                  }
+                }
                 
                 return (
                   <div
                     key={day.date}
-                    className={`calendar-day ${hasMatch ? 'has-match' : ''} ${isSelected ? 'selected' : ''}`}
+                    className={`calendar-day ${hasEvent ? `has-event event-${eventType}` : ''} ${isSelected ? 'selected' : ''}`}
                     onClick={() => setSelectedDay(isSelected ? null : day.date)}
                   >
                     <div className="day-number">{day.date}</div>
-                    {hasMatch && (
-                      <div className="match-indicator">
-                        <span className="match-dot"></span>
-                      </div>
+                    {hasEvent && (
+                      <>
+                        <div className={`event-indicator event-${eventType}`}>
+                          <span className={`event-dot event-${eventType}`}></span>
+                        </div>
+                        <div className={`event-label event-${eventType}`}>
+                          {eventLabel}
+                        </div>
+                      </>
                     )}
                   </div>
                 )
@@ -128,22 +180,29 @@ export default function CalendarPage() {
           </div>
 
           {selectedDay !== null && (() => {
-            const selectedMatch = leagueMatches.find(m => {
-              const matchDate = new Date(m.date)
-              return matchDate.getDate() === selectedDay &&
-                     matchDate.getMonth() === currentDate.getMonth() &&
-                     matchDate.getFullYear() === currentDate.getFullYear()
+            const selectedEvent = allEvents.find(e => {
+              const eventDate = new Date(e.data.date)
+              return eventDate.getDate() === selectedDay &&
+                     eventDate.getMonth() === currentDate.getMonth() &&
+                     eventDate.getFullYear() === currentDate.getFullYear()
             })
             
-            if (!selectedMatch) return null
+            if (!selectedEvent) return null
             
-            const matchDate = new Date(selectedMatch.date)
+            const eventDate = new Date(selectedEvent.data.date)
+            const isMatch = selectedEvent.type === 'match'
+            const isTraining = selectedEvent.type === 'training'
+            const isFriendly = selectedEvent.type === 'friendly'
             
             return (
               <div className="match-popup-overlay" onClick={() => setSelectedDay(null)}>
                 <div className="match-popup" onClick={(e) => e.stopPropagation()}>
                   <div className="match-popup-header">
-                    <h3>vs {selectedMatch.opponent}</h3>
+                    <h3>
+                      {isMatch && `vs ${(selectedEvent.data as Match).opponent}`}
+                      {isTraining && (selectedEvent.data as Event).title}
+                      {isFriendly && (selectedEvent.data as Event).title}
+                    </h3>
                     <button 
                       className="popup-close-button"
                       onClick={() => setSelectedDay(null)}
@@ -154,9 +213,18 @@ export default function CalendarPage() {
                   
                   <div className="match-popup-content">
                     <div className="match-popup-row">
+                      <span className="popup-label">Typ:</span>
+                      <span className="popup-value">
+                        {isMatch && 'Mecz ligowy'}
+                        {isTraining && 'Trening'}
+                        {isFriendly && 'Sparing'}
+                      </span>
+                    </div>
+                    
+                    <div className="match-popup-row">
                       <span className="popup-label">Data i godzina:</span>
                       <span className="popup-value">
-                        {matchDate.toLocaleDateString('pl-PL', {
+                        {eventDate.toLocaleDateString('pl-PL', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
@@ -169,34 +237,43 @@ export default function CalendarPage() {
                     
                     <div className="match-popup-row">
                       <span className="popup-label">Lokalizacja:</span>
-                      <span className="popup-value">{selectedMatch.location}</span>
+                      <span className="popup-value">{selectedEvent.data.location}</span>
                     </div>
                     
-                    {selectedMatch.score && (
+                    {isMatch && (selectedEvent.data as Match).score && (
                       <div className="match-popup-row">
                         <span className="popup-label">Wynik:</span>
-                        <span className="popup-value popup-score">{selectedMatch.score}</span>
+                        <span className="popup-value popup-score">{(selectedEvent.data as Match).score}</span>
                       </div>
                     )}
                     
-                    <div className="match-popup-actions">
-                      <Link 
-                        to={`/matches/${selectedMatch.id}`}
-                        className="popup-view-button"
-                        onClick={() => setSelectedDay(null)}
-                      >
-                        Zobacz pełne szczegóły meczu
-                      </Link>
-                    </div>
+                    {(isTraining || isFriendly) && (selectedEvent.data as Event).description && (
+                      <div className="match-popup-row">
+                        <span className="popup-label">Opis:</span>
+                        <span className="popup-value">{(selectedEvent.data as Event).description}</span>
+                      </div>
+                    )}
+                    
+                    {isMatch && (
+                      <div className="match-popup-actions">
+                        <Link 
+                          to={`/matches/${(selectedEvent.data as Match).id}`}
+                          className="popup-view-button"
+                          onClick={() => setSelectedDay(null)}
+                        >
+                          Zobacz pełne szczegóły meczu
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             )
           })()}
 
-          {leagueMatches.length === 0 && (
+          {allEvents.length === 0 && (
             <div className="no-matches">
-              <p>Brak meczów ligowych w tym miesiącu.</p>
+              <p>Brak wydarzeń w tym miesiącu.</p>
             </div>
           )}
         </>
