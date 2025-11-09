@@ -114,13 +114,13 @@
   }
 
   .hero-overlay {
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 42%; /* takie samo jak desktop */
+    transform: translateX(-50%);
   }
 
   .hero-next {
     width: 95%;
-    padding: 24px 18px 18px 18px;
+    padding: 36px 22px 22px 22px; /* takie samo jak desktop */
   }
 
   .hero-next h2 {
@@ -140,7 +140,7 @@
 @media (max-width: 480px) {
   .hero-next {
     width: 98%;
-    padding: 20px 14px 14px 14px;
+    padding: 36px 18px 22px 18px; /* zachowaj top padding jak desktop */
   }
 
   .hero-next h2 {
@@ -279,21 +279,24 @@
 @media (max-width: 640px) {
   .hero-player {
     display: block;
-    width: 280px;
-    max-width: 70%;
-    top: -80px;
+    width: 560px;
+    max-width: 54%;
+    top: -225px; /* takie samo jak desktop */
     left: 50%;
     transform: translateX(-50%) rotate(-2deg);
-    opacity: 0.9;
-    filter: drop-shadow(0 15px 30px rgba(2, 8, 23, 0.5));
+    opacity: 1;
+    filter: drop-shadow(0 22px 50px rgba(2, 8, 23, 0.68));
   }
 }
 
 @media (max-width: 480px) {
   .hero-player {
-    width: 220px;
-    max-width: 65%;
-    top: -60px;
-    opacity: 0.85;
+    width: 560px; /* zachowaj taki sam rozmiar */
+    max-width: 54%;
+    top: -225px; /* takie samo jak desktop */
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    opacity: 1;
+    filter: drop-shadow(0 22px 50px rgba(2, 8, 23, 0.68));
   }
 }
