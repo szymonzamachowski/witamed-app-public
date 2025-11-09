@@ -103,7 +103,7 @@ export default function MatchDetail() {
           <>
             <MatchStatsTable statistics={filteredStatistics} matchErrors={match.match_errors} />
             {/* Debug info */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <details style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
                 <summary>Debug info</summary>
                 <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', overflow: 'auto' }}>

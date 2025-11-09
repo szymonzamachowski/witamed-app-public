@@ -41,7 +41,6 @@ export default function CalendarPage() {
     
     // Dni bieżącego miesiąca
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day)
       const match = leagueMatches.find(m => {
         const matchDate = new Date(m.date)
         return matchDate.getDate() === day &&

@@ -55,7 +55,7 @@ export default function Home(){
       <header className="hero">
         <div className="hero-bg" />
   {/* main hero heading (matches supplied image) */}
-  <h1 className="hero-heading">Jedziemy kurwa! Fire!</h1>
+  <h1 className="hero-heading">Jedziemy kruca fiks! Fajer!</h1>
 
         <div className="hero-overlay">
             <div className="hero-next">

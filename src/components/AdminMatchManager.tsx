@@ -1,8 +1,7 @@
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import type { Match } from '../types/database'
 import './admin-match-manager.css'
 
 export default function AdminMatchManager() {

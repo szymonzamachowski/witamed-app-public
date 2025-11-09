@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect, useMemo } from 'react'
+import { useState, type FormEvent, useEffect } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { usePlayers } from '../hooks/usePlayers'
 import { useMatchStatistics } from '../hooks/useMatchStatistics'
@@ -13,7 +13,7 @@ type Props = {
   currentUserId?: string
 }
 
-export default function AdminMatchStats({ currentUserId }: Props = {}) {
+export default function AdminMatchStats(_props: Props = {}) {
   const { data: matches, isLoading: matchesLoading } = useMatches()
   const { data: players, isLoading: playersLoading } = usePlayers()
   const queryClient = useQueryClient()
@@ -25,7 +25,23 @@ export default function AdminMatchStats({ currentUserId }: Props = {}) {
   const [success, setSuccess] = useState<string | null>(null)
 
   // Statystyki zawodnika
-  const [stats, setStats] = useState({
+  type PlayerStats = {
+    serve_total: number
+    serve_errors: number
+    serve_aces: number
+    reception_total: number
+    reception_positive: number
+    reception_other: number
+    reception_errors: number
+    attack_total: number
+    attack_points: number
+    attack_unfinished: number
+    attack_errors: number
+    attack_blocked: number
+    block_total: number
+  }
+  
+  const [stats, setStats] = useState<PlayerStats>({
     serve_total: 0,
     serve_errors: 0,
     serve_aces: 0,
@@ -80,7 +96,7 @@ export default function AdminMatchStats({ currentUserId }: Props = {}) {
   }, [players, matchAttendance, selectedMatchId])
 
   const saveStatsMutation = useMutation({
-    mutationFn: async ({ matchId, playerId, stats }: { matchId: string; playerId: string; stats: typeof stats }) => {
+    mutationFn: async ({ matchId, playerId, stats }: { matchId: string; playerId: string; stats: PlayerStats }) => {
       // Sprawdź czy statystyki już istnieją
       const existing = existingStats?.find(s => s.player_id === playerId)
       

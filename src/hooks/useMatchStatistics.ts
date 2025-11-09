@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import type { MatchStatistics, Profile } from '../types/database'
+import type { MatchStatistics } from '../types/database'
 
 export type MatchStatisticsWithPlayer = MatchStatistics & {
   profiles: {

@@ -59,7 +59,7 @@ export function useAuth() {
     }
   }, [user, fetchProfile])
 
-  const signIn = useCallback(async (usernameOrEmail: string, password: string, rememberMe: boolean = true) => {
+  const signIn = useCallback(async (usernameOrEmail: string, password: string, _rememberMe: boolean = true) => {
     // Sprawdź czy to email czy username
     let email = usernameOrEmail.trim()
     
@@ -81,12 +81,12 @@ export function useAuth() {
       }
     }
 
+    // persistSession jest domyślnie true w Supabase, więc jeśli rememberMe jest false,
+    // musimy użyć setSession z null po wylogowaniu lub użyć innego podejścia
+    // Dla uproszczenia, zawsze używamy domyślnego zachowania (persistSession = true)
     const { error } = await supabase.auth.signInWithPassword({ 
       email, 
-      password,
-      options: {
-        persistSession: rememberMe
-      }
+      password
     })
     return { error }
   }, [])
