@@ -112,7 +112,7 @@
     top: auto;
     font-size: 32px; /* mniejszy rozmiar dla mobile */
     text-align: center; /* wyśrodkuj napis */
-    margin: 1rem auto 0.5rem auto; /* dodaj marginesy */
+    margin: 1rem auto 0.25rem auto; /* zmniejsz margin-bottom żeby zmniejszyć odstęp do zawodnika */
     padding: 0 1rem; /* dodaj padding po bokach */
     color: var(--color-pear-green-bright); /* upewnij się że kolor jest widoczny */
     z-index: 10; /* upewnij się że jest nad innymi elementami */
@@ -163,7 +163,7 @@
 @media (max-width: 480px) {
   .hero-heading {
     font-size: 28px; /* jeszcze mniejszy rozmiar na bardzo małych ekranach */
-    margin: 0.75rem auto 0.5rem auto;
+    margin: 0.75rem auto 0.25rem auto; /* zmniejsz margin-bottom żeby zmniejszyć odstęp do zawodnika */
     padding: 0 0.75rem;
   }
 
@@ -335,7 +335,7 @@
     display: block;
     width: 560px;
     max-width: 54%;
-    top: -80px; /* obniżony jeszcze bardziej żeby leżał na karcie */
+    top: -100px; /* podnieś zawodnika żeby był bliżej napisu, ale nadal leżał na karcie */
     left: 50%;
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
@@ -348,7 +348,7 @@
   .hero-player {
     width: 560px; /* zachowaj taki sam rozmiar */
     max-width: 54%;
-    top: -70px; /* obniżony jeszcze bardziej żeby leżał na karcie */
+    top: -90px; /* podnieś zawodnika żeby był bliżej napisu, ale nadal leżał na karcie */
     left: 50%;
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
