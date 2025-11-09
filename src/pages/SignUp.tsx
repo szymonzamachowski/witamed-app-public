@@ -31,14 +31,22 @@ export default function SignUp() {
       return
     }
 
+    if (!username.trim()) {
+      setError('Nazwa użytkownika jest wymagana')
+      return
+    }
+
     setLoading(true)
+
+    // Generuj email jeśli nie podano (używamy username@witamed.local)
+    const userEmail = email.trim() || `${username.trim()}@witamed.local`
 
     // Rejestracja użytkownika
     const { data: authData, error: authError } = await signUp(
-      email,
+      userEmail,
       password,
       {
-        username: username || email.split('@')[0],
+        username: username.trim(),
         full_name: fullName,
         phone_number: phoneNumber,
         league_license_number: leagueLicenseNumber,
@@ -59,7 +67,7 @@ export default function SignUp() {
           .from('profiles')
           .insert({
             id: authData.user.id,
-            username: username || email.split('@')[0],
+            username: username.trim(),
             full_name: fullName,
             phone_number: phoneNumber,
             league_license_number: leagueLicenseNumber,
@@ -94,16 +102,18 @@ export default function SignUp() {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email (opcjonalne)</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="twoj@email.pl"
+              placeholder="twoj@email.pl (opcjonalne)"
               disabled={loading}
             />
+            <small className="form-hint">
+              Email nie jest wymagany. Jeśli nie podasz, zostanie wygenerowany automatycznie.
+            </small>
           </div>
 
           <div className="form-group">
@@ -147,15 +157,19 @@ export default function SignUp() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="username">Nazwa użytkownika (opcjonalne)</label>
+            <label htmlFor="username">Nazwa użytkownika *</label>
             <input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="jan_kowalski"
+              required
               disabled={loading}
             />
+            <small className="form-hint">
+              Nazwa użytkownika będzie używana do logowania
+            </small>
           </div>
 
           <div className="form-group">

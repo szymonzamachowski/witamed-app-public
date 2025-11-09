@@ -4,8 +4,9 @@ import { useAuth } from '../hooks/useAuth'
 import './auth.css'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
+  const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { signIn } = useAuth()
@@ -16,7 +17,7 @@ export default function Login() {
     setError(null)
     setLoading(true)
 
-    const { error } = await signIn(email, password)
+    const { error } = await signIn(usernameOrEmail, password, rememberMe)
 
     if (error) {
       setError(error.message)
@@ -42,16 +43,19 @@ export default function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="usernameOrEmail">Nazwa użytkownika lub Email</label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="usernameOrEmail"
+              type="text"
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
               required
-              placeholder="twoj@email.pl"
+              placeholder="nazwa_uzytkownika lub email"
               disabled={loading}
             />
+            <small className="form-hint">
+              Możesz zalogować się używając nazwy użytkownika lub emaila
+            </small>
           </div>
 
           <div className="form-group">
@@ -65,6 +69,19 @@ export default function Login() {
               placeholder="••••••••"
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label htmlFor="rememberMe" className="checkbox-label">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={loading}
+              />
+              <span>Zapamiętaj mnie</span>
+            </label>
           </div>
 
           <button type="submit" className="auth-button" disabled={loading}>

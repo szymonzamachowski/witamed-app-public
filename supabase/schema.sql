@@ -47,10 +47,16 @@ CREATE TABLE events (
 -- Create attendance table
 CREATE TABLE attendance (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  event_id UUID REFERENCES events NOT NULL,
+  event_id UUID REFERENCES events,
+  match_id UUID REFERENCES matches,
   player_id UUID REFERENCES profiles NOT NULL,
   status TEXT CHECK (status IN ('present', 'absent', 'unknown')) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  CONSTRAINT attendance_event_or_match_check 
+    CHECK (
+      (event_id IS NOT NULL AND match_id IS NULL) OR 
+      (event_id IS NULL AND match_id IS NOT NULL)
+    )
 );
 
 -- Create news table
@@ -70,111 +76,11 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE news ENABLE ROW LEVEL SECURITY;
 
--- Create policies for profiles
+-- Create policies
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles
   FOR SELECT USING (true);
-
-CREATE POLICY "Users can insert own profile" ON profiles
-  FOR INSERT
-  WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Create policies for news
-CREATE POLICY "Anyone can read news" ON news
-  FOR SELECT USING (true);
-
-CREATE POLICY "Admins and coaches can create news" ON news
-  FOR INSERT
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role IN ('admin', 'coach')
-    )
-  );
-
-CREATE POLICY "Admins can update all news" ON news
-  FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-
-CREATE POLICY "Authors can update own news" ON news
-  FOR UPDATE
-  USING (author_id = auth.uid());
-
-CREATE POLICY "Admins can delete news" ON news
-  FOR DELETE
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-
--- Create policies for matches (everyone can read, admins can modify)
-CREATE POLICY "Anyone can read matches" ON matches
-  FOR SELECT USING (true);
-
-CREATE POLICY "Admins can manage matches" ON matches
-  FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-
--- Create policies for events (everyone can read, admins can modify)
-CREATE POLICY "Anyone can read events" ON events
-  FOR SELECT USING (true);
-
-CREATE POLICY "Admins can manage events" ON events
-  FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-
--- Create policies for attendance
-CREATE POLICY "Users can view attendance" ON attendance
-  FOR SELECT USING (true);
-
-CREATE POLICY "Users can manage own attendance" ON attendance
-  FOR ALL
-  USING (player_id = auth.uid());
-
-CREATE POLICY "Admins can manage all attendance" ON attendance
-  FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-
--- Create policies for match_statistics
-CREATE POLICY "Anyone can read match statistics" ON match_statistics
-  FOR SELECT USING (true);
-
-CREATE POLICY "Admins can manage match statistics" ON match_statistics
-  FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+-- Add more policies as needed for other tables based on your requirements

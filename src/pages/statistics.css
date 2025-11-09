@@ -1,0 +1,19 @@
+.statistics {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.statistics h2 {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.statistics p {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-size: 1.1rem;
+}
+

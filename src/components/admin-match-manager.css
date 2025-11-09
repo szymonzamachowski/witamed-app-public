@@ -1,0 +1,197 @@
+.admin-match-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.match-manager-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+}
+
+.manager-tab {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+  top: 2px;
+}
+
+.manager-tab:hover {
+  color: #fff;
+}
+
+.manager-tab.active {
+  color: #7FB069;
+  border-bottom-color: #7FB069;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.match-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.match-selector label {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.match-select {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.match-select:focus {
+  outline: none;
+  border-color: #7FB069;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.match-select option {
+  background: rgba(26, 58, 82, 0.95);
+  color: #fff;
+}
+
+.match-info {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.match-info p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.form-hint {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions .admin-button {
+  flex: 1;
+}
+
+.admin-button-danger {
+  background: #dc3545;
+  color: #fff;
+}
+
+.admin-button-danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.admin-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.admin-button-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.delete-confirm {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.delete-confirm-content {
+  background: rgba(26, 58, 82, 0.98);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.delete-confirm-content h4 {
+  color: #fff;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.delete-confirm-content p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.delete-warning {
+  color: #ff6b6b !important;
+  font-weight: 600;
+  margin-top: 1rem !important;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.delete-confirm-actions .admin-button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .delete-confirm-content {
+    padding: 1.5rem;
+  }
+
+  .delete-confirm-actions {
+    flex-direction: column;
+  }
+}
+

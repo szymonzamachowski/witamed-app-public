@@ -1,0 +1,82 @@
+.admin-add-players {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.players-list {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  list-style: none;
+  margin: 0;
+}
+
+.players-list li {
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+}
+
+.players-list li:last-child {
+  border-bottom: none;
+}
+
+.players-list code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #7FB069;
+  font-family: 'Courier New', monospace;
+}
+
+.creating {
+  color: #7FB069;
+  font-size: 0.9em;
+  margin-left: 0.5rem;
+}
+
+.info-box {
+  background: rgba(127, 176, 105, 0.1);
+  border: 1px solid rgba(127, 176, 105, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.info-box p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.info-box ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.info-box li {
+  margin-bottom: 0.25rem;
+}
+
+.info-box code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #7FB069;
+  font-family: 'Courier New', monospace;
+}
+

@@ -59,8 +59,35 @@ export function useAuth() {
     }
   }, [user, fetchProfile])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const signIn = useCallback(async (usernameOrEmail: string, password: string, rememberMe: boolean = true) => {
+    // Sprawdź czy to email czy username
+    let email = usernameOrEmail.trim()
+    
+    // Jeśli nie zawiera @, to prawdopodobnie username - użyj username@witamed.local
+    if (!email.includes('@')) {
+      // Sprawdź czy użytkownik istnieje w profilach
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', email)
+        .single()
+      
+      if (profile) {
+        // Użyj username@witamed.local (zgodnie z konwencją z rejestracji)
+        email = `${email}@witamed.local`
+      } else {
+        // Jeśli nie znaleziono użytkownika, spróbuj użyć jako email
+        email = `${email}@witamed.local`
+      }
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password,
+      options: {
+        persistSession: rememberMe
+      }
+    })
     return { error }
   }, [])
 
@@ -69,7 +96,8 @@ export function useAuth() {
       email, 
       password,
       options: {
-        data: userData
+        data: userData,
+        emailRedirectTo: undefined // Wyłącz przekierowanie email
       }
     })
     return { data, error }
