@@ -131,7 +131,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 3rem; /* zwiększ padding-top żeby karta była niżej */
+    padding-top: 1.5rem; /* zmniejsz padding-top żeby zawodnik był bliżej napisu */
     margin-bottom: 1rem;
   }
 
@@ -180,7 +180,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 3rem; /* zwiększ padding-top żeby karta była niżej */
+    padding-top: 1.5rem; /* zmniejsz padding-top żeby zawodnik był bliżej napisu */
     margin-bottom: 1rem;
   }
 
