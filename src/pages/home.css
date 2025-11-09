@@ -131,7 +131,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 1rem; /* zmniejsz padding-top bo napis jest teraz wyżej */
+    padding-top: 3rem; /* zwiększ padding-top żeby karta była niżej */
     margin-bottom: 1rem;
   }
 
@@ -180,7 +180,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 1rem; /* zmniejsz padding-top bo napis jest teraz wyżej */
+    padding-top: 3rem; /* zwiększ padding-top żeby karta była niżej */
     margin-bottom: 1rem;
   }
 
@@ -335,7 +335,7 @@
     display: block;
     width: 560px;
     max-width: 54%;
-    top: -120px; /* obniżony na mobile - był za wysoko */
+    top: -80px; /* obniżony jeszcze bardziej żeby leżał na karcie */
     left: 50%;
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
@@ -348,7 +348,7 @@
   .hero-player {
     width: 560px; /* zachowaj taki sam rozmiar */
     max-width: 54%;
-    top: -100px; /* jeszcze bardziej obniżony na małych ekranach */
+    top: -70px; /* obniżony jeszcze bardziej żeby leżał na karcie */
     left: 50%;
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
