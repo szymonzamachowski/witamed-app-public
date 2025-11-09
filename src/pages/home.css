@@ -111,6 +111,7 @@
 
   .hero {
     height: calc(100vh - 68px);
+    overflow: visible; /* pozwól zawodnikowi być widocznym poza kontenerem */
   }
 
   .hero-overlay {
@@ -121,6 +122,7 @@
   .hero-next {
     width: 95%;
     padding: 36px 22px 22px 22px; /* takie samo jak desktop */
+    overflow: visible; /* upewnij się że zawodnik jest widoczny */
   }
 
   .hero-next h2 {
@@ -138,9 +140,14 @@
 }
 
 @media (max-width: 480px) {
+  .hero {
+    overflow: visible; /* pozwól zawodnikowi być widocznym poza kontenerem */
+  }
+
   .hero-next {
     width: 98%;
     padding: 36px 18px 22px 18px; /* zachowaj top padding jak desktop */
+    overflow: visible; /* upewnij się że zawodnik jest widoczny */
   }
 
   .hero-next h2 {
@@ -286,6 +293,7 @@
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
     filter: drop-shadow(0 22px 50px rgba(2, 8, 23, 0.68));
+    position: absolute; /* upewnij się że jest absolute */
   }
 }
 
@@ -298,5 +306,6 @@
     transform: translateX(-50%) rotate(-2deg);
     opacity: 1;
     filter: drop-shadow(0 22px 50px rgba(2, 8, 23, 0.68));
+    position: absolute; /* upewnij się że jest absolute */
   }
 }
