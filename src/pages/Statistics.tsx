@@ -283,6 +283,93 @@ export default function Statistics() {
                   </td>
                 </tr>
               ))}
+              {sortedAndFilteredStats.length > 0 && (() => {
+                // Oblicz sumy dla wszystkich statystyk
+                const totals = sortedAndFilteredStats.reduce((acc, stat) => {
+                  acc.total_points += stat.total_points || 0
+                  acc.total_aces += stat.total_aces || 0
+                  acc.total_blocks += stat.total_blocks || 0
+                  acc.serve_total += stat.serve_total || 0
+                  acc.serve_errors += stat.serve_errors || 0
+                  acc.serve_aces += stat.serve_aces || 0
+                  acc.reception_total += stat.reception_total || 0
+                  acc.reception_positive += stat.reception_positive || 0
+                  acc.reception_errors += stat.reception_errors || 0
+                  acc.attack_total += stat.attack_total || 0
+                  acc.attack_points += stat.attack_points || 0
+                  acc.attack_errors += stat.attack_errors || 0
+                  acc.block_total += stat.block_total || 0
+                  return acc
+                }, {
+                  total_points: 0,
+                  total_aces: 0,
+                  total_blocks: 0,
+                  serve_total: 0,
+                  serve_errors: 0,
+                  serve_aces: 0,
+                  reception_total: 0,
+                  reception_positive: 0,
+                  reception_errors: 0,
+                  attack_total: 0,
+                  attack_points: 0,
+                  attack_errors: 0,
+                  block_total: 0
+                })
+
+                // Oblicz procenty dla sum
+                const servePercentage = totals.serve_total > 0
+                  ? Math.round((totals.serve_aces / totals.serve_total) * 100)
+                  : 0
+
+                const receptionPercentage = totals.reception_total > 0
+                  ? Math.round((totals.reception_positive / totals.reception_total) * 100)
+                  : 0
+
+                const attackPercentage = totals.attack_total > 0
+                  ? Math.round((totals.attack_points / totals.attack_total) * 100)
+                  : 0
+
+                return (
+                  <tr className="totals-row">
+                    <td className="player-name">
+                      <strong>RAZEM</strong>
+                    </td>
+                    <td><strong>-</strong></td>
+                    <td className="highlight"><strong>{totals.total_points}</strong></td>
+                    <td><strong>{totals.total_aces}</strong></td>
+                    <td><strong>{totals.total_blocks}</strong></td>
+                    <td>
+                      <div className="stat-row">
+                        <strong>{totals.serve_total}</strong>
+                        <strong>{totals.serve_errors}</strong>
+                        <strong>{totals.serve_aces}</strong>
+                        <strong className="percentage">{servePercentage}%</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="stat-row">
+                        <strong>{totals.reception_total}</strong>
+                        <strong>{totals.reception_positive}</strong>
+                        <strong>{totals.reception_errors}</strong>
+                        <strong className="percentage">{receptionPercentage}%</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="stat-row">
+                        <strong>{totals.attack_total}</strong>
+                        <strong>{totals.attack_points}</strong>
+                        <strong>{totals.attack_errors}</strong>
+                        <strong className="percentage">{attackPercentage}%</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="stat-row">
+                        <strong>{totals.block_total}</strong>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })()}
             </tbody>
           </table>
         </div>

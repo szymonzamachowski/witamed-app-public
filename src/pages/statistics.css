@@ -130,6 +130,37 @@
   border-bottom: none;
 }
 
+.statistics-table tbody tr.totals-row {
+  background: rgba(127, 176, 105, 0.15);
+  border-top: 2px solid var(--color-pear-green);
+  border-bottom: 2px solid var(--color-pear-green);
+}
+
+.statistics-table tbody tr.totals-row:hover {
+  background: rgba(127, 176, 105, 0.2);
+}
+
+.statistics-table tbody tr.totals-row td {
+  font-weight: 700;
+  color: var(--color-white);
+  padding: 1.25rem 0.75rem;
+}
+
+.statistics-table tbody tr.totals-row td.player-name {
+  font-size: 1.1rem;
+  color: var(--color-pear-green);
+}
+
+.statistics-table tbody tr.totals-row .stat-row strong {
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+.statistics-table tbody tr.totals-row .stat-row strong.percentage {
+  color: var(--color-pear-green);
+  font-weight: 700;
+}
+
 .statistics-table td {
   padding: 1rem 0.75rem;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
