@@ -124,6 +124,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 1rem;
+  min-width: 0; /* pozwól na kurczenie */
+  flex-shrink: 1; /* pozwól na kurczenie */
 }
 
 .attendance-count {
@@ -188,7 +190,11 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  white-space: normal; /* pozwól na zawijanie tekstu */
+  word-wrap: break-word;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .view-attendees-button:hover {
@@ -299,25 +305,96 @@
 }
 
 @media (max-width: 768px) {
+  .attendance {
+    padding: 1rem 0.5rem;
+  }
+
   .event-card {
     flex-direction: column;
     align-items: stretch;
+    padding: var(--spacing-md);
+  }
+
+  .event-info {
+    width: 100%;
+    min-width: 0; /* pozwól na kurczenie */
   }
 
   .event-actions {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .attendance-count {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .attendance-button {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .view-attendees-button {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 0.6rem 0.75rem;
   }
 
   .attendance-tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    gap: 0.5rem;
   }
 
   .tab {
     white-space: nowrap;
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .event-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance {
+    padding: 0.75rem 0.25rem;
+  }
+
+  .event-card {
+    padding: var(--spacing-sm);
+  }
+
+  .event-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .event-date,
+  .event-location {
+    font-size: 0.85rem;
+  }
+
+  .attendance-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .view-attendees-button {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.5rem;
+  }
+
+  .tab {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
   }
 }
 
