@@ -78,58 +78,78 @@
 }
 
 .match-errors-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.errors-group {
-  background: rgba(26, 58, 82, 0.4);
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 1.5rem;
 }
 
-.errors-group h3 {
-  color: #fff;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
+.errors-tables-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.error-table-container {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.error-table-container h5 {
+  color: #7FB069;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-align: center;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(127, 176, 105, 0.3);
+}
+
+.errors-table-wrapper {
+  overflow-x: auto;
 }
 
 .errors-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.error-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.error-row:last-child {
-  border-bottom: none;
-}
-
-.error-label {
-  color: rgba(255, 255, 255, 0.7);
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
   font-size: 0.9rem;
 }
 
-.error-value {
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
+.errors-table thead {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.error-other {
-  color: rgba(255, 255, 255, 0.6);
+.errors-table th {
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   font-size: 0.85rem;
-  margin-left: 0.5rem;
+}
+
+.errors-table td {
+  padding: 0.5rem 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.errors-table tr.total-row {
+  background: rgba(127, 176, 105, 0.15);
+}
+
+.errors-table td.total-cell {
+  font-weight: 700;
+  background: rgba(127, 176, 105, 0.2);
+  text-align: center;
+  padding: 0.5rem;
+  color: #7FB069;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
@@ -147,7 +167,7 @@
     padding: 0.5rem 0.25rem;
   }
 
-  .match-errors-section {
+  .errors-tables-container {
     grid-template-columns: 1fr;
   }
 }

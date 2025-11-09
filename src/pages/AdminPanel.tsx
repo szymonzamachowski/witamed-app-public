@@ -178,7 +178,7 @@ export default function AdminPanel() {
         </section>
 
         <section className="admin-section">
-          <AdminMatchStats />
+          <AdminMatchStats currentUserId={user.id} />
         </section>
 
         <section className="admin-section">

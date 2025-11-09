@@ -58,7 +58,7 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
     : 0
 
   const attackPercentage = totals.attack_total > 0
-    ? Math.round(((totals.attack_points - totals.attack_errors) / totals.attack_total) * 100)
+    ? Math.round((totals.attack_points / totals.attack_total) * 100)
     : 0
 
   const getPlayerName = (stat: MatchStatisticsWithPlayer) => {
@@ -72,7 +72,8 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
 
   const calculateAttackPercentage = (stat: MatchStatisticsWithPlayer) => {
     if (!stat.attack_total || stat.attack_total === 0) return 0
-    return Math.round(((stat.attack_points || 0) - (stat.attack_errors || 0)) / stat.attack_total * 100)
+    // Procent ataku = punkty punktowe / total (skuteczność)
+    return Math.round((stat.attack_points || 0) / stat.attack_total * 100)
   }
 
   return (
@@ -147,73 +148,129 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
         </table>
       </div>
 
-      {matchErrors && (
-        <div className="match-errors-section">
-          <div className="errors-group">
-            <h3>BŁĘDY PRZECIWNIKA</h3>
-            <div className="errors-table">
-              <div className="error-row">
-                <span className="error-label">TOTAL:</span>
-                <span className="error-value">{matchErrors.opponent_errors_total || 0}</span>
-              </div>
-              {[1, 2, 3, 4, 5].map(set => {
-                const value = matchErrors[`opponent_errors_set${set}` as keyof MatchErrors] as number | undefined
-                if (value === undefined) return null
-                return (
-                  <div key={set} className="error-row">
-                    <span className="error-label">{set} SET:</span>
-                    <span className="error-value">{value}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+      {matchErrors && (() => {
+        // Określ liczbę setów dla każdej kategorii (min 3, max 5)
+        // Sprawdź najwyższy set z wartością (lub minimum 3)
+        const getVisibleSets = (prefix: string) => {
+          let maxSet = 0
+          for (let set = 1; set <= 5; set++) {
+            const key = `${prefix}_set${set}` as keyof MatchErrors
+            if (matchErrors[key] !== undefined && matchErrors[key] !== null) {
+              maxSet = set
+            }
+          }
+          return Math.max(3, Math.min(5, maxSet || 3))
+        }
 
-          <div className="errors-group">
-            <h3>WYBLOKI</h3>
-            <div className="errors-table">
-              <div className="error-row">
-                <span className="error-label">TOTAL:</span>
-                <span className="error-value">{matchErrors.blocks_against_total || 0}</span>
-              </div>
-              {[1, 2, 3, 4, 5].map(set => {
-                const value = matchErrors[`blocks_against_set${set}` as keyof MatchErrors] as number | undefined
-                if (value === undefined) return null
-                return (
-                  <div key={set} className="error-row">
-                    <span className="error-label">{set} SET:</span>
-                    <span className="error-value">{value}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+        const opponentSets = getVisibleSets('opponent_errors')
+        const blocksSets = getVisibleSets('blocks_against')
+        const ownSets = getVisibleSets('own_errors')
 
-          <div className="errors-group">
-            <h3>BŁĘDY WŁASNE</h3>
-            <div className="errors-table">
-              <div className="error-row">
-                <span className="error-label">TOTAL:</span>
-                <span className="error-value">{matchErrors.own_errors_total || 0}</span>
+        return (
+          <div className="match-errors-section">
+            <div className="errors-tables-container">
+              {/* Tabelka 1: Błędy przeciwników */}
+              <div className="error-table-container">
+                <h5>BŁĘDY PRZECIWNIKA</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        {Array.from({ length: opponentSets }, (_, i) => i + 1).map(set => (
+                          <th key={set}>{set} SET</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {Array.from({ length: opponentSets }, (_, i) => i + 1).map(set => {
+                          const value = matchErrors[`opponent_errors_set${set}` as keyof MatchErrors] as number | undefined
+                          return (
+                            <td key={set}>{value ?? 0}</td>
+                          )
+                        })}
+                      </tr>
+                      <tr className="total-row">
+                        <td colSpan={opponentSets} className="total-cell">
+                          TOTAL: {Array.from({ length: opponentSets }, (_, i) => i + 1).reduce((sum, set) => 
+                            sum + ((matchErrors[`opponent_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              {[1, 2, 3, 4, 5].map(set => {
-                const errors = matchErrors[`own_errors_set${set}` as keyof MatchErrors] as number | undefined
-                const other = matchErrors[`own_errors_other_set${set}` as keyof MatchErrors] as number | undefined
-                if (errors === undefined) return null
-                return (
-                  <div key={set} className="error-row">
-                    <span className="error-label">{set} SET:</span>
-                    <span className="error-value">{errors}</span>
-                    {other !== undefined && other > 0 && (
-                      <span className="error-other">, INNE: {other}</span>
-                    )}
-                  </div>
-                )
-              })}
+
+              {/* Tabelka 2: Wybloki */}
+              <div className="error-table-container">
+                <h5>WYBLOKI</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        {Array.from({ length: blocksSets }, (_, i) => i + 1).map(set => (
+                          <th key={set}>{set} SET</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {Array.from({ length: blocksSets }, (_, i) => i + 1).map(set => {
+                          const value = matchErrors[`blocks_against_set${set}` as keyof MatchErrors] as number | undefined
+                          return (
+                            <td key={set}>{value ?? 0}</td>
+                          )
+                        })}
+                      </tr>
+                      <tr className="total-row">
+                        <td colSpan={blocksSets} className="total-cell">
+                          TOTAL: {Array.from({ length: blocksSets }, (_, i) => i + 1).reduce((sum, set) => 
+                            sum + ((matchErrors[`blocks_against_set${set}` as keyof MatchErrors] as number) || 0), 0
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Tabelka 3: Błędy własne */}
+              <div className="error-table-container">
+                <h5>BŁĘDY WŁASNE</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        {Array.from({ length: ownSets }, (_, i) => i + 1).map(set => (
+                          <th key={set}>{set} SET</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {Array.from({ length: ownSets }, (_, i) => i + 1).map(set => {
+                          const errors = matchErrors[`own_errors_set${set}` as keyof MatchErrors] as number | undefined
+                          return (
+                            <td key={set}>{errors ?? 0}</td>
+                          )
+                        })}
+                      </tr>
+                      <tr className="total-row">
+                        <td colSpan={ownSets} className="total-cell">
+                          TOTAL: {Array.from({ length: ownSets }, (_, i) => i + 1).reduce((sum, set) => 
+                            sum + ((matchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

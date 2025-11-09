@@ -28,17 +28,17 @@ export default function NavBar() {
         <NavLink to="/statistics" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>Statystyki</NavLink>
         {!loading && (
           user ? (
-            <>
-              {/* Pokazuj link do panelu admina jeśli profile jest załadowane i użytkownik jest adminem */}
-              {profile && profile.role === 'admin' && (
-                <NavLink to="/admin" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>
-                  Panel Admina
-                </NavLink>
-              )}
-              <NavLink to="/account" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>
-                Moje konto
-              </NavLink>
-            </>
+        <>
+          {/* Pokazuj link do panelu admina jeśli profile jest załadowane i użytkownik jest adminem */}
+          {profile && profile.role === 'admin' && (
+            <NavLink to="/admin" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>
+              Panel Admina
+            </NavLink>
+          )}
+          <NavLink to="/account" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>
+            Moje konto
+          </NavLink>
+        </>
           ) : (
             <NavLink to="/login" className={(p: {isActive: boolean})=> p.isActive? 'active':''}>
               Logowanie

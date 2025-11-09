@@ -4,6 +4,84 @@
   gap: 1.5rem;
 }
 
+.attendance-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.attendance-section h4 {
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.attendance-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.attendance-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.attendance-checkbox-label:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.attendance-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #7FB069;
+}
+
+.attendance-checkbox-label span {
+  font-size: 0.95rem;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.toggle-btn {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.toggle-btn.active {
+  background: #7FB069;
+  color: #fff;
+  border-color: #7FB069;
+}
+
 .stats-forms {
   display: flex;
   flex-direction: column;

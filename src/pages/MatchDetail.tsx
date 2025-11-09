@@ -1,6 +1,8 @@
 import { useParams, Link } from 'react-router-dom'
+import { useMemo } from 'react'
 import { useMatch } from '../hooks/useMatches'
 import { useMatchStatistics } from '../hooks/useMatchStatistics'
+import { useMatchAttendance } from '../hooks/useMatchAttendance'
 import MatchStatsTable from '../components/MatchStatsTable'
 import './match-detail.css'
 
@@ -8,6 +10,23 @@ export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
   const { data: match, isLoading: matchLoading, error: matchError } = useMatch(id || '')
   const { data: statistics, isLoading: statsLoading } = useMatchStatistics(id || '')
+  const { data: matchAttendance, isLoading: attendanceLoading } = useMatchAttendance(id || '')
+  
+  // Filtruj statystyki tylko dla obecnych zawodników
+  const presentPlayerIds = useMemo(() => {
+    if (!matchAttendance) return new Set<string>()
+    return new Set(
+      matchAttendance
+        .filter(a => a.status === 'present')
+        .map(a => a.player_id)
+    )
+  }, [matchAttendance])
+  
+  // Filtruj statystyki - tylko dla obecnych zawodników
+  const filteredStatistics = useMemo(() => {
+    if (!statistics) return []
+    return statistics.filter(stat => presentPlayerIds.has(stat.player_id))
+  }, [statistics, presentPlayerIds])
 
   if (matchLoading) {
     return (
@@ -78,17 +97,23 @@ export default function MatchDetail() {
 
       <div className="match-stats-section">
         <h2>Statystyki meczu</h2>
-        {statsLoading ? (
+        {(statsLoading || attendanceLoading) ? (
           <div className="loading">Ładowanie statystyk...</div>
-        ) : statistics && statistics.length > 0 ? (
+        ) : filteredStatistics && filteredStatistics.length > 0 ? (
           <>
-            <MatchStatsTable statistics={statistics} matchErrors={match.match_errors} />
+            <MatchStatsTable statistics={filteredStatistics} matchErrors={match.match_errors} />
             {/* Debug info */}
             {process.env.NODE_ENV === 'development' && (
               <details style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
                 <summary>Debug info</summary>
                 <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', overflow: 'auto' }}>
-                  {JSON.stringify({ statisticsCount: statistics.length, statistics, matchErrors: match.match_errors }, null, 2)}
+                  {JSON.stringify({ 
+                    statisticsCount: filteredStatistics.length, 
+                    allStatisticsCount: statistics?.length || 0,
+                    presentPlayersCount: presentPlayerIds.size,
+                    statistics: filteredStatistics, 
+                    matchErrors: match.match_errors 
+                  }, null, 2)}
                 </pre>
               </details>
             )}
@@ -97,7 +122,9 @@ export default function MatchDetail() {
           <div className="no-stats">
             <p>Brak statystyk dla tego meczu</p>
             <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem' }}>
-              Dodaj statystyki w Panelu Administratora → Zarządzanie statystykami
+              {statistics && statistics.length > 0 && filteredStatistics.length === 0
+                ? 'Brak obecnych zawodników na tym meczu lub statystyki nie zostały jeszcze dodane dla obecnych zawodników.'
+                : 'Dodaj statystyki w Panelu Administratora → Zarządzanie statystykami'}
             </p>
           </div>
         )}

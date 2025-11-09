@@ -1,19 +1,26 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect, useMemo } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { usePlayers } from '../hooks/usePlayers'
 import { useMatchStatistics } from '../hooks/useMatchStatistics'
+import { useMatchAttendance } from '../hooks/useMatchAttendance'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { MatchErrors } from '../types/database'
+import AdminMatchStatsTable from './AdminMatchStatsTable'
 import './admin-match-stats.css'
 
-export default function AdminMatchStats() {
+type Props = {
+  currentUserId?: string
+}
+
+export default function AdminMatchStats({ currentUserId }: Props = {}) {
   const { data: matches, isLoading: matchesLoading } = useMatches()
   const { data: players, isLoading: playersLoading } = usePlayers()
   const queryClient = useQueryClient()
   
   const [selectedMatchId, setSelectedMatchId] = useState<string>('')
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('')
+  const [viewMode, setViewMode] = useState<'table' | 'form'>('table')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -54,7 +61,23 @@ export default function AdminMatchStats() {
   })
 
   const { data: existingStats } = useMatchStatistics(selectedMatchId)
+  const { data: matchAttendance } = useMatchAttendance(selectedMatchId)
   const selectedMatch = matches?.find(m => m.id === selectedMatchId)
+  
+  // Stan dla checkboxów obecności
+  const [attendanceCheckboxes, setAttendanceCheckboxes] = useState<Record<string, boolean>>({})
+  
+  // Inicjalizuj checkboxy na podstawie obecnej obecności
+  useEffect(() => {
+    if (players && matchAttendance) {
+      const initialCheckboxes: Record<string, boolean> = {}
+      players.forEach(player => {
+        const attendance = matchAttendance.find(a => a.player_id === player.id)
+        initialCheckboxes[player.id] = attendance?.status === 'present' || false
+      })
+      setAttendanceCheckboxes(initialCheckboxes)
+    }
+  }, [players, matchAttendance, selectedMatchId])
 
   const saveStatsMutation = useMutation({
     mutationFn: async ({ matchId, playerId, stats }: { matchId: string; playerId: string; stats: typeof stats }) => {
@@ -127,7 +150,7 @@ export default function AdminMatchStats() {
       return data
     },
     onSuccess: () => {
-      setSuccess('Błędy meczu zostały zapisane!')
+      setSuccess('Inne statystyki meczu zostały zapisane!')
       queryClient.invalidateQueries({ queryKey: ['matches'] })
       queryClient.invalidateQueries({ queryKey: ['match', selectedMatchId] })
       setTimeout(() => setSuccess(null), 3000)
@@ -137,6 +160,89 @@ export default function AdminMatchStats() {
       setSuccess(null)
     }
   })
+
+  // Mutacja do zapisywania obecności
+  const saveAttendanceMutation = useMutation({
+    mutationFn: async ({ matchId, playerId, isPresent }: { matchId: string; playerId: string; isPresent: boolean }) => {
+      // Sprawdź czy już istnieje
+      const { data: existing } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('match_id', matchId)
+        .eq('player_id', playerId)
+        .maybeSingle()
+
+      const status = isPresent ? 'present' : 'absent'
+
+      if (existing) {
+        // Aktualizuj
+        const { data, error } = await supabase
+          .from('attendance')
+          .update({ status })
+          .eq('id', existing.id)
+          .select()
+          .single()
+
+        if (error) throw error
+        return data
+      } else {
+        // Dodaj nowy
+        const { data, error } = await supabase
+          .from('attendance')
+          .insert([{
+            match_id: matchId,
+            player_id: playerId,
+            status,
+            event_id: null
+          }])
+          .select()
+          .single()
+
+        if (error) throw error
+        return data
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-attendance', selectedMatchId] })
+    }
+  })
+
+  const handleAttendanceChange = async (playerId: string, isPresent: boolean) => {
+    if (!selectedMatchId) return
+    
+    setAttendanceCheckboxes(prev => ({ ...prev, [playerId]: isPresent }))
+    
+    await saveAttendanceMutation.mutateAsync({
+      matchId: selectedMatchId,
+      playerId,
+      isPresent
+    })
+  }
+
+  const handleSaveAllAttendance = async () => {
+    if (!selectedMatchId || !players) return
+
+    setError(null)
+    setSuccess(null)
+
+    try {
+      // Zapisz obecność dla wszystkich zawodników
+      const promises = players.map(player => 
+        saveAttendanceMutation.mutateAsync({
+          matchId: selectedMatchId,
+          playerId: player.id,
+          isPresent: attendanceCheckboxes[player.id] || false
+        })
+      )
+
+      await Promise.all(promises)
+      setSuccess('Obecność została zapisana!')
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (err: any) {
+      setError(err.message || 'Błąd przy zapisywaniu obecności')
+      setTimeout(() => setError(null), 5000)
+    }
+  }
 
   const handleMatchSelect = (matchId: string) => {
     setSelectedMatchId(matchId)
@@ -283,8 +389,74 @@ export default function AdminMatchStats() {
 
       {selectedMatchId && (
         <div className="stats-forms">
-          {/* Formularz statystyk zawodnika */}
-          <div className="player-stats-form">
+          {/* Sekcja obecności zawodników */}
+          <div className="attendance-section">
+            <h4>Lista obecności na meczu</h4>
+            <p className="info-text" style={{ marginBottom: '1rem' }}>
+              Zaznacz zawodników, którzy byli obecni na meczu. Tylko obecni zawodnicy będą mogli mieć statystyki.
+            </p>
+            
+            <div className="attendance-checkboxes">
+              {players?.map(player => {
+                const playerName = player.full_name || player.username || 'Nieznany'
+                const isChecked = attendanceCheckboxes[player.id] || false
+                
+                return (
+                  <label key={player.id} className="attendance-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => handleAttendanceChange(player.id, e.target.checked)}
+                      disabled={saveAttendanceMutation.isPending}
+                    />
+                    <span>{playerName}</span>
+                  </label>
+                )
+              })}
+            </div>
+            
+            <button
+              type="button"
+              onClick={handleSaveAllAttendance}
+              className="admin-button"
+              disabled={saveAttendanceMutation.isPending}
+              style={{ marginTop: '1rem' }}
+            >
+              {saveAttendanceMutation.isPending ? 'Zapisywanie...' : 'Zapisz obecność'}
+            </button>
+          </div>
+
+          {/* Przełącznik widoku */}
+          <div className="view-mode-toggle">
+            <button
+              className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+            >
+              Widok tabelaryczny (Excel)
+            </button>
+            <button
+              className={`toggle-btn ${viewMode === 'form' ? 'active' : ''}`}
+              onClick={() => setViewMode('form')}
+            >
+              Widok formularza
+            </button>
+          </div>
+
+          {viewMode === 'table' ? (
+            <AdminMatchStatsTable
+              matchId={selectedMatchId}
+              players={(players || []).filter(p => attendanceCheckboxes[p.id])}
+              existingStats={existingStats || []}
+              matchErrors={selectedMatch?.match_errors as MatchErrors}
+              onErrorsChange={setMatchErrors}
+              onErrorsSave={async (errors) => {
+                await saveMatchErrorsMutation.mutateAsync({ matchId: selectedMatchId, errors })
+              }}
+            />
+          ) : (
+            <>
+              {/* Formularz statystyk zawodnika */}
+              <div className="player-stats-form">
             <h4>Statystyki zawodnika</h4>
             
             <div className="match-selector">
@@ -296,7 +468,7 @@ export default function AdminMatchStats() {
                 className="match-select"
               >
                 <option value="">-- Wybierz zawodnika --</option>
-                {players?.map(player => (
+                {players?.filter(p => attendanceCheckboxes[p.id]).map(player => (
                   <option key={player.id} value={player.id}>
                     {player.full_name || player.username || 'Nieznany'}
                   </option>
@@ -454,7 +626,7 @@ export default function AdminMatchStats() {
 
           {/* Formularz błędów meczu */}
           <div className="match-errors-form">
-            <h4>Błędy meczu</h4>
+            <h4>Inne statystyki meczu</h4>
             <form onSubmit={handleErrorsSubmit} className="admin-form">
               <div className="errors-grid">
                 <div className="errors-category">
@@ -538,10 +710,12 @@ export default function AdminMatchStats() {
                 className="admin-button"
                 disabled={saveMatchErrorsMutation.isPending}
               >
-                {saveMatchErrorsMutation.isPending ? 'Zapisywanie...' : 'Zapisz błędy meczu'}
+                {saveMatchErrorsMutation.isPending ? 'Zapisywanie...' : 'Zapisz inne statystyki meczu'}
               </button>
             </form>
           </div>
+          </>
+          )}
         </div>
       )}
     </div>

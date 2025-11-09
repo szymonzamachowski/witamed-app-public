@@ -1,175 +1,77 @@
-import { useState, FormEvent } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
 import './admin-add-players.css'
 
-const DEFAULT_PLAYERS = [
-  { username: 'kamil', fullName: 'Kamil' },
-  { username: 'nowak', fullName: 'Nowak' },
-  { username: 'marcin', fullName: 'Marcin' },
-  { username: 'lis', fullName: 'Lis' },
-  { username: 'lewandowska', fullName: 'Lewandowski' },
-  { username: 'kozlowski', fullName: 'Kozłowski' },
-  { username: 'zamach', fullName: 'Zamach' },
+const PLAYERS_LIST = [
+  { username: 'nowak', fullName: 'Nowak Maciej', leagueLicense: '9000000009', email: 'nowak@witamed.local', isAdmin: false },
+  { username: 'kozlowski', fullName: 'Kozłowski Maciej', leagueLicense: '9000000002', email: 'kozlowski@witamed.local', isAdmin: false },
+  { username: 'jankowski', fullName: 'Jankowski Michał', leagueLicense: '9000000013', email: 'jankowski@witamed.local', isAdmin: false },
+  { username: 'lewandowska', fullName: 'Lewandowski Mateusz', leagueLicense: '9000000011', email: 'lewandowska@witamed.local', isAdmin: false },
+  { username: 'wozniak', fullName: 'Woźniak Piotr', leagueLicense: '9000000004', email: 'wozniak@witamed.local', isAdmin: false },
+  { username: 'szymanska', fullName: 'Szymański Jakub', leagueLicense: '9000000014', email: 'szymanska@witamed.local', isAdmin: false },
+  { username: 'kaminski', fullName: 'Kamiński Michał', leagueLicense: '9000000007', email: 'kaminski@witamed.local', isAdmin: false },
+  { username: 'dabrowski', fullName: 'Dąbrowski Mateusz', leagueLicense: '9000000010', email: 'dabrowski@witamed.local', isAdmin: false },
+  { username: 'zielinski', fullName: 'Zieliński Marcin', leagueLicense: '9000000005', email: 'zielinski@witamed.local', isAdmin: false },
+  { username: 'michalski', fullName: 'Michalski Dominik', leagueLicense: '9000000001', email: 'michalski@witamed.local', isAdmin: false },
+  { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', email: 'kowalczyk@witamed.local', isAdmin: false },
+  { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', email: 'wojcik@witamed.local', isAdmin: false },
+  { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', email: 'zamachowski@witamed.local', isAdmin: true },
 ]
 
 export default function AdminAddPlayers() {
-  const queryClient = useQueryClient()
-  const [password, setPassword] = useState('HASLO_STARTOWE')
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [creating, setCreating] = useState<string[]>([])
-
-  const createPlayerMutation = useMutation({
-    mutationFn: async ({ username, fullName, password }: { username: string; fullName: string; password: string }) => {
-      // Utwórz użytkownika w auth
-      const email = `${username}@witamed.local`
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-            full_name: fullName,
-            role: 'player'
-          },
-          emailRedirectTo: undefined
-        }
-      })
-
-      if (authError) throw authError
-
-      // Utwórz profil
-      if (authData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            username,
-            full_name: fullName,
-            role: 'player'
-          })
-
-        if (profileError) {
-          console.error('Błąd przy tworzeniu profilu:', profileError)
-          // Nie rzucamy błędu - użytkownik może już istnieć
-        }
-      }
-
-      return authData
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['players'] })
-    }
-  })
-
-  const handleCreateAll = async () => {
-    setError(null)
-    setSuccess(null)
-    setCreating([])
-
-    if (!password || password.length < 6) {
-      setError('Hasło musi mieć co najmniej 6 znaków')
-      return
-    }
-
-    const results: string[] = []
-    const errors: string[] = []
-
-    for (const player of DEFAULT_PLAYERS) {
-      setCreating(prev => [...prev, player.username])
-      
-      try {
-        await createPlayerMutation.mutateAsync({
-          username: player.username,
-          fullName: player.fullName,
-          password
-        })
-        results.push(player.username)
-      } catch (err: any) {
-        // Sprawdź czy użytkownik już istnieje
-        if (err.message?.includes('already registered') || err.message?.includes('already exists')) {
-          results.push(`${player.username} (już istnieje)`)
-        } else {
-          errors.push(`${player.username}: ${err.message || 'Błąd'}`)
-        }
-      } finally {
-        setCreating(prev => prev.filter(u => u !== player.username))
-      }
-    }
-
-    if (results.length > 0) {
-      setSuccess(`Utworzono/zaktualizowano: ${results.join(', ')}`)
-    }
-    if (errors.length > 0) {
-      setError(`Błędy: ${errors.join('; ')}`)
-    }
-  }
-
   return (
     <div className="admin-add-players">
-      <h3>Dodaj zawodników z przykładowych statystyk</h3>
+      <h3>Lista zawodników</h3>
       
       <p className="info-text">
-        Ten formularz utworzy 7 zawodników widocznych na przykładowych statystykach:
+        Poniżej znajduje się lista wszystkich {PLAYERS_LIST.length} zawodników z numerami legitymacji ligowej:
       </p>
 
-      <ul className="players-list">
-        {DEFAULT_PLAYERS.map(player => (
-          <li key={player.username}>
-            <strong>{player.fullName}</strong> (username: <code>{player.username}</code>)
-            {creating.includes(player.username) && <span className="creating"> ⏳ Tworzenie...</span>}
-          </li>
-        ))}
-      </ul>
-
-      {error && (
-        <div className="admin-error">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="admin-success">
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={(e) => { e.preventDefault(); handleCreateAll(); }} className="admin-form">
-        <div className="form-group">
-          <label htmlFor="password">Hasło dla wszystkich zawodników *</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Minimum 6 znaków"
-            minLength={6}
-            required
-            disabled={creating.length > 0}
-          />
-          <small className="form-hint">
-            To samo hasło zostanie użyte dla wszystkich zawodników. Możesz je później zmienić.
-          </small>
-        </div>
-
-        <button 
-          type="submit" 
-          className="admin-button"
-          disabled={creating.length > 0}
-        >
-          {creating.length > 0 
-            ? `Tworzenie... (${creating.length}/${DEFAULT_PLAYERS.length})` 
-            : 'Utwórz wszystkich zawodników'}
-        </button>
-      </form>
+      <div className="players-table-container">
+        <table className="players-table">
+          <thead>
+            <tr>
+              <th>Lp.</th>
+              <th>Imię i nazwisko</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Numer legitymacji</th>
+              <th>Rola</th>
+            </tr>
+          </thead>
+          <tbody>
+            {PLAYERS_LIST.map((player, index) => (
+              <tr key={player.username}>
+                <td>{index + 1}</td>
+                <td>
+                  <strong>{player.fullName}</strong>
+                </td>
+                <td>
+                  <code>{player.username}</code>
+                </td>
+                <td>
+                  <code>{player.email}</code>
+                </td>
+                <td>
+                  <code>{player.leagueLicense}</code>
+                </td>
+                <td>
+                  {player.isAdmin ? (
+                    <span className="admin-badge">ADMIN</span>
+                  ) : (
+                    <span className="player-badge">Zawodnik</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="info-box">
-        <p><strong>Uwaga:</strong></p>
+        <p><strong>Informacje:</strong></p>
         <ul>
-          <li>Każdy zawodnik otrzyma email: <code>username@witamed.local</code></li>
-          <li>Jeśli zawodnik już istnieje, zostanie pominięty</li>
-          <li>Po utworzeniu możesz dodać statystyki dla meczu w sekcji "Zarządzanie statystykami"</li>
+          <li>Hasło dla wszystkich zawodników: <code>HASLO_STARTOWE</code></li>
+          <li>Logowanie odbywa się przez username lub email</li>
+          <li>Email w formacie: <code>username@witamed.local</code></li>
         </ul>
       </div>
     </div>

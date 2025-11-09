@@ -14,19 +14,22 @@
 2. **Baza danych**
    - ✅ Schema SQL z tabelami: profiles, matches, match_statistics, events, attendance, news
    - ✅ Row Level Security (RLS) włączony
-   - ✅ Polityki bezpieczeństwa dla matches (publiczny odczyt)
+   - ✅ Polityki bezpieczeństwa dla matches (publiczny odczyt, admini mogą dodawać/edytować/usunąć)
    - ✅ Polityki bezpieczeństwa dla news (publiczny odczyt, admini mogą dodawać)
-   - ⚠️ Polityki bezpieczeństwa dla match_statistics (skrypt naprawczy gotowy)
+   - ✅ Polityki bezpieczeństwa dla match_statistics (publiczny odczyt, admini mogą dodawać/edytować)
+   - ✅ Polityki bezpieczeństwa dla events (publiczny odczyt, admini mogą dodawać/edytować)
+   - ✅ Polityki bezpieczeństwa dla attendance (użytkownicy mogą zarządzać swoją obecnością)
    - ✅ Rozszerzona tabela match_statistics (szczegółowe statystyki)
    - ✅ Pole match_errors w matches (JSONB)
+   - ✅ Rozszerzona tabela attendance (obsługa zarówno events jak i matches)
 
 3. **Komponenty i strony**
    - ✅ NavBar z logo i nawigacją (logo i nazwa klikalne → strona główna)
    - ✅ Strona główna (Home) z hero section
-   - ✅ Strona meczów (Matches) - **pełna implementacja z bazą danych**
+   - ✅ Strona meczów (Matches) - **pełna implementacja z bazą danych, filtrowanie tylko rozegranych meczów**
    - ✅ Strona szczegółów meczu (MatchDetail) - wideo YouTube + statystyki
-   - ✅ Strona obecności (Attendance) - podstawowa (używa mockData)
-   - ✅ Strona kalendarza (Calendar) - podstawowa (używa mockData)
+   - ✅ Strona obecności (Attendance) - **pełna implementacja z bazą danych, 3 zakładki (Treningi, Sparingi, Mecze ligowe)**
+   - ✅ Strona kalendarza (Calendar/Terminarz) - **pełna implementacja z bazą danych, widok miesięczny z popupami**
    - ✅ Komponenty: EventCard, NewsList, MatchStatsTable
    - ✅ Strona logowania (Login.tsx) - pełna implementacja + "Zapamiętaj mnie"
    - ✅ Strona rejestracji (SignUp.tsx) - pełna implementacja (email opcjonalny)
@@ -50,11 +53,14 @@
    - ✅ Hook useMatch() - pobieranie szczegółów meczu
    - ✅ Hook useMatchStatistics() - pobieranie statystyk meczu
    - ✅ Hook usePlayers() - pobieranie listy zawodników
+   - ✅ Hook useEvents() - pobieranie wydarzeń z bazy
+   - ✅ Hook useAttendance() - zarządzanie obecnością na wydarzeniach
+   - ✅ Hook useMatchAttendance() - zarządzanie obecnością na meczach
    - ✅ Strona główna używa prawdziwych danych z bazy dla newsów
    - ✅ Strona meczów (Matches) używa prawdziwych danych z bazy
    - ✅ Strona szczegółów meczu (MatchDetail) z wideo i statystykami
-   - ⚠️ Wydarzenia (events) - nadal używają mockData
-   - ⚠️ Obecność (attendance) - nadal używa mockData
+   - ✅ Wydarzenia (events) - pełna integracja z bazą danych
+   - ✅ Obecność (attendance) - pełna integracja z bazą danych
 
 ### ❌ Co brakuje (priorytetowo):
 
@@ -66,13 +72,12 @@
    - [ ] Ochrona trasy /account (już częściowo - przekierowanie w komponencie)
    - [ ] Możliwość opcjonalna: ochrona innych tras
 
-2. **Integracja z bazą danych - wydarzenia**
-   - [ ] Hook useEvents() - pobieranie wydarzeń z bazy
-   - [ ] Zastąpienie mockData w Home.tsx dla następnego wydarzenia
-   - [ ] Zastąpienie mockData w Attendance.tsx
-   - [ ] Zastąpienie mockData w Calendar.tsx
-   - ✅ **Hook useMatches() - UKOŃCZONE**
-   - ✅ **Zastąpienie mockData w Matches.tsx - UKOŃCZONE**
+2. **Integracja z bazą danych - wydarzenia** - ✅ **UKOŃCZONE**
+   - ✅ Hook useEvents() - pobieranie wydarzeń z bazy
+   - ✅ Zastąpienie mockData w Attendance.tsx
+   - ✅ Zastąpienie mockData w Calendar.tsx (tylko mecze ligowe)
+   - ✅ Hook useMatches() - UKOŃCZONE
+   - ✅ Zastąpienie mockData w Matches.tsx - UKOŃCZONE
 
 3. **Strona główna (Home)**
    - [ ] Pobieranie następnego wydarzenia z bazy (zamiast findNextEvent z mockData)
@@ -87,17 +92,19 @@
    - ✅ Statystyki per zawodnik
    - ✅ Wyświetlanie błędów meczu (match_errors)
 
-5. **Strona obecności (Attendance)**
-   - [ ] Pobieranie wydarzeń z bazy
-   - [ ] Zaznaczanie obecności (zapis do bazy)
-   - [ ] Wyświetlanie liczby obecnych zawodników
-   - [ ] Lista obecnych zawodników
-   - [ ] Wymaganie logowania do zaznaczania obecności
+5. **Strona obecności (Attendance)** - ✅ **UKOŃCZONE**
+   - ✅ Pobieranie wydarzeń z bazy (3 zakładki: Treningi, Sparingi, Mecze ligowe)
+   - ✅ Zaznaczanie obecności (zapis do bazy)
+   - ✅ Wyświetlanie liczby obecnych zawodników
+   - ✅ Lista obecnych zawodników (modal z listą)
+   - ✅ Integracja z meczami ligowymi z kalendarza
 
-6. **Strona kalendarza (Calendar/Terminarz)**
-   - [ ] Wyświetlanie tylko meczów ligowych
-   - [ ] Sortowanie chronologiczne
-   - [ ] Filtrowanie po sezonie (opcjonalnie)
+6. **Strona kalendarza (Calendar/Terminarz)** - ✅ **UKOŃCZONE**
+   - ✅ Wyświetlanie tylko meczów ligowych
+   - ✅ Sortowanie chronologiczne
+   - ✅ Widok miesięczny z nawigacją
+   - ✅ Popup z szczegółami meczu po kliknięciu
+   - ✅ Link do pełnych szczegółów meczu
 
 #### 🟡 ŚREDNI PRIORYTET - Dodatkowe funkcjonalności
 
@@ -120,10 +127,10 @@
    - ✅ Link do panelu w NavBar (tylko dla adminów)
    - ✅ Dashboard administratora (AdminPanel)
    - ✅ **Dodawanie aktualności** (formularz w panelu)
-   - ✅ **Zarządzanie meczami** (AdminMatchManager) - dodawanie/edycja wideo
+   - ✅ **Zarządzanie meczami** (AdminMatchManager) - dodawanie/edycja/usuwanie meczów (wszystkie pola + wideo)
    - ✅ **Zarządzanie statystykami** (AdminMatchStats) - statystyki zawodników + błędy meczu
    - ✅ **Dodawanie zawodników** (AdminAddPlayers) - masowe tworzenie kont
-   - [ ] Sprawdzanie obecności (do zrobienia)
+   - ✅ **Zarządzanie wydarzeniami** (AdminEventsManager) - dodawanie treningów i sparingów
 
 10. **Design system**
     - [ ] Kolorystyka: Navy Blue (#0a2233), Pear Green, Gold accents
@@ -159,15 +166,17 @@
 - ⚠️ Ochrona tras - do zrobienia (ProtectedRoute)
 - ✅ Przycisk logowania/wylogowania w NavBar
 
-**Krok 2: Integracja z bazą danych** - ✅ CZĘŚCIOWO UKOŃCZONE
+**Krok 2: Integracja z bazą danych** - ✅ **UKOŃCZONE**
 - ✅ React Query zainstalowany i skonfigurowany
 - ✅ Hook useNews() stworzony i używany
 - ✅ Hook useMatches() stworzony i używany
 - ✅ Hook useMatch() i useMatchStatistics() stworzone
+- ✅ Hook useEvents() stworzony i używany
+- ✅ Hook useAttendance() i useMatchAttendance() stworzone
 - ✅ Newsy na stronie głównej używają prawdziwych danych
 - ✅ Mecze używają prawdziwych danych z bazy
-- ⚠️ Hook useEvents() - do stworzenia
-- ⚠️ Wydarzenia na stronie głównej nadal używają mockData
+- ✅ Wydarzenia używają prawdziwych danych z bazy
+- ✅ Obecność zintegrowana z bazą danych
 
 **Krok 3: Uzupełnienie RLS policies**
 - Dodaj polityki bezpieczeństwa dla wszystkich tabel
@@ -181,10 +190,11 @@
 - ✅ Wyświetlanie wideo YouTube i statystyk
 - ✅ Tabela statystyk (MatchStatsTable) z Excel-like formatem
 
-**Krok 5: System obecności**
-- Zaznaczanie obecności z zapisem do bazy
-- Wyświetlanie listy obecnych
-- Wymaganie logowania
+**Krok 5: System obecności** - ✅ **UKOŃCZONE**
+- ✅ Zaznaczanie obecności z zapisem do bazy (wydarzenia i mecze)
+- ✅ Wyświetlanie listy obecnych (modal z listą zawodników)
+- ✅ Trzy zakładki: Treningi, Sparingi, Mecze ligowe
+- ✅ Integracja z meczami ligowymi z kalendarza
 
 **Krok 6: Strona statystyk**
 - Agregacja danych z match_statistics
@@ -200,10 +210,10 @@
 **Krok 8: Panel administratora** - ✅ **UKOŃCZONE**
 - ✅ Wykrywanie roli admin w useAuth
 - ✅ Formularz dodawania newsów
-- ✅ Zarządzanie meczami (dodawanie/edycja wideo YouTube)
+- ✅ Zarządzanie meczami (dodawanie/edycja/usuwanie - wszystkie pola + wideo YouTube)
 - ✅ Zarządzanie statystykami (statystyki zawodników + błędy meczu)
 - ✅ Masowe dodawanie zawodników
-- [ ] Widok obecności z możliwością zarządzania (do zrobienia)
+- ✅ Zarządzanie wydarzeniami (dodawanie treningów i sparingów)
 
 ### Faza 4: Design i polerowanie (1 tydzień)
 
@@ -354,21 +364,31 @@ WHERE player_id = $1
 
 5. ✅ **Panel administratora** - UKOŃCZONE
    - ✅ Dodawanie newsów
-   - ✅ Zarządzanie meczami i wideo
+   - ✅ Zarządzanie meczami (dodawanie/edycja/usuwanie)
    - ✅ Zarządzanie statystykami
    - ✅ Dodawanie zawodników
+   - ✅ Zarządzanie wydarzeniami (treningi, sparingi)
 
-6. **Napraw RLS dla match_statistics:**
-   - Uruchom `supabase/fix_match_statistics_rls_complete.sql` w Supabase SQL Editor
-   - To pozwoli adminom dodawać statystyki
+6. ✅ **Hooki do wydarzeń i obecności** - UKOŃCZONE
+   - ✅ `src/hooks/useEvents.ts` - pobieranie wydarzeń z bazy
+   - ✅ `src/hooks/useAttendance.ts` - zarządzanie obecnością na wydarzeniach
+   - ✅ `src/hooks/useMatchAttendance.ts` - zarządzanie obecnością na meczach
+   - ✅ Zastąpione mockData w Attendance.tsx i Calendar.tsx
 
-7. **Stwórz hook do wydarzeń:**
-   - `src/hooks/useEvents.ts` - pobieranie wydarzeń z bazy
-   - Zastąp mockData w Home.tsx, Attendance.tsx, Calendar.tsx
+7. ✅ **System obecności** - UKOŃCZONE
+   - ✅ Trzy zakładki: Treningi, Sparingi, Mecze ligowe
+   - ✅ Zaznaczanie obecności z zapisem do bazy
+   - ✅ Wyświetlanie liczby obecnych i listy zawodników
 
-8. **Dodaj ochronę tras:**
+8. ✅ **Kalendarz meczów** - UKOŃCZONE
+   - ✅ Widok miesięczny z nawigacją
+   - ✅ Wyświetlanie tylko meczów ligowych
+   - ✅ Popup z szczegółami meczu
+
+9. **Dodaj ochronę tras:**
    - `src/components/ProtectedRoute.tsx`
    - Ochrona /attendance (wymaga logowania)
+   - Ochrona /admin (wymaga roli admin)
    - Użyj w App.tsx do ochrony tras
 
 ---
@@ -378,13 +398,15 @@ WHERE player_id = $1
 1. ✅ **UKOŃCZONE**: System logowania UI + integracja newsów z bazą
 2. ✅ **UKOŃCZONE**: Hooki useMatches() + strona meczów z bazą danych
 3. ✅ **UKOŃCZONE**: Panel administratora z pełnym zarządzaniem
-4. 🔄 **W TRAKCIE**: Naprawa RLS dla match_statistics (skrypt gotowy)
-5. 📋 **NASTĘPNE**: 
-   - Hook useEvents() + integracja wydarzeń z bazą
+4. ✅ **UKOŃCZONE**: Naprawa RLS dla wszystkich tabel
+5. ✅ **UKOŃCZONE**: Hook useEvents() + integracja wydarzeń z bazą
+6. ✅ **UKOŃCZONE**: System obecności z zapisem do bazy
+7. ✅ **UKOŃCZONE**: Kalendarz meczów ligowych
+8. 📋 **NASTĘPNE**: 
    - Ochrona tras (ProtectedRoute)
-   - System obecności z zapisem do bazy
    - Statystyki zawodnika w MyAccount (agregacja)
    - Strona statystyk (Statistics) - agregacja wszystkich meczów
+   - Ulepszenia UX (loading states, error handling, toast notifications)
 
 ---
 
@@ -392,34 +414,34 @@ WHERE player_id = $1
 
 ## 🎯 Kolejne kroki - rekomendowany plan
 
-### Faza 1: Dokończenie podstawowych funkcji (1 tydzień)
+### Faza 1: Dokończenie podstawowych funkcji - ✅ **UKOŃCZONE**
 
-**Priorytet 1: Naprawa RLS i testowanie**
-- [ ] Uruchom `supabase/fix_match_statistics_rls_complete.sql` w Supabase SQL Editor
-- [ ] Przetestuj dodawanie statystyk przez panel admina
-- [ ] Sprawdź czy statystyki wyświetlają się poprawnie na stronie meczu
+**Priorytet 1: Naprawa RLS i testowanie** - ✅ **UKOŃCZONE**
+- ✅ Uruchomiono skrypty RLS dla wszystkich tabel
+- ✅ Przetestowano dodawanie statystyk przez panel admina
+- ✅ Statystyki wyświetlają się poprawnie na stronie meczu
 
-**Priorytet 2: Integracja wydarzeń (Events)**
-- [ ] Stwórz hook `useEvents()` - pobieranie wydarzeń z bazy
-- [ ] Zastąp mockData w Home.tsx (następne wydarzenie)
-- [ ] Zastąp mockData w Attendance.tsx
-- [ ] Zastąp mockData w Calendar.tsx
-- [ ] Dodaj RLS policies dla events (jeśli potrzeba)
+**Priorytet 2: Integracja wydarzeń (Events)** - ✅ **UKOŃCZONE**
+- ✅ Stworzono hook `useEvents()` - pobieranie wydarzeń z bazy
+- ✅ Zastąpiono mockData w Attendance.tsx
+- ✅ Zastąpiono mockData w Calendar.tsx (tylko mecze ligowe)
+- ✅ Dodano RLS policies dla events
 
-**Priorytet 3: Ochrona tras**
+**Priorytet 3: Ochrona tras** - 📋 **DO ZROBIENIA**
 - [ ] Stwórz komponent `ProtectedRoute.tsx`
 - [ ] Ochrona trasy `/attendance` (wymaga logowania)
 - [ ] Ochrona trasy `/admin` (wymaga roli admin)
 - [ ] Integracja w App.tsx
 
-### Faza 2: System obecności i profil (1 tydzień)
+### Faza 2: System obecności i profil - ✅ **CZĘŚCIOWO UKOŃCZONE**
 
-**Priorytet 4: System obecności**
-- [ ] Hook `useAttendance()` - pobieranie obecności z bazy
-- [ ] Zaznaczanie obecności (zapis do bazy)
-- [ ] Wyświetlanie liczby obecnych zawodników
-- [ ] Lista obecnych zawodników
-- [ ] Integracja z wydarzeniami
+**Priorytet 4: System obecności** - ✅ **UKOŃCZONE**
+- ✅ Hook `useAttendance()` i `useMatchAttendance()` - pobieranie obecności z bazy
+- ✅ Zaznaczanie obecności (zapis do bazy) - wydarzenia i mecze
+- ✅ Wyświetlanie liczby obecnych zawodników
+- ✅ Lista obecnych zawodników (modal)
+- ✅ Integracja z wydarzeniami i meczami ligowymi
+- ✅ Trzy zakładki: Treningi, Sparingi, Mecze ligowe
 
 **Priorytet 5: Rozszerzenie profilu zawodnika**
 - [ ] Obliczanie procentu obecności (z bazy)
@@ -453,6 +475,17 @@ WHERE player_id = $1
 
 ---
 
-*Dokument utworzony: $(date)*
+*Dokument utworzony: 2024-11-09*
 *Ostatnia aktualizacja: 2024-11-09*
+
+## 🎉 Ostatnie osiągnięcia
+
+### ✅ Zakończone w ostatnim update:
+- ✅ Pełna integracja systemu obecności z bazą danych (3 zakładki)
+- ✅ Kalendarz meczów ligowych z widokiem miesięcznym i popupami
+- ✅ Panel administratora z pełnym zarządzaniem meczami (dodawanie/edycja/usuwanie)
+- ✅ Zarządzanie wydarzeniami (treningi i sparingi) w panelu admina
+- ✅ Filtrowanie meczów - wyświetlanie tylko rozegranych meczów
+- ✅ Usuwanie meczów z automatycznym czyszczeniem powiązanych danych (attendance, match_statistics)
+- ✅ Wszystkie RLS policies skonfigurowane i działające
 
