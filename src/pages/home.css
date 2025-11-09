@@ -106,7 +106,16 @@
 
 @media (max-width: 640px) {
   .hero-heading {
-    display: none; /* hide large heading on small screens */
+    display: block !important; /* pokaż napis na mobile - użyj !important żeby nadpisać */
+    position: relative; /* zmień na relative na mobile */
+    left: auto;
+    top: auto;
+    font-size: 32px; /* mniejszy rozmiar dla mobile */
+    text-align: center; /* wyśrodkuj napis */
+    margin: 1rem auto 0.5rem auto; /* dodaj marginesy */
+    padding: 0 1rem; /* dodaj padding po bokach */
+    color: var(--color-pear-green-bright); /* upewnij się że kolor jest widoczny */
+    z-index: 10; /* upewnij się że jest nad innymi elementami */
   }
 
   .hero {
@@ -122,7 +131,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 2rem; /* dodaj padding-top żeby zawodnik miał miejsce */
+    padding-top: 1rem; /* zmniejsz padding-top bo napis jest teraz wyżej */
     margin-bottom: 1rem;
   }
 
@@ -152,6 +161,12 @@
 }
 
 @media (max-width: 480px) {
+  .hero-heading {
+    font-size: 28px; /* jeszcze mniejszy rozmiar na bardzo małych ekranach */
+    margin: 0.75rem auto 0.5rem auto;
+    padding: 0 0.75rem;
+  }
+
   .hero {
     height: auto;
     min-height: calc(100vh - 68px);
@@ -165,7 +180,7 @@
     top: auto;
     transform: none;
     margin: 0 auto;
-    padding-top: 2rem; /* dodaj padding-top żeby zawodnik miał miejsce */
+    padding-top: 1rem; /* zmniejsz padding-top bo napis jest teraz wyżej */
     margin-bottom: 1rem;
   }
 
