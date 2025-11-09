@@ -4,6 +4,15 @@
   gap: 1.5rem;
 }
 
+.admin-match-stats h3 {
+  color: var(--color-white);
+  font-size: 1.3rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border-light);
+  font-weight: 700;
+}
+
 .attendance-section {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);

@@ -42,21 +42,21 @@
 }
 
 .account-section {
-  background: rgba(26, 58, 82, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(2, 8, 23, 0.4);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-xl);
 }
 
 .account-section h2 {
-  color: #fff;
+  color: var(--color-white);
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--glass-border-light);
 }
 
 .section-header {
@@ -75,20 +75,20 @@
 }
 
 .edit-profile-button {
-  padding: 0.5rem 1rem;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid rgba(78, 205, 196, 0.4);
-  color: #4ecdc4;
-  border-radius: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-pear-green);
+  border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .edit-profile-button:hover {
-  background: rgba(78, 205, 196, 0.3);
-  border-color: rgba(78, 205, 196, 0.6);
+  background: rgba(127, 176, 105, 0.3);
+  border-color: var(--color-pear-green);
 }
 
 .edit-profile-form {
@@ -188,7 +188,7 @@
 }
 
 .stat-value.highlight {
-  color: #4ecdc4;
+  color: var(--color-pear-green);
 }
 
 .stats-details {
@@ -227,7 +227,7 @@
 }
 
 .stats-row .percentage {
-  color: #4ecdc4;
+  color: var(--color-pear-green);
   font-weight: 600;
 }
 
@@ -239,20 +239,20 @@
 }
 
 .change-password-button {
-  padding: 0.75rem 1.5rem;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid rgba(78, 205, 196, 0.4);
-  color: #4ecdc4;
-  border-radius: 8px;
+  padding: 0.75rem var(--spacing-lg);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-pear-green);
+  border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
   align-self: flex-start;
 }
 
 .change-password-button:hover {
-  background: rgba(78, 205, 196, 0.3);
-  border-color: rgba(78, 205, 196, 0.6);
+  background: rgba(127, 176, 105, 0.3);
+  border-color: var(--color-pear-green);
 }
 
 .change-password-form {
@@ -275,18 +275,19 @@
 
 .form-group input {
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: #fff;
+  background: var(--glass-bg-lighter);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
   font-size: 1rem;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: var(--color-pear-green);
   background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
 }
 
 .form-group input:disabled {
@@ -299,20 +300,20 @@
 }
 
 .form-error {
-  padding: 1rem;
-  background: rgba(231, 76, 60, 0.2);
-  border: 1px solid rgba(231, 76, 60, 0.4);
-  border-radius: 8px;
-  color: #ff6b6b;
+  padding: var(--spacing-md);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
   font-size: 0.9rem;
 }
 
 .form-success {
-  padding: 1rem;
-  background: rgba(46, 213, 115, 0.2);
-  border: 1px solid rgba(46, 213, 115, 0.4);
-  border-radius: 8px;
-  color: #2ed573;
+  padding: var(--spacing-md);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
+  color: var(--color-pear-green);
   font-size: 0.9rem;
 }
 
@@ -323,19 +324,22 @@
 }
 
 .submit-button {
-  padding: 0.75rem 1.5rem;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid rgba(78, 205, 196, 0.4);
-  color: #4ecdc4;
-  border-radius: 8px;
+  padding: 0.75rem var(--spacing-lg);
+  background: var(--color-pear-green);
+  border: 1px solid var(--color-pear-green);
+  color: var(--color-white);
+  border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .submit-button:hover:not(:disabled) {
-  background: rgba(78, 205, 196, 0.3);
-  border-color: rgba(78, 205, 196, 0.6);
+  background: var(--color-pear-green-dark);
+  border-color: var(--color-pear-green-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .submit-button:disabled {

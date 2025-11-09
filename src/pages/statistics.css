@@ -5,9 +5,9 @@
 }
 
 .statistics h2 {
-  color: #fff;
+  color: var(--color-white);
   font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
   text-align: center;
   font-weight: 700;
 }
@@ -33,32 +33,33 @@
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  padding: 0.75rem var(--spacing-md);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-light);
+  color: var(--color-white);
   font-size: 1rem;
   font-family: inherit;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white-50);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #7FB069;
+  border-color: var(--color-pear-green);
   background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
 }
 
 .statistics-table-container {
   overflow-x: auto;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--glass-bg-lighter);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-xl);
 }
 
 .statistics-table {
@@ -92,9 +93,9 @@
 }
 
 .sort-indicator {
-  color: #7FB069;
+  color: var(--color-pear-green);
   font-weight: 700;
-  margin-left: 0.25rem;
+  margin-left: var(--spacing-xs);
 }
 
 .sub-header {
@@ -147,13 +148,13 @@
 }
 
 .rank {
-  color: #7FB069;
+  color: var(--color-pear-green);
   font-weight: 700;
   min-width: 2rem;
 }
 
 .highlight {
-  color: #7FB069;
+  color: var(--color-pear-green);
   font-weight: 700;
   font-size: 1.1rem;
 }
@@ -170,7 +171,7 @@
 }
 
 .stat-row .percentage {
-  color: #7FB069;
+  color: var(--color-pear-green);
   font-weight: 600;
 }
 

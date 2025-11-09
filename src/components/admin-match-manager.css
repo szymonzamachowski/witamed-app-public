@@ -4,6 +4,15 @@
   gap: 1.5rem;
 }
 
+.admin-match-manager h3 {
+  color: var(--color-white);
+  font-size: 1.3rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border-light);
+  font-weight: 700;
+}
+
 .match-manager-tabs {
   display: flex;
   gap: 1rem;
@@ -30,8 +39,8 @@
 }
 
 .manager-tab.active {
-  color: #7FB069;
-  border-bottom-color: #7FB069;
+  color: var(--color-pear-green);
+  border-bottom-color: var(--color-pear-green);
 }
 
 .form-row {
@@ -53,52 +62,53 @@
 }
 
 .match-selector label {
-  color: #fff;
+  color: var(--color-white);
   font-weight: 600;
   font-size: 0.95rem;
 }
 
 .match-select {
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-light);
+  color: var(--color-white);
   font-size: 1rem;
   font-family: inherit;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .match-select:focus {
   outline: none;
-  border-color: #7FB069;
+  border-color: var(--color-pear-green);
   background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
 }
 
 .match-select option {
-  background: rgba(26, 58, 82, 0.95);
-  color: #fff;
+  background: var(--glass-bg);
+  color: var(--color-white);
 }
 
 .match-info {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 0.5rem;
+  background: var(--glass-bg-lighter);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-sm);
 }
 
 .match-info p {
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0.5rem 0;
+  color: var(--color-white-80);
+  margin: var(--spacing-sm) 0;
   font-size: 0.9rem;
 }
 
 .form-hint {
   display: block;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-white-60);
   font-size: 0.85rem;
-  margin-top: 0.25rem;
+  margin-top: var(--spacing-xs);
 }
 
 .form-actions {
@@ -144,31 +154,33 @@
 }
 
 .delete-confirm-content {
-  background: rgba(26, 58, 82, 0.98);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-strong);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
   max-width: 500px;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-xl);
 }
 
 .delete-confirm-content h4 {
-  color: #fff;
-  margin: 0 0 1rem 0;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-md) 0;
   font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .delete-confirm-content p {
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0.5rem 0;
+  color: var(--color-white-90);
+  margin: var(--spacing-sm) 0;
   font-size: 1rem;
 }
 
 .delete-warning {
-  color: #ff6b6b !important;
+  color: var(--color-error) !important;
   font-weight: 600;
-  margin-top: 1rem !important;
+  margin-top: var(--spacing-md) !important;
 }
 
 .delete-confirm-actions {

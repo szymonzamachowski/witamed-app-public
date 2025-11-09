@@ -4,6 +4,15 @@
   gap: 1.5rem;
 }
 
+.admin-events-manager h3 {
+  color: var(--color-white);
+  font-size: 1.3rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border-light);
+  font-weight: 700;
+}
+
 .events-tabs {
   display: flex;
   gap: 1rem;
@@ -30,8 +39,8 @@
 }
 
 .event-tab.active {
-  color: #7FB069;
-  border-bottom-color: #7FB069;
+  color: var(--color-pear-green);
+  border-bottom-color: var(--color-pear-green);
 }
 
 .form-row {
@@ -62,23 +71,24 @@
 }
 
 .event-item {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--glass-bg-lighter);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .event-item strong {
-  color: #fff;
+  color: var(--color-white);
   font-size: 1rem;
+  font-weight: 600;
 }
 
 .event-date,
 .event-location {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-white-70);
   font-size: 0.9rem;
 }
 

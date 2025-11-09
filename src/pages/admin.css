@@ -26,19 +26,30 @@
 }
 
 .admin-section {
-  background: rgba(26, 58, 82, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-xl);
 }
 
 .admin-section h2 {
-  color: #fff;
+  color: var(--color-white);
   font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border-light);
+  font-weight: 700;
+}
+
+.admin-section h3 {
+  color: var(--color-white);
+  font-size: 1.3rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border-light);
+  font-weight: 700;
 }
 
 .admin-form {
@@ -62,25 +73,26 @@
 .form-group input,
 .form-group textarea {
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-light);
+  color: var(--color-white);
   font-size: 1rem;
   font-family: inherit;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #7FB069;
+  border-color: var(--color-pear-green);
   background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white-50);
 }
 
 .form-group input:disabled,
@@ -96,20 +108,22 @@
 
 .admin-button {
   padding: 0.75rem 2rem;
-  background: #7FB069;
-  color: #fff;
+  background: var(--color-pear-green);
+  color: var(--color-white);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
   align-self: flex-start;
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-button:hover:not(:disabled) {
-  background: #6a9a5a;
+  background: var(--color-pear-green-dark);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .admin-button:disabled {
@@ -118,21 +132,21 @@
 }
 
 .admin-error {
-  padding: 1rem;
-  background: rgba(255, 107, 107, 0.2);
-  border: 1px solid rgba(255, 107, 107, 0.5);
-  border-radius: 8px;
-  color: #ff6b6b;
-  margin-bottom: 1rem;
+  padding: var(--spacing-md);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
+  margin-bottom: var(--spacing-md);
 }
 
 .admin-success {
-  padding: 1rem;
-  background: rgba(127, 176, 105, 0.2);
-  border: 1px solid rgba(127, 176, 105, 0.5);
-  border-radius: 8px;
-  color: #7FB069;
-  margin-bottom: 1rem;
+  padding: var(--spacing-md);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
+  color: var(--color-success);
+  margin-bottom: var(--spacing-md);
 }
 
 .loading {
