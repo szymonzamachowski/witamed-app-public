@@ -397,7 +397,7 @@ export default function AdminMatchStats(_props: Props = {}) {
           <option value="">-- Wybierz mecz --</option>
           {matches?.map(match => (
             <option key={match.id} value={match.id}>
-              vs {match.opponent} - {new Date(match.date).toLocaleDateString('pl-PL')}
+              vs {match.opponent} - {new Date(match.date).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw' })}
             </option>
           ))}
         </select>

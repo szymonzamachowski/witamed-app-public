@@ -76,7 +76,8 @@ export default function Matches() {
                   month: 'long',
                   day: 'numeric',
                   hour: '2-digit',
-                  minute: '2-digit'
+                  minute: '2-digit',
+                  timeZone: 'Europe/Warsaw'
                 })}
               </div>
               <div className="match-location">{match.location}</div>

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useEvents } from '../hooks/useEvents'
+import { localDateTimeToISO, isoToLocalDate, isoToLocalTime } from '../utils/dateTime'
 import './admin-events-manager.css'
 
 type EventType = 'training' | 'friendly' | 'other'
@@ -143,9 +144,9 @@ export default function AdminEventsManager() {
     if (event && mode === 'edit') {
       // Wypełnij formularz danymi wydarzenia
       setTitle(event.title || '')
-      const eventDate = new Date(event.date)
-      setDate(eventDate.toISOString().split('T')[0])
-      setTime(eventDate.toTimeString().slice(0, 5))
+      // Użyj funkcji pomocniczych do konwersji z UTC na lokalny czas polski
+      setDate(isoToLocalDate(event.date))
+      setTime(isoToLocalTime(event.date))
       setLocation(event.location || '')
       setDescription(event.description || '')
       setEventType(event.type as EventType)
@@ -165,8 +166,8 @@ export default function AdminEventsManager() {
       return
     }
 
-    // Połącz datę i czas
-    const dateTime = time ? `${date}T${time}:00` : `${date}T12:00:00`
+    // Konwertuj lokalną datę i czas na ISO string z uwzględnieniem polskiej strefy czasowej
+    const dateTime = localDateTimeToISO(date, time || '12:00')
 
     if (mode === 'edit' && selectedEventId) {
       updateEventMutation.mutate({
@@ -291,7 +292,7 @@ export default function AdminEventsManager() {
             <option value="">-- Wybierz wydarzenie --</option>
             {filteredEvents.map(event => (
               <option key={event.id} value={event.id}>
-                {event.title} - {new Date(event.date).toLocaleDateString('pl-PL')}
+                {event.title} - {new Date(event.date).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw' })}
               </option>
             ))}
           </select>

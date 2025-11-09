@@ -21,7 +21,8 @@ export default function EventCard({ event }: { event: EventCardProps }){
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: 'Europe/Warsaw'
       })} • {location}</div>
       {description && <p>{description}</p>}
       {isMatch && 'opponent' in event && (

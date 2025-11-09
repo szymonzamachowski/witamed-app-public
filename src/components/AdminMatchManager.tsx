@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import { localDateTimeToISO, isoToLocalDate, isoToLocalTime } from '../utils/dateTime'
 import './admin-match-manager.css'
 
 export default function AdminMatchManager() {
@@ -159,9 +160,9 @@ export default function AdminMatchManager() {
     if (match && mode === 'edit') {
       // Wypełnij formularz danymi meczu
       setOpponent(match.opponent || '')
-      const matchDate = new Date(match.date)
-      setDate(matchDate.toISOString().split('T')[0])
-      setTime(matchDate.toTimeString().slice(0, 5))
+      // Użyj funkcji pomocniczych do konwersji z UTC na lokalny czas polski
+      setDate(isoToLocalDate(match.date))
+      setTime(isoToLocalTime(match.date))
       setLocation(match.location || '')
       setScore(match.score || '')
       setVideoUrl(match.video_url || '')
@@ -181,8 +182,8 @@ export default function AdminMatchManager() {
       return
     }
 
-    // Połącz datę i czas
-    const dateTime = time ? `${date}T${time}:00` : `${date}T18:00:00`
+    // Konwertuj lokalną datę i czas na ISO string z uwzględnieniem polskiej strefy czasowej
+    const dateTime = localDateTimeToISO(date, time || '18:00')
 
     addMatchMutation.mutate({
       opponent: opponent.trim(),
@@ -209,8 +210,8 @@ export default function AdminMatchManager() {
       return
     }
 
-    // Połącz datę i czas
-    const dateTime = time ? `${date}T${time}:00` : `${date}T18:00:00`
+    // Konwertuj lokalną datę i czas na ISO string z uwzględnieniem polskiej strefy czasowej
+    const dateTime = localDateTimeToISO(date, time || '18:00')
 
     updateFullMatchMutation.mutate({
       matchId: selectedMatchId,
@@ -384,7 +385,7 @@ export default function AdminMatchManager() {
               <option value="">-- Wybierz mecz --</option>
               {matches?.map(match => (
                 <option key={match.id} value={match.id}>
-                  vs {match.opponent} - {new Date(match.date).toLocaleDateString('pl-PL')}
+                  vs {match.opponent} - {new Date(match.date).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw' })}
                 </option>
               ))}
             </select>

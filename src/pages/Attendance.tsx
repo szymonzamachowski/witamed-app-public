@@ -182,7 +182,8 @@ function EventCard({
               month: 'long',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              timeZone: 'Europe/Warsaw'
             })}
           </span>
           <span className="event-location">{event.location}</span>
@@ -247,7 +248,8 @@ function MatchCard({
               month: 'long',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              timeZone: 'Europe/Warsaw'
             })}
           </span>
           <span className="event-location">{match.location}</span>
