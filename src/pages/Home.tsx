@@ -1,10 +1,12 @@
 import EventCard from '../components/EventCard'
 import NewsList from '../components/NewsList'
-import { findNextEvent, news } from '../mockData'
+import { findNextEvent } from '../mockData'
+import { useNews } from '../hooks/useNews'
 import './home.css'
 
 export default function Home(){
   const next = findNextEvent()
+  const { data: news, isLoading, error } = useNews()
 
   return (
     <div className="home-page">
@@ -25,7 +27,9 @@ export default function Home(){
       </header>
 
       <main className="home-content container">
-        <NewsList items={news} />
+        {isLoading && <p style={{ color: '#fff', textAlign: 'center', padding: '2rem' }}>Ładowanie aktualności...</p>}
+        {error && <p style={{ color: '#ff6b6b', textAlign: 'center', padding: '2rem' }}>Błąd przy ładowaniu aktualności</p>}
+        {news && <NewsList items={news} />}
       </main>
     </div>
   )
