@@ -276,6 +276,24 @@
   .hero-next{width:92%}
 }
 
-@media (max-width:640px){
-  .hero-player{display:none} /* hide overlapping image on small screens to avoid layout issues */
+@media (max-width: 640px) {
+  .hero-player {
+    display: block;
+    width: 280px;
+    max-width: 70%;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    opacity: 0.9;
+    filter: drop-shadow(0 15px 30px rgba(2, 8, 23, 0.5));
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-player {
+    width: 220px;
+    max-width: 65%;
+    top: -60px;
+    opacity: 0.85;
+  }
 }
