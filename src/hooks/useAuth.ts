@@ -104,8 +104,33 @@ export function useAuth() {
   }, [])
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      // Najpierw wyloguj z Supabase (może potrzebować danych z localStorage)
+      const { error } = await supabase.auth.signOut()
+      
+      // Wyczyść localStorage i sessionStorage po wylogowaniu
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // Upewnij się, że stan jest zaktualizowany
+      setUser(null)
+      setProfile(null)
+      
+      if (error) {
+        console.error('Error signing out:', error)
+        return { error }
+      }
+      
+      return { error: null }
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Nawet jeśli wystąpi błąd, wyczyść storage i stan
+      localStorage.clear()
+      sessionStorage.clear()
+      setUser(null)
+      setProfile(null)
+      return { error: error as Error }
+    }
   }, [])
 
   return {

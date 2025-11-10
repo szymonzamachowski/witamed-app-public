@@ -47,8 +47,23 @@ export default function MyAccount() {
   }, [user, loading, navigate])
 
   const handleSignOut = async () => {
-    await signOut()
-    navigate('/')
+    try {
+      const { error } = await signOut()
+      
+      if (error) {
+        console.error('Błąd wylogowania:', error)
+        // Nawet jeśli wystąpi błąd, spróbuj przekierować użytkownika
+        window.location.href = '/'
+        return
+      }
+      
+      // Przekieruj na stronę główną i odśwież stronę, aby upewnić się, że stan jest zaktualizowany
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Błąd wylogowania:', error)
+      // Nawet jeśli wystąpi błąd, spróbuj przekierować użytkownika
+      window.location.href = '/'
+    }
   }
   
   const updateProfileMutation = useMutation({
