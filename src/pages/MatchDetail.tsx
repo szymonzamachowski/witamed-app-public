@@ -45,15 +45,43 @@ export default function MatchDetail() {
     )
   }
 
-  // Funkcja do wyciągnięcia ID z YouTube URL
-  const getYouTubeId = (url: string | undefined): string | null => {
+  // Funkcja do wyciągnięcia ID wideo lub playlisty z YouTube URL
+  const getYouTubeEmbedUrl = (url: string | undefined): string | null => {
     if (!url) return null
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-    const match = url.match(regExp)
-    return (match && match[2].length === 11) ? match[2] : null
+
+    // Sprawdź czy to playlisty (różne formaty URL)
+    // Format 1: https://www.youtube.com/playlist?list=PLxxxxx
+    // Format 2: https://www.youtube.com/watch?v=xxxxx&list=PLxxxxx
+    // Format 3: https://youtube.com/playlist?list=PLxxxxx
+    const playlistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/)
+    if (playlistMatch) {
+      const playlistId = playlistMatch[1]
+      // Wyciągnij też ID pierwszego wideo jeśli jest w URL (dla lepszego startu)
+      const videoMatch = url.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]{11})/)
+      const firstVideoId = videoMatch ? videoMatch[1] : null
+      
+      // Użyj embed URL dla playlisty
+      // Jeśli mamy ID pierwszego wideo, użyj go jako startowego (bardziej niezawodne)
+      if (firstVideoId) {
+        // Format: embed pierwszego wideo z playlistą - automatycznie przejdzie do następnych
+        return `https://www.youtube.com/embed/${firstVideoId}?list=${playlistId}&autoplay=1&rel=0`
+      } else {
+        // Format: embed playlisty bez konkretnego pierwszego wideo
+        // YouTube automatycznie odtworzy pierwsze wideo z playlisty
+        return `https://www.youtube.com/embed?listType=playlist&list=${playlistId}&autoplay=1&rel=0`
+      }
+    }
+
+    // Jeśli nie playlisty, spróbuj wyciągnąć ID wideo
+    const videoMatch = url.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]{11})/)
+    if (videoMatch) {
+      return `https://www.youtube.com/embed/${videoMatch[1]}?autoplay=0`
+    }
+
+    return null
   }
 
-  const youtubeId = getYouTubeId(match.video_url)
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(match.video_url)
 
   return (
     <div className="page match-detail">
@@ -79,14 +107,14 @@ export default function MatchDetail() {
         </div>
       </div>
 
-      {youtubeId && (
+      {youtubeEmbedUrl && (
         <div className="match-video-section">
           <h2>Wideo z meczu</h2>
           <div className="video-container">
             <iframe
               width="100%"
               height="500"
-              src={`https://www.youtube.com/embed/${youtubeId}`}
+              src={youtubeEmbedUrl}
               title="Wideo z meczu"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
