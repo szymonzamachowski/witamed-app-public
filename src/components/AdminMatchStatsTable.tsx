@@ -678,11 +678,41 @@ export default function AdminMatchStatsTable({
                       )
                     })}
                   </tr>
+                  <tr className="error-category">
+                    <td colSpan={numberOfSets} className="error-category-label">INNE</td>
+                  </tr>
+                  <tr>
+                    {Array.from({ length: numberOfSets }, (_, i) => i + 1).map(set => {
+                      const errorsKey = `own_errors_other_set${set}` as keyof MatchErrors
+                      return (
+                        <td key={set}>
+                          <input
+                            type="number"
+                            min="0"
+                            value={(localMatchErrors[errorsKey] as number) ?? 0}
+                            onChange={(e) => {
+                              const newErrors = { ...localMatchErrors, [errorsKey]: parseInt(e.target.value) || 0 }
+                              setLocalMatchErrors(newErrors)
+                              onErrorsChange(newErrors)
+                            }}
+                            className="error-input"
+                            placeholder="0"
+                          />
+                        </td>
+                      )
+                    })}
+                  </tr>
                   <tr className="total-row">
                     <td colSpan={numberOfSets} className="total-cell">
-                      TOTAL: {Array.from({ length: numberOfSets }, (_, i) => i + 1).reduce((sum, set) => 
-                        sum + ((localMatchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
-                      )}
+                      TOTAL: {(() => {
+                        const ownTotal = Array.from({ length: numberOfSets }, (_, i) => i + 1).reduce((sum, set) => 
+                          sum + ((localMatchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
+                        )
+                        const otherTotal = Array.from({ length: numberOfSets }, (_, i) => i + 1).reduce((sum, set) => 
+                          sum + ((localMatchErrors[`own_errors_other_set${set}` as keyof MatchErrors] as number) || 0), 0
+                        )
+                        return `${ownTotal}${otherTotal > 0 ? ` (+${otherTotal})` : ''}`
+                      })()}
                     </td>
                   </tr>
                 </tbody>

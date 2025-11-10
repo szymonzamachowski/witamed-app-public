@@ -137,14 +137,14 @@ export default function Attendance() {
         </div>
       )}
 
-      {selectedEventId && (
+      {selectedEventId && user && (
         <AttendeesModal
           eventId={selectedEventId}
           onClose={() => setSelectedEventId(null)}
         />
       )}
 
-      {selectedMatchId && (
+      {selectedMatchId && user && (
         <MatchAttendeesModal
           matchId={selectedMatchId}
           onClose={() => setSelectedMatchId(null)}
@@ -209,12 +209,14 @@ function EventCard({
           </button>
         )}
         
-        <button
-          className="view-attendees-button"
-          onClick={onShowAttendees}
-        >
-          Sprawdź kto się zapisał
-        </button>
+        {userId && (
+          <button
+            className="view-attendees-button"
+            onClick={onShowAttendees}
+          >
+            Sprawdź kto się zapisał
+          </button>
+        )}
       </div>
     </div>
   )
@@ -275,20 +277,28 @@ function MatchCard({
           </button>
         )}
         
-        <button
-          className="view-attendees-button"
-          onClick={onShowAttendees}
-        >
-          Sprawdź kto się zapisał
-        </button>
+        {userId && (
+          <button
+            className="view-attendees-button"
+            onClick={onShowAttendees}
+          >
+            Sprawdź kto się zapisał
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
 function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
+  const { user } = useAuth()
   const { data: attendance, isLoading } = useAttendance(eventId)
   const presentPlayers = attendance?.filter(a => a.status === 'present') || []
+
+  // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
+  if (!user) {
+    return null
+  }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -319,8 +329,14 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
 }
 
 function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: () => void }) {
+  const { user } = useAuth()
   const { data: attendance, isLoading } = useMatchAttendance(matchId)
   const presentPlayers = attendance?.filter(a => a.status === 'present') || []
+
+  // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
+  if (!user) {
+    return null
+  }
 
   return (
     <div className="modal-overlay" onClick={onClose}>

@@ -324,11 +324,18 @@
   min-width: 0;
 }
 
-.errors-table td.error-category {
-  text-align: left;
+.errors-table tr.error-category {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.errors-table td.error-category-label {
   font-weight: 600;
-  color: #7FB069;
-  padding-left: 1rem;
+  text-align: center;
+  padding: 0.4rem 0.25rem;
+  color: var(--color-pear-green);
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .errors-table tr.total-row {

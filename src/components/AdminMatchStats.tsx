@@ -63,17 +63,25 @@ export default function AdminMatchStats(_props: Props = {}) {
     opponent_errors_set1: 0,
     opponent_errors_set2: 0,
     opponent_errors_set3: 0,
+    opponent_errors_set4: 0,
+    opponent_errors_set5: 0,
     blocks_against_total: 0,
     blocks_against_set1: 0,
     blocks_against_set2: 0,
     blocks_against_set3: 0,
+    blocks_against_set4: 0,
+    blocks_against_set5: 0,
     own_errors_total: 0,
     own_errors_set1: 0,
     own_errors_set2: 0,
     own_errors_set3: 0,
+    own_errors_set4: 0,
+    own_errors_set5: 0,
     own_errors_other_set1: 0,
     own_errors_other_set2: 0,
     own_errors_other_set3: 0,
+    own_errors_other_set4: 0,
+    own_errors_other_set5: 0,
   })
 
   const { data: existingStats } = useMatchStatistics(selectedMatchId)
@@ -348,11 +356,17 @@ export default function AdminMatchStats(_props: Props = {}) {
                        (matchErrors.blocks_against_set4 || 0) +
                        (matchErrors.blocks_against_set5 || 0)
     
+    // Błędy własne = błędy własne + błędy inne (wszystkie są liczone do totala)
     const ownErrorsTotal = (matchErrors.own_errors_set1 || 0) + 
                           (matchErrors.own_errors_set2 || 0) + 
                           (matchErrors.own_errors_set3 || 0) +
                           (matchErrors.own_errors_set4 || 0) +
-                          (matchErrors.own_errors_set5 || 0)
+                          (matchErrors.own_errors_set5 || 0) +
+                          (matchErrors.own_errors_other_set1 || 0) +
+                          (matchErrors.own_errors_other_set2 || 0) +
+                          (matchErrors.own_errors_other_set3 || 0) +
+                          (matchErrors.own_errors_other_set4 || 0) +
+                          (matchErrors.own_errors_other_set5 || 0)
 
     saveMatchErrorsMutation.mutate({
       matchId: selectedMatchId,

@@ -158,6 +158,13 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
             if (matchErrors[key] !== undefined && matchErrors[key] !== null) {
               maxSet = set
             }
+            // Dla błędów własnych sprawdź też błędy inne
+            if (prefix === 'own_errors') {
+              const otherKey = `own_errors_other_set${set}` as keyof MatchErrors
+              if (matchErrors[otherKey] !== undefined && matchErrors[otherKey] !== null) {
+                maxSet = Math.max(maxSet, set)
+              }
+            }
           }
           return Math.max(3, Math.min(5, maxSet || 3))
         }
@@ -256,11 +263,28 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
                           )
                         })}
                       </tr>
+                      <tr className="error-category">
+                        <td colSpan={ownSets} className="error-category-label">INNE</td>
+                      </tr>
+                      <tr>
+                        {Array.from({ length: ownSets }, (_, i) => i + 1).map(set => {
+                          const errors = matchErrors[`own_errors_other_set${set}` as keyof MatchErrors] as number | undefined
+                          return (
+                            <td key={set}>{errors ?? 0}</td>
+                          )
+                        })}
+                      </tr>
                       <tr className="total-row">
                         <td colSpan={ownSets} className="total-cell">
-                          TOTAL: {Array.from({ length: ownSets }, (_, i) => i + 1).reduce((sum, set) => 
-                            sum + ((matchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
-                          )}
+                          TOTAL: {(() => {
+                            const ownTotal = Array.from({ length: ownSets }, (_, i) => i + 1).reduce((sum, set) => 
+                              sum + ((matchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
+                            )
+                            const otherTotal = Array.from({ length: ownSets }, (_, i) => i + 1).reduce((sum, set) => 
+                              sum + ((matchErrors[`own_errors_other_set${set}` as keyof MatchErrors] as number) || 0), 0
+                            )
+                            return `${ownTotal}${otherTotal > 0 ? ` (+${otherTotal})` : ''}`
+                          })()}
                         </td>
                       </tr>
                     </tbody>
