@@ -232,6 +232,79 @@
 
 .home-content{margin-top:26px;padding-bottom:80px}
 
+.news-hint {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 0.75rem 1.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  opacity: 1;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  pointer-events: none;
+}
+
+.news-hint.fade-out {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+}
+
+.news-hint-text {
+  color: var(--color-white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.news-hint-text::after {
+  content: '↓';
+  font-size: 1.2rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 768px) {
+  .news-hint {
+    bottom: 1.5rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .news-hint-text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .news-hint {
+    bottom: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .news-hint-text {
+    font-size: 0.8rem;
+  }
+}
+
 /* Make news look similar but slightly elevated (legacy list styles kept) */
 .news-list{background:transparent}
 .news-list ul{background:#fff;border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(2,8,23,0.06)}

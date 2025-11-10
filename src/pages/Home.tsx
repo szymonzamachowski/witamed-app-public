@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
 import EventCard from '../components/EventCard'
 import NewsList from '../components/NewsList'
 import { useNews } from '../hooks/useNews'
@@ -49,6 +49,36 @@ export default function Home(){
   }, [events, matches])
 
   const isLoadingNextEvent = eventsLoading || matchesLoading
+  const newsSectionRef = useRef<HTMLElement | null>(null)
+  const [isNewsVisible, setIsNewsVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsNewsVisible(true)
+          } else {
+            setIsNewsVisible(false)
+          }
+        })
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the news section is visible
+        rootMargin: '-50px 0px 0px 0px' // Start fading before news section is fully visible
+      }
+    )
+
+    if (newsSectionRef.current) {
+      observer.observe(newsSectionRef.current)
+    }
+
+    return () => {
+      if (newsSectionRef.current) {
+        observer.unobserve(newsSectionRef.current)
+      }
+    }
+  }, [news])
 
   return (
     <div className="home-page">
@@ -74,7 +104,11 @@ export default function Home(){
           </div>
       </header>
 
-      <main className="home-content container">
+      <div className={`news-hint ${isNewsVisible ? 'fade-out' : ''}`}>
+        <span className="news-hint-text">Aktualności poniżej ↓</span>
+      </div>
+
+      <main className="home-content container" ref={newsSectionRef}>
         {isLoading && <p style={{ color: '#fff', textAlign: 'center', padding: '2rem' }}>Ładowanie aktualności...</p>}
         {error && <p style={{ color: '#ff6b6b', textAlign: 'center', padding: '2rem' }}>Błąd przy ładowaniu aktualności</p>}
         {news && <NewsList items={news} />}
