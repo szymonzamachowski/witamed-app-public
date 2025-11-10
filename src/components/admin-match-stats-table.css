@@ -17,6 +17,8 @@
   padding: var(--spacing-md);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--glass-border-light);
+  width: 100%;
+  max-width: 100%;
 }
 
 .admin-stats-table {
@@ -25,6 +27,7 @@
   color: #fff;
   font-size: 0.9rem;
   min-width: 1200px;
+  table-layout: auto;
 }
 
 .admin-stats-table thead {
@@ -47,6 +50,11 @@
 .admin-stats-table th.player-col {
   text-align: left;
   min-width: 150px;
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .admin-stats-table th.actions-col {
@@ -83,6 +91,15 @@
   font-weight: 600;
   color: #fff;
   padding-left: 0.75rem;
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: var(--glass-bg-lighter);
+  backdrop-filter: blur(10px);
+}
+
+.admin-stats-table tbody tr.totals-row td.player-name {
+  background: var(--color-success-bg);
 }
 
 .admin-stats-table td.percentage {
@@ -105,6 +122,39 @@
   font-size: 0.9rem;
   text-align: center;
   transition: all var(--transition-fast);
+}
+
+/* Zwiększ rozmiar przycisków +/- dla input type="number" */
+.stat-input::-webkit-inner-spin-button,
+.stat-input::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 28px;
+  width: 28px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.stat-input::-webkit-inner-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.stat-input::-webkit-outer-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+/* Dla Firefox */
+.stat-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.stat-input[type="number"]::-moz-number-spin-box {
+  height: 28px;
+  width: 28px;
 }
 
 .stat-input:focus {
@@ -330,6 +380,8 @@
 @media (max-width: 768px) {
   .stats-table-wrapper {
     padding: 0.5rem;
+    margin: 0 -0.5rem; /* rozszerz na pełną szerokość */
+    border-radius: 0;
   }
 
   .admin-stats-table {
@@ -337,10 +389,24 @@
     min-width: 1000px;
   }
 
+  .admin-stats-table th.player-col,
+  .admin-stats-table td.player-name {
+    position: sticky;
+    left: 0;
+    z-index: 20;
+  }
+
   .stat-input {
     font-size: 0.75rem;
     padding: 0.3rem 0.35rem;
     min-width: 40px;
+  }
+
+  /* Zwiększ przyciski +/- na mobile */
+  .stat-input::-webkit-inner-spin-button,
+  .stat-input::-webkit-outer-spin-button {
+    height: 20px;
+    width: 20px;
   }
 
   .save-btn {

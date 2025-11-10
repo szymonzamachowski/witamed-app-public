@@ -163,6 +163,29 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* Zwiększ rozmiar przycisków +/- dla input type="number" w formularzu */
+.stats-category .form-group input[type="number"]::-webkit-inner-spin-button,
+.stats-category .form-group input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 28px;
+  width: 28px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.stats-category .form-group input[type="number"]::-webkit-inner-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.stats-category .form-group input[type="number"]::-webkit-outer-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
 .errors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -210,6 +233,29 @@
   outline: none;
   border-color: #7FB069;
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* Zwiększ rozmiar przycisków +/- dla input type="number" w formularzu błędów */
+.errors-category .form-group input[type="number"]::-webkit-inner-spin-button,
+.errors-category .form-group input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 28px;
+  width: 28px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.errors-category .form-group input[type="number"]::-webkit-inner-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.errors-category .form-group input[type="number"]::-webkit-outer-spin-button {
+  background: var(--color-pear-green);
+  border-radius: 4px;
+  margin-left: 4px;
 }
 
 .errors-category .form-group input.input-small {
