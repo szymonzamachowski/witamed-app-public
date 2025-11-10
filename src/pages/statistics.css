@@ -67,15 +67,8 @@
   border-collapse: collapse;
   color: #fff;
   font-size: 0.95rem;
-  table-layout: fixed;
-}
-
-.statistics-table th:nth-child(6),
-.statistics-table th:nth-child(7),
-.statistics-table th:nth-child(8),
-.statistics-table th:nth-child(9) {
-  width: auto;
-  min-width: 200px;
+  min-width: 1200px;
+  table-layout: auto;
 }
 
 .statistics-table thead {
@@ -89,6 +82,14 @@
   color: #fff;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
   white-space: nowrap;
+}
+
+.statistics-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .statistics-table th.sortable {
@@ -117,6 +118,8 @@
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  white-space: nowrap;
 }
 
 
@@ -167,55 +170,27 @@
 .statistics-table td {
   padding: 1rem 0.75rem;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: top;
-}
-
-.statistics-table td.stats-cell {
-  padding: 1rem 0.75rem;
   text-align: center;
-  width: auto;
-  min-width: 0;
-}
-
-.stats-cell {
-  display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
   white-space: nowrap;
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  min-width: 65px;
-  flex: 0 0 auto;
+.statistics-table td.player-name {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: var(--glass-bg-lighter);
+  backdrop-filter: blur(10px);
   white-space: normal;
 }
 
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
+.statistics-table tbody tr.totals-row td.player-name {
+  background: rgba(127, 176, 105, 0.15);
 }
 
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.stat-value.percentage {
+.statistics-table td.percentage {
   color: var(--color-pear-green);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .statistics-table td:last-child {
@@ -272,21 +247,10 @@
     padding: 0.75rem 0.5rem;
   }
 
-  .stats-cell {
-    gap: 0.75rem;
-    justify-content: flex-start;
-  }
-
-  .stat-item {
-    min-width: 60px;
-  }
-
-  .stat-label {
-    font-size: 0.7rem;
-  }
-
-  .stat-value {
-    font-size: 1rem;
+  .statistics-table td.player-name {
+    position: sticky;
+    left: 0;
+    z-index: 20;
   }
 }
 
@@ -312,21 +276,10 @@
     padding: 0.5rem 0.25rem;
   }
 
-  .stats-cell {
-    gap: 0.5rem;
-    justify-content: flex-start;
-  }
-
-  .stat-item {
-    min-width: 50px;
-  }
-
-  .stat-label {
-    font-size: 0.65rem;
-  }
-
-  .stat-value {
-    font-size: 0.9rem;
+  .statistics-table td.player-name {
+    position: sticky;
+    left: 0;
+    z-index: 20;
   }
 
   .player-name {

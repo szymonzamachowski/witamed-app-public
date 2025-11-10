@@ -199,10 +199,31 @@ export default function Statistics() {
                     </span>
                   )}
                 </th>
-                <th>Zagrywka</th>
-                <th>Przyjęcie</th>
-                <th>Atak</th>
+                <th colSpan={4}>Zagrywka</th>
+                <th colSpan={4}>Przyjęcie</th>
+                <th colSpan={5}>Atak</th>
                 <th>Blok</th>
+              </tr>
+              <tr className="sub-header">
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL</th>
+                <th>BŁĄD</th>
+                <th>AS</th>
+                <th>%</th>
+                <th>TOTAL</th>
+                <th>POZYTYWNE</th>
+                <th>BŁĄD</th>
+                <th>%</th>
+                <th>TOTAL</th>
+                <th>PUNKTY</th>
+                <th>NIESKOŃCZONE</th>
+                <th>BŁĄD</th>
+                <th>%</th>
+                <th>TOTAL</th>
               </tr>
             </thead>
             <tbody>
@@ -216,70 +237,20 @@ export default function Statistics() {
                   <td className="highlight">{stat.total_points}</td>
                   <td>{stat.total_aces}</td>
                   <td>{stat.total_blocks}</td>
-                  <td className="stats-cell">
-                    <div className="stat-item">
-                      <div className="stat-label">TOTAL</div>
-                      <div className="stat-value">{stat.serve_total}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">BŁĄD</div>
-                      <div className="stat-value">{stat.serve_errors}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">AS</div>
-                      <div className="stat-value">{stat.serve_aces}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">%</div>
-                      <div className="stat-value percentage">{stat.serve_percentage}%</div>
-                    </div>
-                  </td>
-                  <td className="stats-cell">
-                    <div className="stat-item">
-                      <div className="stat-label">TOTAL</div>
-                      <div className="stat-value">{stat.reception_total}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">POZYTYWNE</div>
-                      <div className="stat-value">{stat.reception_positive}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">BŁĄD</div>
-                      <div className="stat-value">{stat.reception_errors}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">%</div>
-                      <div className="stat-value percentage">{stat.reception_percentage}%</div>
-                    </div>
-                  </td>
-                  <td className="stats-cell">
-                    <div className="stat-item">
-                      <div className="stat-label">TOTAL</div>
-                      <div className="stat-value">{stat.attack_total}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">PUNKTY</div>
-                      <div className="stat-value">{stat.attack_points}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">NIESKOŃCZONE</div>
-                      <div className="stat-value">{stat.attack_unfinished || 0}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">BŁĄD</div>
-                      <div className="stat-value">{stat.attack_errors}</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-label">%</div>
-                      <div className="stat-value percentage">{stat.attack_percentage}%</div>
-                    </div>
-                  </td>
-                  <td className="stats-cell">
-                    <div className="stat-item">
-                      <div className="stat-label">TOTAL</div>
-                      <div className="stat-value">{stat.block_total}</div>
-                    </div>
-                  </td>
+                  <td>{stat.serve_total}</td>
+                  <td>{stat.serve_errors}</td>
+                  <td>{stat.serve_aces}</td>
+                  <td className="percentage">{stat.serve_percentage}%</td>
+                  <td>{stat.reception_total}</td>
+                  <td>{stat.reception_positive}</td>
+                  <td>{stat.reception_errors}</td>
+                  <td className="percentage">{stat.reception_percentage}%</td>
+                  <td>{stat.attack_total}</td>
+                  <td>{stat.attack_points}</td>
+                  <td>{stat.attack_unfinished || 0}</td>
+                  <td>{stat.attack_errors}</td>
+                  <td className="percentage">{stat.attack_percentage}%</td>
+                  <td>{stat.block_total}</td>
                 </tr>
               ))}
               {sortedAndFilteredStats.length > 0 && (() => {
@@ -339,70 +310,20 @@ export default function Statistics() {
                     <td className="highlight"><strong>{totals.total_points}</strong></td>
                     <td><strong>{totals.total_aces}</strong></td>
                     <td><strong>{totals.total_blocks}</strong></td>
-                    <td className="stats-cell">
-                      <div className="stat-item">
-                        <div className="stat-label">TOTAL</div>
-                        <div className="stat-value"><strong>{totals.serve_total}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">BŁĄD</div>
-                        <div className="stat-value"><strong>{totals.serve_errors}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">AS</div>
-                        <div className="stat-value"><strong>{totals.serve_aces}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">%</div>
-                        <div className="stat-value percentage"><strong>{servePercentage}%</strong></div>
-                      </div>
-                    </td>
-                    <td className="stats-cell">
-                      <div className="stat-item">
-                        <div className="stat-label">TOTAL</div>
-                        <div className="stat-value"><strong>{totals.reception_total}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">POZYTYWNE</div>
-                        <div className="stat-value"><strong>{totals.reception_positive}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">BŁĄD</div>
-                        <div className="stat-value"><strong>{totals.reception_errors}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">%</div>
-                        <div className="stat-value percentage"><strong>{receptionPercentage}%</strong></div>
-                      </div>
-                    </td>
-                    <td className="stats-cell">
-                      <div className="stat-item">
-                        <div className="stat-label">TOTAL</div>
-                        <div className="stat-value"><strong>{totals.attack_total}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">PUNKTY</div>
-                        <div className="stat-value"><strong>{totals.attack_points}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">NIESKOŃCZONE</div>
-                        <div className="stat-value"><strong>{totals.attack_unfinished}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">BŁĄD</div>
-                        <div className="stat-value"><strong>{totals.attack_errors}</strong></div>
-                      </div>
-                      <div className="stat-item">
-                        <div className="stat-label">%</div>
-                        <div className="stat-value percentage"><strong>{attackPercentage}%</strong></div>
-                      </div>
-                    </td>
-                    <td className="stats-cell">
-                      <div className="stat-item">
-                        <div className="stat-label">TOTAL</div>
-                        <div className="stat-value"><strong>{totals.block_total}</strong></div>
-                      </div>
-                    </td>
+                    <td><strong>{totals.serve_total}</strong></td>
+                    <td><strong>{totals.serve_errors}</strong></td>
+                    <td><strong>{totals.serve_aces}</strong></td>
+                    <td className="percentage"><strong>{servePercentage}%</strong></td>
+                    <td><strong>{totals.reception_total}</strong></td>
+                    <td><strong>{totals.reception_positive}</strong></td>
+                    <td><strong>{totals.reception_errors}</strong></td>
+                    <td className="percentage"><strong>{receptionPercentage}%</strong></td>
+                    <td><strong>{totals.attack_total}</strong></td>
+                    <td><strong>{totals.attack_points}</strong></td>
+                    <td><strong>{totals.attack_unfinished}</strong></td>
+                    <td><strong>{totals.attack_errors}</strong></td>
+                    <td className="percentage"><strong>{attackPercentage}%</strong></td>
+                    <td><strong>{totals.block_total}</strong></td>
                   </tr>
                 )
               })()}
