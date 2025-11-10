@@ -168,10 +168,11 @@
 
 .stats-cell {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  flex-direction: row;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -180,7 +181,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  min-width: 80px;
+  min-width: 70px;
+  flex: 0 0 auto;
 }
 
 .stat-label {
@@ -258,11 +260,12 @@
   }
 
   .stats-cell {
-    gap: 0.5rem;
+    gap: 0.75rem;
+    justify-content: flex-start;
   }
 
   .stat-item {
-    min-width: 70px;
+    min-width: 60px;
   }
 
   .stat-label {
@@ -297,11 +300,12 @@
   }
 
   .stats-cell {
-    gap: 0.4rem;
+    gap: 0.5rem;
+    justify-content: flex-start;
   }
 
   .stat-item {
-    min-width: 60px;
+    min-width: 50px;
   }
 
   .stat-label {
