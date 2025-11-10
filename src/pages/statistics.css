@@ -117,6 +117,10 @@
   text-align: center;
 }
 
+.sub-header-row-attack {
+  grid-template-columns: repeat(5, 1fr);
+}
+
 .statistics-table tbody tr {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: background 0.2s;
@@ -197,6 +201,10 @@
   text-align: center;
 }
 
+.stat-row-attack {
+  grid-template-columns: repeat(5, 1fr);
+}
+
 .stat-row span {
   padding: 0.25rem;
 }
@@ -239,6 +247,11 @@
   .stat-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.25rem;
+  }
+
+  .sub-header-row-attack,
+  .stat-row-attack {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

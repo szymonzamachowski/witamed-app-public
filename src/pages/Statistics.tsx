@@ -227,9 +227,10 @@ export default function Statistics() {
                   </div>
                 </th>
                 <th>
-                  <div className="sub-header-row">
+                  <div className="sub-header-row sub-header-row-attack">
                     <span>Total</span>
                     <span>Punkty</span>
+                    <span>Nieskończone</span>
                     <span>Błędy</span>
                     <span>%</span>
                   </div>
@@ -269,9 +270,10 @@ export default function Statistics() {
                     </div>
                   </td>
                   <td>
-                    <div className="stat-row">
+                    <div className="stat-row stat-row-attack">
                       <span>{stat.attack_total}</span>
                       <span>{stat.attack_points}</span>
+                      <span>{stat.attack_unfinished || 0}</span>
                       <span>{stat.attack_errors}</span>
                       <span className="percentage">{stat.attack_percentage}%</span>
                     </div>
@@ -297,6 +299,7 @@ export default function Statistics() {
                   acc.reception_errors += stat.reception_errors || 0
                   acc.attack_total += stat.attack_total || 0
                   acc.attack_points += stat.attack_points || 0
+                  acc.attack_unfinished += stat.attack_unfinished || 0
                   acc.attack_errors += stat.attack_errors || 0
                   acc.block_total += stat.block_total || 0
                   return acc
@@ -312,6 +315,7 @@ export default function Statistics() {
                   reception_errors: 0,
                   attack_total: 0,
                   attack_points: 0,
+                  attack_unfinished: 0,
                   attack_errors: 0,
                   block_total: 0
                 })
@@ -355,9 +359,10 @@ export default function Statistics() {
                       </div>
                     </td>
                     <td>
-                      <div className="stat-row">
+                      <div className="stat-row stat-row-attack">
                         <strong>{totals.attack_total}</strong>
                         <strong>{totals.attack_points}</strong>
+                        <strong>{totals.attack_unfinished}</strong>
                         <strong>{totals.attack_errors}</strong>
                         <strong className="percentage">{attackPercentage}%</strong>
                       </div>
