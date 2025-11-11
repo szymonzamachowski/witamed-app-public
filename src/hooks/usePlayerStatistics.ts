@@ -121,10 +121,7 @@ export function usePlayerStatistics() {
         const playerStats = playerStatsMap.get(playerId)!
         playerStats.matches_played += 1
 
-        // Podstawowe statystyki
-        playerStats.total_points += stat.points || 0
-        playerStats.total_aces += stat.aces || 0
-        playerStats.total_blocks += stat.blocks || 0
+        // Podstawowe statystyki (dla kompatybilności wstecznej)
         playerStats.total_spikes += stat.spikes || 0
         playerStats.total_digs += stat.digs || 0
 
@@ -150,7 +147,7 @@ export function usePlayerStatistics() {
         playerStats.block_total += stat.block_total || 0
       })
 
-      // Oblicz procenty dla każdego zawodnika
+      // Oblicz procenty i punkty dla każdego zawodnika
       const aggregatedStats: PlayerStatistics[] = Array.from(playerStatsMap.values()).map(stats => {
         // Procent zagrywki (aces / total)
         stats.serve_percentage = stats.serve_total > 0
@@ -166,6 +163,13 @@ export function usePlayerStatistics() {
         stats.attack_percentage = stats.attack_total > 0
           ? Math.round((stats.attack_points / stats.attack_total) * 100)
           : 0
+
+        // Punkty = skończone ataki + asy + bloki
+        stats.total_points = (stats.attack_points || 0) + (stats.serve_aces || 0) + (stats.block_total || 0)
+        
+        // Dla kompatybilności wstecznej (ale nie używane w UI)
+        stats.total_aces = stats.serve_aces || 0
+        stats.total_blocks = stats.block_total || 0
 
         return stats
       })

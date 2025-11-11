@@ -365,15 +365,13 @@ export default function MyAccount() {
                   </div>
                   <div className="stat-card">
                     <div className="stat-label">Punkty</div>
-                    <div className="stat-value highlight">{playerStats.total_points}</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-label">Asy</div>
-                    <div className="stat-value">{playerStats.total_aces}</div>
+                    <div className="stat-value highlight">
+                      {(playerStats.attack_points || 0) + (playerStats.serve_aces || 0) + (playerStats.block_total || 0)}
+                    </div>
                   </div>
                   <div className="stat-card">
                     <div className="stat-label">Bloki</div>
-                    <div className="stat-value">{playerStats.total_blocks}</div>
+                    <div className="stat-value">{playerStats.block_total || 0}</div>
                   </div>
                 </div>
                 
@@ -447,14 +445,6 @@ export default function MyAccount() {
                     <div className="stats-row">
                       <span>Skuteczność:</span>
                       <span className="percentage">{playerStats.attack_percentage}%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="stats-category">
-                    <h3>Blok</h3>
-                    <div className="stats-row">
-                      <span>Bloki:</span>
-                      <span>{playerStats.block_total}</span>
                     </div>
                   </div>
                 </div>
