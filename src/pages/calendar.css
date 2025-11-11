@@ -388,6 +388,9 @@
   margin-top: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .popup-view-button {
@@ -409,6 +412,29 @@
 
 .popup-view-button:hover {
   background: linear-gradient(90deg, var(--color-pear-green-light), #2ecc71);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.popup-attendance-button {
+  display: inline-block;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.popup-attendance-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }

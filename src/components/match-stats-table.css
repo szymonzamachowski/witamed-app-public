@@ -38,6 +38,23 @@
   white-space: nowrap;
 }
 
+.stats-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.stats-table th.sortable:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stats-table .sort-indicator {
+  color: var(--color-pear-green);
+  font-weight: 700;
+  margin-left: 0.25rem;
+  font-size: 0.9rem;
+}
+
 .stats-table th.category-header {
   background: var(--color-success-bg);
   border-color: var(--color-success-border);

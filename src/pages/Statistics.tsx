@@ -1,16 +1,26 @@
 import { useState, useMemo } from 'react'
 import { usePlayerStatistics } from '../hooks/usePlayerStatistics'
+import { useAllMatchErrors } from '../hooks/useAllMatchErrors'
 import type { PlayerStatistics } from '../hooks/usePlayerStatistics'
 import './statistics.css'
+import '../components/match-stats-table.css'
 
 type SortField = 
   | 'player_name'
   | 'matches_played'
-  | 'total_points'
-  | 'total_aces'
-  | 'total_blocks'
-  | 'serve_percentage'
+  | 'serve_total'
+  | 'serve_errors'
+  | 'serve_aces'
+  | 'reception_total'
+  | 'reception_positive'
+  | 'reception_other'
+  | 'reception_errors'
   | 'reception_percentage'
+  | 'attack_total'
+  | 'attack_points'
+  | 'attack_unfinished'
+  | 'attack_errors'
+  | 'attack_blocked'
   | 'attack_percentage'
   | 'block_total'
 
@@ -18,9 +28,10 @@ type SortDirection = 'asc' | 'desc'
 
 export default function Statistics() {
   const { data: playerStats, isLoading, error } = usePlayerStatistics()
-  const [sortField, setSortField] = useState<SortField>('total_points')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const { data: allMatchErrors } = useAllMatchErrors()
   const [filterText, setFilterText] = useState('')
+  const [sortField, setSortField] = useState<SortField>('attack_points')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   const sortedAndFilteredStats = useMemo(() => {
     if (!playerStats) return []
@@ -30,6 +41,7 @@ export default function Statistics() {
       return playerName.toLowerCase().includes(filterText.toLowerCase())
     })
 
+    // Sortowanie
     filtered.sort((a, b) => {
       let aValue: number | string = 0
       let bValue: number | string = 0
@@ -40,36 +52,68 @@ export default function Statistics() {
           bValue = b.player?.full_name || b.player?.username || ''
           break
         case 'matches_played':
-          aValue = a.matches_played
-          bValue = b.matches_played
+          aValue = a.matches_played || 0
+          bValue = b.matches_played || 0
           break
-        case 'total_points':
-          aValue = a.total_points
-          bValue = b.total_points
+        case 'serve_total':
+          aValue = a.serve_total || 0
+          bValue = b.serve_total || 0
           break
-        case 'total_aces':
-          aValue = a.total_aces
-          bValue = b.total_aces
+        case 'serve_errors':
+          aValue = a.serve_errors || 0
+          bValue = b.serve_errors || 0
           break
-        case 'total_blocks':
-          aValue = a.total_blocks
-          bValue = b.total_blocks
+        case 'serve_aces':
+          aValue = a.serve_aces || 0
+          bValue = b.serve_aces || 0
           break
-        case 'serve_percentage':
-          aValue = a.serve_percentage
-          bValue = b.serve_percentage
+        case 'reception_total':
+          aValue = a.reception_total || 0
+          bValue = b.reception_total || 0
+          break
+        case 'reception_positive':
+          aValue = a.reception_positive || 0
+          bValue = b.reception_positive || 0
+          break
+        case 'reception_other':
+          aValue = a.reception_other || 0
+          bValue = b.reception_other || 0
+          break
+        case 'reception_errors':
+          aValue = a.reception_errors || 0
+          bValue = b.reception_errors || 0
           break
         case 'reception_percentage':
-          aValue = a.reception_percentage
-          bValue = b.reception_percentage
+          aValue = a.reception_total > 0 ? Math.round((a.reception_positive || 0) / a.reception_total * 100) : 0
+          bValue = b.reception_total > 0 ? Math.round((b.reception_positive || 0) / b.reception_total * 100) : 0
+          break
+        case 'attack_total':
+          aValue = a.attack_total || 0
+          bValue = b.attack_total || 0
+          break
+        case 'attack_points':
+          aValue = a.attack_points || 0
+          bValue = b.attack_points || 0
+          break
+        case 'attack_unfinished':
+          aValue = a.attack_unfinished || 0
+          bValue = b.attack_unfinished || 0
+          break
+        case 'attack_errors':
+          aValue = a.attack_errors || 0
+          bValue = b.attack_errors || 0
+          break
+        case 'attack_blocked':
+          aValue = a.attack_blocked || 0
+          bValue = b.attack_blocked || 0
           break
         case 'attack_percentage':
-          aValue = a.attack_percentage
-          bValue = b.attack_percentage
+          aValue = a.attack_total > 0 ? Math.round((a.attack_points || 0) / a.attack_total * 100) : 0
+          bValue = b.attack_total > 0 ? Math.round((b.attack_points || 0) / b.attack_total * 100) : 0
           break
         case 'block_total':
-          aValue = a.block_total
-          bValue = b.block_total
+          aValue = a.block_total || 0
+          bValue = b.block_total || 0
           break
       }
 
@@ -85,7 +129,7 @@ export default function Statistics() {
     })
 
     return filtered
-  }, [playerStats, sortField, sortDirection, filterText])
+  }, [playerStats, filterText, sortField, sortDirection])
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -95,6 +139,7 @@ export default function Statistics() {
       setSortDirection('desc')
     }
   }
+
 
   const getPlayerName = (stat: PlayerStatistics) => {
     return stat.player?.full_name || stat.player?.username || 'Nieznany zawodnik'
@@ -140,15 +185,17 @@ export default function Statistics() {
           <p>Brak statystyk do wyświetlenia</p>
         </div>
       ) : (
-        <div className="statistics-table-container">
-          <table className="statistics-table">
+        <div className="match-stats-container">
+          <div className="stats-table-wrapper">
+            <table className="stats-table">
             <thead>
               <tr>
                 <th 
-                  className="sortable"
+                  rowSpan={2} 
+                  className="player-col sortable"
                   onClick={() => handleSort('player_name')}
                 >
-                  Zawodnik
+                  GRACZ
                   {sortField === 'player_name' && (
                     <span className="sort-indicator">
                       {sortDirection === 'asc' ? ' ↑' : ' ↓'}
@@ -156,143 +203,258 @@ export default function Statistics() {
                   )}
                 </th>
                 <th 
+                  rowSpan={2}
                   className="sortable"
                   onClick={() => handleSort('matches_played')}
                 >
-                  Mecze
+                  MECZE
                   {sortField === 'matches_played' && (
                     <span className="sort-indicator">
                       {sortDirection === 'asc' ? ' ↑' : ' ↓'}
                     </span>
                   )}
                 </th>
+                <th colSpan={3} className="category-header">ZAGRYWKA</th>
+                <th colSpan={5} className="category-header">PRZYJĘCIE</th>
+                <th colSpan={6} className="category-header">ATAK</th>
                 <th 
-                  className="sortable"
-                  onClick={() => handleSort('total_points')}
+                  rowSpan={2} 
+                  className="category-header sortable"
+                  onClick={() => handleSort('block_total')}
                 >
-                  Punkty
-                  {sortField === 'total_points' && (
+                  BLOK
+                  {sortField === 'block_total' && (
                     <span className="sort-indicator">
                       {sortDirection === 'asc' ? ' ↑' : ' ↓'}
                     </span>
                   )}
                 </th>
-                <th 
-                  className="sortable"
-                  onClick={() => handleSort('total_aces')}
-                >
-                  Asy
-                  {sortField === 'total_aces' && (
-                    <span className="sort-indicator">
-                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                    </span>
-                  )}
-                </th>
-                <th 
-                  className="sortable"
-                  onClick={() => handleSort('total_blocks')}
-                >
-                  Bloki
-                  {sortField === 'total_blocks' && (
-                    <span className="sort-indicator">
-                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                    </span>
-                  )}
-                </th>
-                <th colSpan={4}>Zagrywka</th>
-                <th colSpan={4}>Przyjęcie</th>
-                <th colSpan={5}>Atak</th>
-                <th>Blok</th>
               </tr>
-              <tr className="sub-header">
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>TOTAL</th>
-                <th>BŁĄD</th>
-                <th>AS</th>
-                <th>%</th>
-                <th>TOTAL</th>
-                <th>POZYTYWNE</th>
-                <th>BŁĄD</th>
-                <th>%</th>
-                <th>TOTAL</th>
-                <th>PUNKTY</th>
-                <th>NIESKOŃCZONE</th>
-                <th>BŁĄD</th>
-                <th>%</th>
-                <th>TOTAL</th>
+              <tr>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('serve_total')}
+                >
+                  TOTAL
+                  {sortField === 'serve_total' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('serve_errors')}
+                >
+                  BŁĄD
+                  {sortField === 'serve_errors' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('serve_aces')}
+                >
+                  AS
+                  {sortField === 'serve_aces' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('reception_total')}
+                >
+                  TOTAL
+                  {sortField === 'reception_total' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('reception_positive')}
+                >
+                  POZYTYWNE
+                  {sortField === 'reception_positive' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('reception_other')}
+                >
+                  POZOSTAŁE
+                  {sortField === 'reception_other' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('reception_errors')}
+                >
+                  BŁĄD
+                  {sortField === 'reception_errors' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('reception_percentage')}
+                >
+                  %
+                  {sortField === 'reception_percentage' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_total')}
+                >
+                  TOTAL
+                  {sortField === 'attack_total' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_points')}
+                >
+                  PUNKTOWY
+                  {sortField === 'attack_points' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_unfinished')}
+                >
+                  NIESKOŃCZONY
+                  {sortField === 'attack_unfinished' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_errors')}
+                >
+                  BŁĄD
+                  {sortField === 'attack_errors' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_blocked')}
+                >
+                  ZABLOKOWANY
+                  {sortField === 'attack_blocked' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th 
+                  className="sortable"
+                  onClick={() => handleSort('attack_percentage')}
+                >
+                  %
+                  {sortField === 'attack_percentage' && (
+                    <span className="sort-indicator">
+                      {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {sortedAndFilteredStats.map((stat, index) => (
-                <tr key={stat.player_id}>
-                  <td className="player-name">
-                    <span className="rank">{index + 1}.</span>
-                    {getPlayerName(stat)}
-                  </td>
-                  <td>{stat.matches_played}</td>
-                  <td className="highlight">{stat.total_points}</td>
-                  <td>{stat.total_aces}</td>
-                  <td>{stat.total_blocks}</td>
-                  <td>{stat.serve_total}</td>
-                  <td>{stat.serve_errors}</td>
-                  <td>{stat.serve_aces}</td>
-                  <td className="percentage">{stat.serve_percentage}%</td>
-                  <td>{stat.reception_total}</td>
-                  <td>{stat.reception_positive}</td>
-                  <td>{stat.reception_errors}</td>
-                  <td className="percentage">{stat.reception_percentage}%</td>
-                  <td>{stat.attack_total}</td>
-                  <td>{stat.attack_points}</td>
-                  <td>{stat.attack_unfinished || 0}</td>
-                  <td>{stat.attack_errors}</td>
-                  <td className="percentage">{stat.attack_percentage}%</td>
-                  <td>{stat.block_total}</td>
-                </tr>
-              ))}
+              {sortedAndFilteredStats.map((stat) => {
+                const calculateReceptionPercentage = () => {
+                  if (!stat.reception_total || stat.reception_total === 0) return 0
+                  return Math.round((stat.reception_positive || 0) / stat.reception_total * 100)
+                }
+
+                const calculateAttackPercentage = () => {
+                  if (!stat.attack_total || stat.attack_total === 0) return 0
+                  return Math.round((stat.attack_points || 0) / stat.attack_total * 100)
+                }
+
+                return (
+                  <tr key={stat.player_id}>
+                    <td className="player-name">{getPlayerName(stat)}</td>
+                    <td>{stat.matches_played || 0}</td>
+                    <td>{stat.serve_total || 0}</td>
+                    <td>{stat.serve_errors || 0}</td>
+                    <td>{stat.serve_aces || 0}</td>
+                    <td>{stat.reception_total || 0}</td>
+                    <td>{stat.reception_positive || 0}</td>
+                    <td>{stat.reception_other || 0}</td>
+                    <td>{stat.reception_errors || 0}</td>
+                    <td>{calculateReceptionPercentage()}%</td>
+                    <td>{stat.attack_total || 0}</td>
+                    <td>{stat.attack_points || 0}</td>
+                    <td>{stat.attack_unfinished || 0}</td>
+                    <td>{stat.attack_errors || 0}</td>
+                    <td>{stat.attack_blocked || 0}</td>
+                    <td>{calculateAttackPercentage()}%</td>
+                    <td>{stat.block_total || 0}</td>
+                  </tr>
+                )
+              })}
               {sortedAndFilteredStats.length > 0 && (() => {
                 // Oblicz sumy dla wszystkich statystyk
                 const totals = sortedAndFilteredStats.reduce((acc, stat) => {
-                  acc.total_points += stat.total_points || 0
-                  acc.total_aces += stat.total_aces || 0
-                  acc.total_blocks += stat.total_blocks || 0
                   acc.serve_total += stat.serve_total || 0
                   acc.serve_errors += stat.serve_errors || 0
                   acc.serve_aces += stat.serve_aces || 0
                   acc.reception_total += stat.reception_total || 0
                   acc.reception_positive += stat.reception_positive || 0
+                  acc.reception_other += stat.reception_other || 0
                   acc.reception_errors += stat.reception_errors || 0
                   acc.attack_total += stat.attack_total || 0
                   acc.attack_points += stat.attack_points || 0
                   acc.attack_unfinished += stat.attack_unfinished || 0
                   acc.attack_errors += stat.attack_errors || 0
+                  acc.attack_blocked += stat.attack_blocked || 0
                   acc.block_total += stat.block_total || 0
                   return acc
                 }, {
-                  total_points: 0,
-                  total_aces: 0,
-                  total_blocks: 0,
                   serve_total: 0,
                   serve_errors: 0,
                   serve_aces: 0,
                   reception_total: 0,
                   reception_positive: 0,
+                  reception_other: 0,
                   reception_errors: 0,
                   attack_total: 0,
                   attack_points: 0,
                   attack_unfinished: 0,
                   attack_errors: 0,
+                  attack_blocked: 0,
                   block_total: 0
                 })
 
                 // Oblicz procenty dla sum
-                const servePercentage = totals.serve_total > 0
-                  ? Math.round((totals.serve_aces / totals.serve_total) * 100)
-                  : 0
-
                 const receptionPercentage = totals.reception_total > 0
                   ? Math.round((totals.reception_positive / totals.reception_total) * 100)
                   : 0
@@ -303,32 +465,99 @@ export default function Statistics() {
 
                 return (
                   <tr className="totals-row">
-                    <td className="player-name">
-                      <strong>RAZEM</strong>
-                    </td>
+                    <td className="player-name"><strong>RAZEM</strong></td>
                     <td><strong>-</strong></td>
-                    <td className="highlight"><strong>{totals.total_points}</strong></td>
-                    <td><strong>{totals.total_aces}</strong></td>
-                    <td><strong>{totals.total_blocks}</strong></td>
                     <td><strong>{totals.serve_total}</strong></td>
                     <td><strong>{totals.serve_errors}</strong></td>
                     <td><strong>{totals.serve_aces}</strong></td>
-                    <td className="percentage"><strong>{servePercentage}%</strong></td>
                     <td><strong>{totals.reception_total}</strong></td>
                     <td><strong>{totals.reception_positive}</strong></td>
+                    <td><strong>{totals.reception_other}</strong></td>
                     <td><strong>{totals.reception_errors}</strong></td>
-                    <td className="percentage"><strong>{receptionPercentage}%</strong></td>
+                    <td><strong>{receptionPercentage}%</strong></td>
                     <td><strong>{totals.attack_total}</strong></td>
                     <td><strong>{totals.attack_points}</strong></td>
                     <td><strong>{totals.attack_unfinished}</strong></td>
                     <td><strong>{totals.attack_errors}</strong></td>
-                    <td className="percentage"><strong>{attackPercentage}%</strong></td>
+                    <td><strong>{totals.attack_blocked}</strong></td>
+                    <td><strong>{attackPercentage}%</strong></td>
                     <td><strong>{totals.block_total}</strong></td>
                   </tr>
                 )
               })()}
             </tbody>
           </table>
+        </div>
+
+        {/* Tabele błędów na dole */}
+        {allMatchErrors && (
+          <div className="match-errors-section">
+            <div className="errors-tables-container">
+              {/* Tabelka 1: Błędy przeciwników */}
+              <div className="error-table-container">
+                <h5>BŁĘDY PRZECIWNIKA</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        <th>TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{allMatchErrors.opponent_errors_total || 0}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Tabelka 2: Wybloki */}
+              <div className="error-table-container">
+                <h5>WYBLOKI</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        <th>TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{allMatchErrors.blocks_against_total || 0}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Tabelka 3: Błędy własne */}
+              <div className="error-table-container">
+                <h5>BŁĘDY WŁASNE</h5>
+                <div className="errors-table-wrapper">
+                  <table className="errors-table">
+                    <thead>
+                      <tr>
+                        <th>TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="total-cell">
+                          {(() => {
+                            const ownTotal = allMatchErrors.own_errors_total || 0
+                            const otherTotal = (allMatchErrors as any).own_errors_other_total || 0
+                            return `${ownTotal}${otherTotal > 0 ? ` (+${otherTotal})` : ''}`
+                          })()}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       )}
     </div>

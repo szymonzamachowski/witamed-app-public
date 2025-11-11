@@ -128,6 +128,13 @@
   flex-shrink: 1; /* pozwól na kurczenie */
 }
 
+.attendance-stats {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .attendance-count {
   text-align: center;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -135,6 +142,25 @@
   border: 1px solid var(--color-success-border);
   border-radius: var(--radius-md);
   min-width: 100px;
+}
+
+.absent-count {
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: var(--radius-md);
+  min-width: 100px;
+}
+
+.absent-count .count-number {
+  color: #ff6b6b;
+}
+
+.attendance-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .count-number {
@@ -179,6 +205,24 @@
   background: var(--color-success-bg);
   border-color: var(--color-pear-green);
   color: var(--color-pear-green);
+}
+
+.attendance-button.absent {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.attendance-button.absent:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: rgba(231, 76, 60, 0.4);
+  color: #ff6b6b;
+}
+
+.attendance-button.absent.active {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
 }
 
 .view-attendees-button {
@@ -298,6 +342,164 @@
   font-size: 0.95rem;
 }
 
+.attendees-list li.present {
+  background: rgba(127, 176, 105, 0.1);
+  border-color: rgba(127, 176, 105, 0.3);
+}
+
+.attendees-list li.absent {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+.attendee-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.attendee-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.attendee-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.status-icon.present {
+  background: var(--color-pear-green);
+  color: #fff;
+}
+
+.status-icon.absent {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.status-icon.unknown {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.attendee-name {
+  flex: 1;
+}
+
+.attendee-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.status-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.status-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-button.present {
+  border-color: rgba(127, 176, 105, 0.3);
+}
+
+.status-button.present:hover:not(:disabled) {
+  background: rgba(127, 176, 105, 0.2);
+  border-color: var(--color-pear-green);
+  color: var(--color-pear-green);
+}
+
+.status-button.present.active {
+  background: var(--color-pear-green);
+  border-color: var(--color-pear-green);
+  color: #fff;
+}
+
+.status-button.absent {
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+.status-button.absent:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.status-button.absent.active {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: #fff;
+}
+
+.attendees-section {
+  margin-bottom: 1.5rem;
+}
+
+.attendees-section:last-child {
+  margin-bottom: 0;
+}
+
+.attendees-section-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.attendees-section-title.absent {
+  color: #ff6b6b;
+  border-bottom-color: rgba(231, 76, 60, 0.3);
+}
+
+.attendees-list.present li {
+  background: rgba(127, 176, 105, 0.1);
+  border-color: rgba(127, 176, 105, 0.3);
+}
+
+.attendees-list.absent li {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
 .no-attendees {
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
@@ -327,9 +529,20 @@
     gap: 0.75rem;
   }
 
-  .attendance-count {
+  .attendance-stats {
     width: 100%;
+    justify-content: stretch;
+  }
+
+  .attendance-count,
+  .absent-count {
+    flex: 1;
     min-width: auto;
+  }
+
+  .attendance-buttons {
+    width: 100%;
+    flex-direction: column;
   }
 
   .attendance-button {
@@ -395,6 +608,23 @@
   .tab {
     padding: 0.6rem 0.75rem;
     font-size: 0.85rem;
+  }
+
+  .attendee-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .attendee-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .status-button {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
   }
 }
 

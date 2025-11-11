@@ -128,3 +128,83 @@ export function useToggleAttendance() {
   })
 }
 
+export function useSetAttendanceStatus() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ 
+      eventId, 
+      playerId, 
+      status 
+    }: { 
+      eventId: string
+      playerId: string
+      status: 'present' | 'absent'
+    }) => {
+      // Sprawdź czy już istnieje
+      const { data: existing } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('player_id', playerId)
+        .maybeSingle()
+
+      if (existing) {
+        // Aktualizuj
+        const { data, error } = await supabase
+          .from('attendance')
+          .update({ status })
+          .eq('id', existing.id)
+          .select()
+          .single()
+
+        if (error) throw error
+        return data
+      } else {
+        // Dodaj nowy
+        const { data, error } = await supabase
+          .from('attendance')
+          .insert([{
+            event_id: eventId,
+            player_id: playerId,
+            status,
+            match_id: null
+          }])
+          .select()
+          .single()
+
+        if (error) throw error
+        return data
+      }
+    },
+    onSuccess: (_, variables) => {
+      // Odśwież cache
+      queryClient.invalidateQueries({ queryKey: ['attendance', variables.eventId] })
+      queryClient.invalidateQueries({ queryKey: ['attendance-count', variables.eventId] })
+      queryClient.invalidateQueries({ queryKey: ['attendance-absent-count', variables.eventId] })
+      queryClient.invalidateQueries({ queryKey: ['user-attendance', variables.eventId] })
+    },
+  })
+}
+
+export function useAbsentCount(eventId: string) {
+  return useQuery({
+    queryKey: ['attendance-absent-count', eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('status', 'absent')
+
+      if (error) {
+        console.error('Błąd przy liczeniu nieobecnych:', error)
+        throw error
+      }
+
+      return data?.length || 0
+    },
+    enabled: !!eventId,
+  })
+}
+

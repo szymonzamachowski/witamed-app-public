@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { useEvents } from '../hooks/useEvents'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { Match, Event } from '../types/database'
 import './calendar.css'
 
@@ -14,6 +14,7 @@ export default function CalendarPage() {
   const { data: matches, isLoading: matchesLoading } = useMatches()
   const { data: events, isLoading: eventsLoading } = useEvents()
   const [currentDate, setCurrentDate] = useState(new Date())
+  const navigate = useNavigate()
   const isLoading = matchesLoading || eventsLoading
 
   // Połącz wszystkie wydarzenia (mecze, treningi, sparingi) dla bieżącego miesiąca
@@ -254,8 +255,8 @@ export default function CalendarPage() {
                       </div>
                     )}
                     
-                    {isMatch && (
-                      <div className="match-popup-actions">
+                    <div className="match-popup-actions">
+                      {isMatch && (
                         <Link 
                           to={`/matches/${(selectedEvent.data as Match).id}`}
                           className="popup-view-button"
@@ -263,8 +264,23 @@ export default function CalendarPage() {
                         >
                           Zobacz pełne szczegóły meczu
                         </Link>
-                      </div>
-                    )}
+                      )}
+                      <button
+                        className="popup-attendance-button"
+                        onClick={() => {
+                          let tab = 'training'
+                          if (isMatch) {
+                            tab = 'match'
+                          } else if (isFriendly) {
+                            tab = 'sparing'
+                          }
+                          setSelectedDay(null)
+                          navigate(`/attendance?tab=${tab}`)
+                        }}
+                      >
+                        Zobacz obecności
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
