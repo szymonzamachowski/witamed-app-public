@@ -52,6 +52,12 @@ export default function Home(){
   const newsSectionRef = useRef<HTMLElement | null>(null)
   const [isNewsVisible, setIsNewsVisible] = useState(false)
 
+  const scrollToNews = () => {
+    if (newsSectionRef.current) {
+      newsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -104,7 +110,18 @@ export default function Home(){
           </div>
       </header>
 
-      <div className={`news-hint ${isNewsVisible ? 'fade-out' : ''}`}>
+      <div 
+        className={`news-hint ${isNewsVisible ? 'fade-out' : ''}`}
+        onClick={scrollToNews}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            scrollToNews()
+          }
+        }}
+      >
         <span className="news-hint-text">Aktualności poniżej ↓</span>
       </div>
 

@@ -246,7 +246,7 @@
   box-shadow: var(--shadow-lg);
   opacity: 1;
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .news-hint.fade-out {
