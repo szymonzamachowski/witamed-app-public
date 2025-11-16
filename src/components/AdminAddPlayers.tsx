@@ -10,7 +10,6 @@ const PLAYERS_LIST = [
   { username: 'kaminski', fullName: 'Kamiński Michał', leagueLicense: '9000000007', email: 'kaminski@witamed.local', isAdmin: true },
   { username: 'dabrowski', fullName: 'Dąbrowski Mateusz', leagueLicense: '9000000010', email: 'dabrowski@witamed.local', isAdmin: false },
   { username: 'zielinski', fullName: 'Zieliński Marcin', leagueLicense: '9000000005', email: 'zielinski@witamed.local', isAdmin: false },
-  { username: 'michalski', fullName: 'Michalski Dominik', leagueLicense: '9000000001', email: 'michalski@witamed.local', isAdmin: false },
   { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', email: 'kowalczyk@witamed.local', isAdmin: false },
   { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', email: 'wojcik@witamed.local', isAdmin: true },
   { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', email: 'zamachowski@witamed.local', isAdmin: true },

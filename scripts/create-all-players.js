@@ -78,7 +78,6 @@ const PLAYERS = [
   { username: 'kaminski', fullName: 'Kamiński Michał', leagueLicense: '9000000007', isAdmin: false },
   { username: 'dabrowski', fullName: 'Dąbrowski Mateusz', leagueLicense: '9000000010', isAdmin: false },
   { username: 'zielinski', fullName: 'Zieliński Marcin', leagueLicense: '9000000005', isAdmin: false },
-  { username: 'michalski', fullName: 'Michalski Dominik', leagueLicense: '9000000001', isAdmin: false },
   { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', isAdmin: false },
   { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', isAdmin: false },
   { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', isAdmin: true },
