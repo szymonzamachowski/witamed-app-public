@@ -46,6 +46,7 @@ export default function MatchDetail() {
   }
 
   // Funkcja do wyciągnięcia ID wideo lub playlisty z YouTube URL
+  // oraz przygotowania możliwie najlepszego URL do osadzenia
   const getYouTubeEmbedUrl = (url: string | undefined): string | null => {
     if (!url) return null
 
@@ -73,11 +74,24 @@ export default function MatchDetail() {
     }
 
     // Jeśli nie playlisty, spróbuj wyciągnąć ID wideo
-    const videoMatch = url.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]{11})/)
+    // Obsługa standardowych linków + linków live (/live/VIDEO_ID)
+    const videoMatch = url.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/)([^#&?]{11})/)
     if (videoMatch) {
       return `https://www.youtube.com/embed/${videoMatch[1]}?autoplay=0`
     }
 
+    // Jeżeli to nadal jest link do YouTube, ale nie udało się wyciągnąć ID,
+    // użyj oryginalnego URL jako src iframe – YouTube zwykle i tak go obsłuży.
+    try {
+      const parsed = new URL(url)
+      if (parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be')) {
+        return url
+      }
+    } catch {
+      // Ignoruj błędy parsowania i po prostu zwróć null
+    }
+
+    // Dla innych serwisów (np. Vimeo) na razie nie próbujemy embedować
     return null
   }
 
@@ -107,20 +121,36 @@ export default function MatchDetail() {
         </div>
       </div>
 
-      {youtubeEmbedUrl && (
+      {match.video_url && (
         <div className="match-video-section">
           <h2>Wideo z meczu</h2>
-          <div className="video-container">
-            <iframe
-              width="100%"
-              height="500"
-              src={youtubeEmbedUrl}
-              title="Wideo z meczu"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          {/* Jeśli udało się przygotować URL embed, pokaż osadzone wideo */}
+          {youtubeEmbedUrl ? (
+            <div className="video-container">
+              <iframe
+                width="100%"
+                height="500"
+                src={youtubeEmbedUrl}
+                title="Wideo z meczu"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            // Fallback: jeśli nie umiemy zbudować embed, pokaż przycisk z linkiem
+            <p style={{ marginTop: '1rem' }}>
+              Nie udało się osadzić wideo, ale możesz otworzyć nagranie bezpośrednio:&nbsp;
+              <a 
+                href={match.video_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: '#7fb069', textDecoration: 'underline' }}
+              >
+                Otwórz nagranie
+              </a>
+            </p>
+          )}
         </div>
       )}
 
