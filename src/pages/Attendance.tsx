@@ -496,7 +496,7 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
                                   </button>
                                 </>
                               )}
-                              {isAdmin && (
+                              {canEdit && (
                                 <button
                                   className="status-button delete"
                                   onClick={() => {
@@ -634,7 +634,7 @@ function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: (
                                   </button>
                                 </>
                               )}
-                              {isAdmin && (
+                              {canEdit && (
                                 <button
                                   className="status-button delete"
                                   onClick={() => {
