@@ -387,7 +387,7 @@ function MatchCard({
 }
 
 function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
-  const { user, profile } = useAuth()
+  const { user, profile, loading } = useAuth()
   const { data: attendance, isLoading } = useAttendance(eventId)
   const setAttendanceStatusMutation = useSetAttendanceStatus()
   const deleteAttendanceMutation = useDeleteEventAttendance()
@@ -395,6 +395,27 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
 
   // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
   if (!user) {
+    return null
+  }
+
+  // Poczekaj aż profil się załaduje, żeby poprawnie określić uprawnienia admina
+  if (loading && user && profile === null) {
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Lista obecności</h3>
+            <button className="modal-close" onClick={onClose}>×</button>
+          </div>
+          <div className="modal-body">
+            <div className="loading">Ładowanie profilu...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
     return null
   }
 
@@ -504,7 +525,7 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
 }
 
 function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: () => void }) {
-  const { user, profile } = useAuth()
+  const { user, profile, loading } = useAuth()
   const { data: attendance, isLoading } = useMatchAttendance(matchId)
   const setMatchAttendanceStatusMutation = useSetMatchAttendanceStatus()
   const deleteMatchAttendanceMutation = useDeleteMatchAttendance()
@@ -512,6 +533,27 @@ function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: (
 
   // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
   if (!user) {
+    return null
+  }
+
+  // Poczekaj aż profil się załaduje, żeby poprawnie określić uprawnienia admina
+  if (loading && user && profile === null) {
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Lista obecności</h3>
+            <button className="modal-close" onClick={onClose}>×</button>
+          </div>
+          <div className="modal-body">
+            <div className="loading">Ładowanie profilu...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
     return null
   }
 

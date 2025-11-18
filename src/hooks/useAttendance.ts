@@ -212,7 +212,7 @@ export function useDeleteEventAttendance() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ attendanceId }: { attendanceId: string }) => {
+    mutationFn: async ({ attendanceId, eventId }: { attendanceId: string; eventId: string }) => {
       const { error } = await supabase
         .from('attendance')
         .delete()
@@ -223,7 +223,7 @@ export function useDeleteEventAttendance() {
         throw error
       }
     },
-    onSuccess: (_data, variables: { attendanceId: string } & { eventId: string }) => {
+    onSuccess: (_data, variables) => {
       // Odśwież powiązane zapytania dla wydarzenia
       const { eventId } = variables
       queryClient.invalidateQueries({ queryKey: ['attendance', eventId] })

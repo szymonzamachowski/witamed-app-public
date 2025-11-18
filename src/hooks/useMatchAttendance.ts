@@ -213,7 +213,7 @@ export function useDeleteMatchAttendance() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ attendanceId }: { attendanceId: string }) => {
+    mutationFn: async ({ attendanceId, matchId }: { attendanceId: string; matchId: string }) => {
       const { error } = await supabase
         .from('attendance')
         .delete()
@@ -224,7 +224,7 @@ export function useDeleteMatchAttendance() {
         throw error
       }
     },
-    onSuccess: (_data, variables: { attendanceId: string } & { matchId: string }) => {
+    onSuccess: (_data, variables) => {
       const { matchId } = variables
       queryClient.invalidateQueries({ queryKey: ['match-attendance', matchId] })
       queryClient.invalidateQueries({ queryKey: ['match-attendance-count', matchId] })
