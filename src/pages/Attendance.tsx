@@ -4,8 +4,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../hooks/useAuth'
 import { useEvents } from '../hooks/useEvents'
 import { useMatches } from '../hooks/useMatches'
-import { useUserAttendance, useToggleAttendance, useSetAttendanceStatus, useAttendance, useAttendanceCount, useAbsentCount } from '../hooks/useAttendance'
-import { useUserMatchAttendance, useToggleMatchAttendance, useSetMatchAttendanceStatus, useMatchAttendance, useMatchAttendanceCount, useMatchAbsentCount } from '../hooks/useMatchAttendance'
+import { useUserAttendance, useToggleAttendance, useSetAttendanceStatus, useAttendance, useAttendanceCount, useAbsentCount, useDeleteEventAttendance } from '../hooks/useAttendance'
+import { useUserMatchAttendance, useToggleMatchAttendance, useSetMatchAttendanceStatus, useMatchAttendance, useMatchAttendanceCount, useMatchAbsentCount, useDeleteMatchAttendance } from '../hooks/useMatchAttendance'
 import './attendance.css'
 
 type TabType = 'training' | 'sparing' | 'match'
@@ -390,6 +390,7 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
   const { user, profile } = useAuth()
   const { data: attendance, isLoading } = useAttendance(eventId)
   const setAttendanceStatusMutation = useSetAttendanceStatus()
+  const deleteAttendanceMutation = useDeleteEventAttendance()
   const allPlayers = attendance || []
 
   // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
@@ -453,26 +454,40 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
                                 {att.profiles?.full_name || att.profiles?.username || 'Nieznany zawodnik'}
                               </span>
                             </div>
-                            {canEdit && (
-                              <div className="attendee-actions">
+                            <div className="attendee-actions">
+                              {canEdit && (
+                                <>
+                                  <button
+                                    className={`status-button present ${isPresent ? 'active' : ''}`}
+                                    onClick={() => handleStatusChange(att.player_id, 'present')}
+                                    disabled={setAttendanceStatusMutation.isPending}
+                                    title="Zaznacz obecność"
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    className={`status-button absent ${isAbsent ? 'active' : ''}`}
+                                    onClick={() => handleStatusChange(att.player_id, 'absent')}
+                                    disabled={setAttendanceStatusMutation.isPending}
+                                    title="Zaznacz nieobecność"
+                                  >
+                                    ✗
+                                  </button>
+                                </>
+                              )}
+                              {isAdmin && (
                                 <button
-                                  className={`status-button present ${isPresent ? 'active' : ''}`}
-                                  onClick={() => handleStatusChange(att.player_id, 'present')}
-                                  disabled={setAttendanceStatusMutation.isPending}
-                                  title="Zaznacz obecność"
+                                  className="status-button delete"
+                                  onClick={() => {
+                                    deleteAttendanceMutation.mutate({ attendanceId: att.id, eventId })
+                                  }}
+                                  disabled={deleteAttendanceMutation.isPending}
+                                  title="Usuń wpis obecności"
                                 >
-                                  ✓
+                                  ×
                                 </button>
-                                <button
-                                  className={`status-button absent ${isAbsent ? 'active' : ''}`}
-                                  onClick={() => handleStatusChange(att.player_id, 'absent')}
-                                  disabled={setAttendanceStatusMutation.isPending}
-                                  title="Zaznacz nieobecność"
-                                >
-                                  ✗
-                                </button>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </li>
                       )
@@ -492,6 +507,7 @@ function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: (
   const { user, profile } = useAuth()
   const { data: attendance, isLoading } = useMatchAttendance(matchId)
   const setMatchAttendanceStatusMutation = useSetMatchAttendanceStatus()
+  const deleteMatchAttendanceMutation = useDeleteMatchAttendance()
   const allPlayers = attendance || []
 
   // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
@@ -555,26 +571,40 @@ function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: (
                                 {att.profiles?.full_name || att.profiles?.username || 'Nieznany zawodnik'}
                               </span>
                             </div>
-                            {canEdit && (
-                              <div className="attendee-actions">
+                            <div className="attendee-actions">
+                              {canEdit && (
+                                <>
+                                  <button
+                                    className={`status-button present ${isPresent ? 'active' : ''}`}
+                                    onClick={() => handleStatusChange(att.player_id, 'present')}
+                                    disabled={setMatchAttendanceStatusMutation.isPending}
+                                    title="Zaznacz obecność"
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    className={`status-button absent ${isAbsent ? 'active' : ''}`}
+                                    onClick={() => handleStatusChange(att.player_id, 'absent')}
+                                    disabled={setMatchAttendanceStatusMutation.isPending}
+                                    title="Zaznacz nieobecność"
+                                  >
+                                    ✗
+                                  </button>
+                                </>
+                              )}
+                              {isAdmin && (
                                 <button
-                                  className={`status-button present ${isPresent ? 'active' : ''}`}
-                                  onClick={() => handleStatusChange(att.player_id, 'present')}
-                                  disabled={setMatchAttendanceStatusMutation.isPending}
-                                  title="Zaznacz obecność"
+                                  className="status-button delete"
+                                  onClick={() => {
+                                    deleteMatchAttendanceMutation.mutate({ attendanceId: att.id, matchId })
+                                  }}
+                                  disabled={deleteMatchAttendanceMutation.isPending}
+                                  title="Usuń wpis obecności"
                                 >
-                                  ✓
+                                  ×
                                 </button>
-                                <button
-                                  className={`status-button absent ${isAbsent ? 'active' : ''}`}
-                                  onClick={() => handleStatusChange(att.player_id, 'absent')}
-                                  disabled={setMatchAttendanceStatusMutation.isPending}
-                                  title="Zaznacz nieobecność"
-                                >
-                                  ✗
-                </button>
-              </div>
-                            )}
+                              )}
+                            </div>
             </div>
           </li>
                       )

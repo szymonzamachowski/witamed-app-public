@@ -209,3 +209,26 @@ export function useMatchAbsentCount(matchId: string) {
   })
 }
 
+export function useDeleteMatchAttendance() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ attendanceId }: { attendanceId: string }) => {
+      const { error } = await supabase
+        .from('attendance')
+        .delete()
+        .eq('id', attendanceId)
+
+      if (error) {
+        console.error('Błąd przy usuwaniu obecności na mecz:', error)
+        throw error
+      }
+    },
+    onSuccess: (_data, variables: { attendanceId: string } & { matchId: string }) => {
+      const { matchId } = variables
+      queryClient.invalidateQueries({ queryKey: ['match-attendance', matchId] })
+      queryClient.invalidateQueries({ queryKey: ['match-attendance-count', matchId] })
+      queryClient.invalidateQueries({ queryKey: ['match-attendance-absent-count', matchId] })
+    },
+  })
+}

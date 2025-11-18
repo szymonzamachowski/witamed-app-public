@@ -208,3 +208,27 @@ export function useAbsentCount(eventId: string) {
   })
 }
 
+export function useDeleteEventAttendance() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ attendanceId }: { attendanceId: string }) => {
+      const { error } = await supabase
+        .from('attendance')
+        .delete()
+        .eq('id', attendanceId)
+
+      if (error) {
+        console.error('Błąd przy usuwaniu obecności (event):', error)
+        throw error
+      }
+    },
+    onSuccess: (_data, variables: { attendanceId: string } & { eventId: string }) => {
+      // Odśwież powiązane zapytania dla wydarzenia
+      const { eventId } = variables
+      queryClient.invalidateQueries({ queryKey: ['attendance', eventId] })
+      queryClient.invalidateQueries({ queryKey: ['attendance-count', eventId] })
+      queryClient.invalidateQueries({ queryKey: ['attendance-absent-count', eventId] })
+    },
+  })
+}
