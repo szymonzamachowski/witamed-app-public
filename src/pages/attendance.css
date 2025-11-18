@@ -468,6 +468,23 @@
   color: #fff;
 }
 
+/* Przycisk usuwania wpisu obecności */
+.status-button.delete {
+  width: auto;
+  min-width: 48px;
+  padding: 0 0.75rem;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+}
+
+.status-button.delete:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  transform: scale(1.05);
+}
+
 .attendees-section {
   margin-bottom: 1.5rem;
 }

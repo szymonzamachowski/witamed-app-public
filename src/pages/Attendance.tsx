@@ -505,7 +505,7 @@ function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => 
                                   disabled={deleteAttendanceMutation.isPending}
                                   title="Usuń wpis obecności"
                                 >
-                                  ×
+                                  Usuń
                                 </button>
                               )}
                             </div>
@@ -643,7 +643,7 @@ function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: (
                                   disabled={deleteMatchAttendanceMutation.isPending}
                                   title="Usuń wpis obecności"
                                 >
-                                  ×
+                                  Usuń
                                 </button>
                               )}
                             </div>
