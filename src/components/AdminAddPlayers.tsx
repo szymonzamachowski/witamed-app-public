@@ -13,13 +13,14 @@ const PLAYERS_LIST = [
   { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', email: 'kowalczyk@witamed.local', isAdmin: false },
   { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', email: 'wojcik@witamed.local', isAdmin: true },
   { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', email: 'zamachowski@witamed.local', isAdmin: true },
+  { username: 'piotrowski', fullName: 'Piotrowski Piotr', leagueLicense: '0000000000', email: 'piotrowski@witamed.local', isAdmin: false },
 ]
 
 export default function AdminAddPlayers() {
   return (
     <div className="admin-add-players">
       <h3>Lista zawodników</h3>
-      
+
       <p className="info-text">
         Poniżej znajduje się lista wszystkich {PLAYERS_LIST.length} zawodników z numerami legitymacji ligowej:
       </p>
