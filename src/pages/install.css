@@ -1,0 +1,98 @@
+.install {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.install h1 {
+  margin-bottom: var(--space-1);
+}
+
+.install-done {
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  font-weight: 600;
+}
+
+.install-now {
+  min-height: 50px;
+}
+
+.install-tabs {
+  grid-template-columns: 1fr 1fr;
+}
+
+.install-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.install-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.install-step-no {
+  font-size: 1.8rem;
+  color: var(--label);
+  width: 22px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.install-step-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--secondary);
+}
+
+.install-step-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.step-url {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--secondary);
+}
+
+.install-step p {
+  font-size: 15px;
+}
+
+.install-note {
+  font-size: 13px;
+}
+
+.install-notif {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.install-notif-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--label);
+}
+
+.install-notif h2 {
+  font-size: 1.4rem;
+  margin: 0 0 var(--space-1);
+}
+
+.install-notif p {
+  font-size: 15px;
+  margin-bottom: var(--space-3);
+}

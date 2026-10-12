@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import NavBar from './components/NavBar'
+import BottomNav from './components/BottomNav'
 import Home from './pages/Home'
 import Matches from './pages/Matches'
 import MatchDetail from './pages/MatchDetail'
@@ -10,12 +11,13 @@ import Statistics from './pages/Statistics'
 import Login from './pages/Login'
 import MyAccount from './pages/MyAccount'
 import AdminPanel from './pages/AdminPanel'
+import Install from './pages/Install'
 
 function App() {
   return (
     <div className="app-root">
       <NavBar />
-      <main className="container">
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/matches" element={<Matches />} />
@@ -26,9 +28,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<MyAccount />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/instalacja" element={<Install />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <BottomNav />
     </div>
   )
 }

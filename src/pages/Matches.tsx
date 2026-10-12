@@ -1,95 +1,70 @@
 import { Link } from 'react-router-dom'
+import { VideoCameraIcon, MapPinIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useMatches } from '../hooks/useMatches'
+import { parseMatchScore, matchOutcome, OUTCOME_LABEL } from '../utils/matchScore'
 import './matches.css'
 
 export default function Matches() {
   const { data: matches, isLoading, error } = useMatches()
 
-  // Debug
-  console.log('Matches component - isLoading:', isLoading, 'error:', error, 'matches:', matches)
-
-  if (isLoading) {
-    return (
-      <div className="page matches">
-        <div className="loading">Ładowanie meczów...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="page matches">
-        <h2>Rozegrane mecze</h2>
-        <div className="error">
-          Błąd przy ładowaniu meczów: {error instanceof Error ? error.message : 'Nieznany błąd'}
-        </div>
-        <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginTop: '1rem' }}>
-          Sprawdź konsolę przeglądarki (F12) aby zobaczyć szczegóły błędu.
-        </p>
-      </div>
-    )
-  }
-
-  // Filtruj tylko mecze z wynikiem (rozegrane)
-  const playedMatches = matches?.filter(match => match.score && match.score.trim() !== '') || []
-
-  if (!matches || matches.length === 0) {
-    return (
-      <div className="page matches">
-        <h2>Rozegrane mecze</h2>
-        <p>Brak meczów do wyświetlenia.</p>
-        <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginTop: '1rem', fontSize: '0.9rem' }}>
-          Upewnij się, że uruchomiłeś skrypt SQL w Supabase SQL Editor.
-        </p>
-      </div>
-    )
-  }
-
-  if (playedMatches.length === 0) {
-    return (
-      <div className="page matches">
-        <h2>Rozegrane mecze</h2>
-        <p>Brak rozegranych meczów do wyświetlenia.</p>
-        <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginTop: '1rem', fontSize: '0.9rem' }}>
-          Mecze bez wyniku nie są wyświetlane w tej zakładce.
-        </p>
-      </div>
-    )
-  }
+  // Tylko mecze z wynikiem (rozegrane); mecze bez wyniku są w Obecności / Terminarzu
+  const playedMatches = matches?.filter(match => match.score && match.score.trim() !== '') ?? []
 
   return (
     <div className="page matches">
-      <h2>Rozegrane mecze</h2>
-      <div className="matches-list">
-        {playedMatches.map((match) => (
-          <Link key={match.id} to={`/matches/${match.id}`} className="match-card">
-            <div className="match-card-header">
-              <h3>vs {match.opponent}</h3>
-              {match.score && (
-                <div className="match-score">{match.score}</div>
-              )}
-            </div>
-            <div className="match-card-meta">
-              <div className="match-date">
-                {new Date(match.date).toLocaleDateString('pl-PL', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: 'Europe/Warsaw'
-                })}
-              </div>
-              <div className="match-location">{match.location}</div>
-            </div>
-            {match.video_url && (
-              <div className="match-video-indicator">
-                📹 Wideo dostępne
-              </div>
-            )}
-          </Link>
-        ))}
-      </div>
+      <header className="matches-header">
+        <h1>Mecze</h1>
+        <p className="muted">Rozegrane mecze ligowe — kliknij, żeby zobaczyć wideo i statystyki.</p>
+      </header>
+
+      {isLoading ? (
+        <p className="muted">Ładowanie meczów…</p>
+      ) : error ? (
+        <div className="card matches-empty">
+          <p className="matches-error">Nie udało się wczytać meczów. Spróbuj odświeżyć stronę.</p>
+        </div>
+      ) : playedMatches.length === 0 ? (
+        <div className="card matches-empty">
+          <p className="muted">Brak rozegranych meczów w tym sezonie.</p>
+        </div>
+      ) : (
+        <div className="matches-list">
+          {playedMatches.map(match => {
+            const result = parseMatchScore(match.score)
+            const outcome = matchOutcome(result)
+            const date = new Date(match.date)
+
+            return (
+              <Link key={match.id} to={`/matches/${match.id}`} className="card match-card">
+                <div className={`match-result-badge ${outcome ? `is-${outcome}` : ''}`}>
+                  <span className="display">{result ? `${result.ours}:${result.theirs}` : '–'}</span>
+                  <span className="match-result-label">{outcome ? OUTCOME_LABEL[outcome] : 'Wynik'}</span>
+                </div>
+
+                <div className="match-card-body">
+                  <h2 className="match-card-title display">vs {match.opponent}</h2>
+                  <div className="match-card-meta muted">
+                    <span>
+                      {date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' })}
+                      {', '}
+                      {date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })}
+                    </span>
+                    {match.location && (
+                      <span><MapPinIcon aria-hidden="true" />{match.location}</span>
+                    )}
+                  </div>
+                  {result?.sets && <div className="match-card-sets muted">{result.sets}</div>}
+                  {match.video_url && (
+                    <span className="match-video-chip"><VideoCameraIcon aria-hidden="true" />Wideo</span>
+                  )}
+                </div>
+
+                <ChevronRightIcon className="match-card-arrow" aria-hidden="true" />
+              </Link>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

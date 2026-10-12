@@ -492,12 +492,12 @@ export default function AdminMatchManager() {
               </form>
 
               {showDeleteConfirm && (
-                <div className="delete-confirm">
-                  <div className="delete-confirm-content">
+                <div className="match-delete-modal">
+                  <div className="match-delete-modal-content">
                     <h4>Potwierdź usunięcie</h4>
                     <p>Czy na pewno chcesz usunąć mecz vs {selectedMatch.opponent}?</p>
                     <p className="delete-warning">Ta operacja jest nieodwracalna!</p>
-                    <div className="delete-confirm-actions">
+                    <div className="match-delete-modal-actions">
                       <button
                         type="button"
                         className="admin-button admin-button-danger"

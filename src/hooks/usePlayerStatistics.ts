@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { Profile } from '../types/database'
+import { RAW_FIELDS, type RawStats } from '../stats/statConfig'
 
 export type PlayerStatistics = {
   player_id: string
@@ -32,6 +33,8 @@ export type PlayerStatistics = {
   attack_percentage: number
   // Szczegółowe statystyki - blok
   block_total: number
+  /** Suma statystyk sezonu bez ostatniego meczu zawodnika (do strzałek trendu); null przy < 2 meczach */
+  before_last_match: RawStats | null
 }
 
 export function usePlayerStatistics() {
@@ -41,7 +44,7 @@ export function usePlayerStatistics() {
       // Pobierz wszystkie statystyki z informacjami o zawodnikach
       const { data: allStats, error: statsError } = await supabase
         .from('match_statistics')
-        .select('*, profiles(*), matches(id)')
+        .select('*, profiles(*), matches(id, date)')
 
       if (statsError) {
         console.error('❌ Błąd przy pobieraniu statystyk:', statsError)
@@ -76,6 +79,8 @@ export function usePlayerStatistics() {
 
       // Agreguj statystyki per zawodnik, uwzględniając tylko mecze z obecnością
       const playerStatsMap = new Map<string, PlayerStatistics>()
+      // Ostatni mecz każdego zawodnika (do strzałek trendu)
+      const lastMatchRow = new Map<string, { date: number; stat: any }>()
 
       allStats.forEach((stat: any) => {
         const playerId = stat.player_id
@@ -115,7 +120,14 @@ export function usePlayerStatistics() {
             attack_blocked: 0,
             attack_percentage: 0,
             block_total: 0,
+            before_last_match: null,
           })
+        }
+
+        const matchDate = new Date(stat.matches?.date ?? 0).getTime()
+        const previousLast = lastMatchRow.get(playerId)
+        if (!previousLast || matchDate > previousLast.date) {
+          lastMatchRow.set(playerId, { date: matchDate, stat })
         }
 
         const playerStats = playerStatsMap.get(playerId)!
@@ -167,6 +179,16 @@ export function usePlayerStatistics() {
         // Punkty = skończone ataki + asy + bloki
         stats.total_points = (stats.attack_points || 0) + (stats.serve_aces || 0) + (stats.block_total || 0)
         
+        // Sezon bez ostatniego meczu - do porównania „po ostatnim meczu lepiej/gorzej”
+        const last = lastMatchRow.get(stats.player_id)
+        if (last && stats.matches_played >= 2) {
+          const before: RawStats = {}
+          for (const field of RAW_FIELDS) {
+            before[field] = (stats[field] || 0) - (last.stat[field] || 0)
+          }
+          stats.before_last_match = before
+        }
+
         // Dla kompatybilności wstecznej (ale nie używane w UI)
         stats.total_aces = stats.serve_aces || 0
         stats.total_blocks = stats.block_total || 0

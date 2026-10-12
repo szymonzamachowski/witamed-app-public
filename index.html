@@ -1,14 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
-  <!-- Use the provided PNG logo as favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/photos/logo.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/photos/logo.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/photos/logo.png" />
-  <meta name="theme-color" content="#071f2a" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>witamed-app</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Witamed" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B1622" />
+    <title>Witamed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Ustaw motyw przed renderem, żeby nie było mignięcia złego motywu
+      (function () {
+        var theme = null
+        try { theme = localStorage.getItem('witamed-theme') } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        }
+        document.documentElement.dataset.theme = theme
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#F2F5F8' : '#0B1622')
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

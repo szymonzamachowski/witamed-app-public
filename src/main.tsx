@@ -25,3 +25,10 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </React.StrictMode>,
 )
+
+// Service worker - potrzebny do powiadomień push i instalacji na ekranie głównym
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(error => console.error('Rejestracja service workera nie powiodła się:', error))
+  })
+}

@@ -16,14 +16,14 @@
 .match-manager-tabs {
   display: flex;
   gap: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid color-mix(in srgb, var(--text) 10%, transparent);
   margin-bottom: 1rem;
 }
 
 .manager-tab {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, var(--text) 70%, transparent);
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
@@ -35,7 +35,7 @@
 }
 
 .manager-tab:hover {
-  color: #fff;
+  color: var(--text);
 }
 
 .manager-tab.active {
@@ -46,14 +46,14 @@
 .events-type-tabs {
   display: flex;
   gap: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid color-mix(in srgb, var(--text) 10%, transparent);
   margin-bottom: 1rem;
 }
 
 .event-tab {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, var(--text) 70%, transparent);
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
@@ -65,7 +65,7 @@
 }
 
 .event-tab:hover {
-  color: #fff;
+  color: var(--text);
 }
 
 .event-tab.active {
@@ -82,11 +82,11 @@
 .events-list-section {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .events-list-section h4 {
-  color: #fff;
+  color: var(--text);
   font-size: 1.1rem;
   margin-bottom: 1rem;
 }
@@ -149,8 +149,8 @@
 .match-select:focus {
   outline: none;
   border-color: var(--color-pear-green);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
+  background: color-mix(in srgb, var(--text) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .match-select option {

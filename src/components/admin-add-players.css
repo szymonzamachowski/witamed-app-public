@@ -14,7 +14,7 @@
 }
 
 .info-text {
-  color: rgba(255, 255, 255, 0.8);
+  color: color-mix(in srgb, var(--text) 80%, transparent);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -31,29 +31,29 @@
 .players-table {
   width: 100%;
   border-collapse: collapse;
-  color: rgba(255, 255, 255, 0.9);
+  color: color-mix(in srgb, var(--text) 90%, transparent);
   font-size: 0.95rem;
 }
 
 .players-table thead {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 
 .players-table th {
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  color: color-mix(in srgb, var(--text) 95%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .players-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
 }
 
 .players-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
 .players-table tbody tr:last-child td {
@@ -71,13 +71,13 @@
 
 .admin-badge {
   display: inline-block;
-  background: rgba(212, 175, 55, 0.2);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--color-gold);
   font-weight: 700;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
   font-size: 0.85em;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .player-badge {

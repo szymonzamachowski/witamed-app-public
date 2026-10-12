@@ -73,7 +73,7 @@
 .news-select:focus {
   outline: none;
   border-color: var(--color-pear-green);
-  box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 @media (max-width: 768px) {

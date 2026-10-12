@@ -24,14 +24,14 @@
 .admin-stats-table {
   width: 100%;
   border-collapse: collapse;
-  color: #fff;
+  color: var(--text);
   font-size: 0.9rem;
   min-width: 1200px;
   table-layout: auto;
 }
 
 .admin-stats-table thead {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -41,9 +41,9 @@
   padding: 0.75rem 0.5rem;
   text-align: center;
   font-weight: 600;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
   white-space: nowrap;
 }
 
@@ -53,7 +53,7 @@
   position: sticky;
   left: 0;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in srgb, var(--text) 15%, transparent);
   backdrop-filter: blur(10px);
 }
 
@@ -62,12 +62,12 @@
 }
 
 .admin-stats-table tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   transition: background 0.2s;
 }
 
 .admin-stats-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 
 .admin-stats-table tbody tr.totals-row {
@@ -77,19 +77,19 @@
 }
 
 .admin-stats-table tbody tr.totals-row:hover {
-  background: rgba(127, 176, 105, 0.25);
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
 .admin-stats-table td {
   padding: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   text-align: center;
 }
 
 .admin-stats-table td.player-name {
   text-align: left;
   font-weight: 600;
-  color: #fff;
+  color: var(--text);
   padding-left: 0.75rem;
   position: sticky;
   left: 0;
@@ -160,12 +160,12 @@
 .stat-input:focus {
   outline: none;
   border-color: var(--color-pear-green);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 2px rgba(127, 176, 105, 0.2);
+  background: color-mix(in srgb, var(--text) 15%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .stat-input:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--text) 12%, transparent);
 }
 
 .save-btn {
@@ -299,33 +299,33 @@
 .errors-table {
   width: 100%;
   border-collapse: collapse;
-  color: #fff;
+  color: var(--text);
   font-size: 0.9rem;
 }
 
 .errors-table thead {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .errors-table th {
   padding: 0.5rem 0.25rem;
   text-align: center;
   font-weight: 600;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
   font-size: 0.85rem;
 }
 
 .errors-table td {
   padding: 0.5rem 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   text-align: center;
   min-width: 0;
 }
 
 .errors-table tr.error-category {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 
 .errors-table td.error-category-label {
@@ -334,20 +334,20 @@
   padding: 0.4rem 0.25rem;
   color: var(--color-pear-green);
   font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .errors-table tr.total-row {
-  background: rgba(127, 176, 105, 0.15);
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .errors-table td.total-cell {
   font-weight: 700;
-  background: rgba(127, 176, 105, 0.2);
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
   text-align: center;
   padding: 0.5rem;
-  color: #7FB069;
+  color: var(--label);
   font-size: 0.9rem;
 }
 
@@ -375,8 +375,8 @@
 .error-input:focus {
   outline: none;
   border-color: var(--color-pear-green);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 2px rgba(127, 176, 105, 0.2);
+  background: color-mix(in srgb, var(--text) 15%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .error-input-small {

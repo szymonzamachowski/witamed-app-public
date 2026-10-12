@@ -376,7 +376,7 @@ export default function AdminEventsManager() {
       ) : (
         <>
           {!selectedEventId ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)' }}>
+            <div className="admin-empty">
               <p>Wybierz wydarzenie z listy powyżej, aby je edytować lub usunąć.</p>
             </div>
           ) : selectedEvent ? (
@@ -459,37 +459,26 @@ export default function AdminEventsManager() {
                 onClick={() => setShowDeleteConfirm(true)}
                 className="admin-button delete-button"
                 disabled={updateEventMutation.isPending || deleteEventMutation.isPending}
-                style={{ 
-                  marginTop: '1rem',
-                  background: 'rgba(231, 76, 60, 0.2)',
-                  border: '1px solid rgba(231, 76, 60, 0.4)',
-                  color: '#ff6b6b'
-                }}
               >
                 Usuń wydarzenie
               </button>
             ) : (
-              <div className="delete-confirm" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(231, 76, 60, 0.1)', border: '1px solid rgba(231, 76, 60, 0.3)', borderRadius: '8px' }}>
-                <p style={{ color: '#fff', marginBottom: '1rem' }}>
+              <div className="delete-confirm">
+                <p className="delete-confirm-text">
                   Czy na pewno chcesz usunąć wydarzenie "{selectedEvent.title}"?
                 </p>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className="delete-confirm-actions">
                   <button
                     onClick={handleDeleteEvent}
                     disabled={deleteEventMutation.isPending}
-                    className="admin-button"
-                    style={{ 
-                      background: 'rgba(231, 76, 60, 0.3)',
-                      border: '1px solid rgba(231, 76, 60, 0.5)',
-                      color: '#ff6b6b'
-                    }}
+                    className="admin-button admin-button-danger"
                   >
                     {deleteEventMutation.isPending ? 'Usuwanie...' : 'Tak, usuń'}
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={deleteEventMutation.isPending}
-                    className="admin-button"
+                    className="admin-button admin-button-secondary"
                   >
                     Anuluj
                   </button>
@@ -498,7 +487,7 @@ export default function AdminEventsManager() {
             )}
             </>
           ) : (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)' }}>
+            <div className="admin-empty">
               <p>Wydarzenie nie zostało znalezione.</p>
             </div>
           )}

@@ -1,15 +1,17 @@
 {
-  "name": "Witamed Team",
+  "name": "Witamed",
   "short_name": "Witamed",
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
-  ],
+  "description": "Drużyna siatkarska Witamed — obecność, mecze i statystyki",
+  "lang": "pl",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#071f2a",
-  "background_color": "#071f2a"
+  "orientation": "portrait",
+  "theme_color": "#0B1622",
+  "background_color": "#0B1622",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }

@@ -1,106 +1,139 @@
-.page.matches {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+.matches {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.page.matches h2 {
-  color: var(--color-white);
-  font-size: 2rem;
-  margin-bottom: var(--spacing-xl);
-  font-weight: 700;
+.matches-header h1 {
+  margin-bottom: var(--space-1);
+}
+
+.matches-empty {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.matches-error {
+  color: var(--danger);
 }
 
 .matches-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .match-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  text-decoration: none;
-  color: inherit;
-  transition: all var(--transition-normal);
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color var(--transition);
 }
 
 .match-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-pear-green);
+  color: var(--text);
+  border-color: var(--primary);
 }
 
-.match-card-header {
+.match-result-badge {
+  flex-shrink: 0;
+  width: 72px;
+  padding: var(--space-2) 0;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
 }
 
-.match-card-header h3 {
-  color: #fff;
-  font-size: 1.25rem;
+.match-result-badge .display {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.match-result-badge.is-win .display {
+  color: var(--label);
+}
+
+.match-result-badge.is-loss .display {
+  color: var(--danger);
+}
+
+.match-result-label {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.match-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.match-card-title {
+  font-size: 1.35rem;
   margin: 0;
-}
-
-.match-score {
-  background: linear-gradient(90deg, var(--color-pear-green-lighter), var(--color-pear-green-light));
-  color: var(--color-white);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .match-card-meta {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 2px var(--space-3);
+  font-size: 13px;
 }
 
-.match-date {
-  font-weight: 500;
+.match-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.match-location {
-  opacity: 0.8;
+.match-card-meta svg {
+  width: 15px;
+  height: 15px;
 }
 
-.match-video-indicator {
-  color: var(--color-pear-green);
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-top: auto;
+.match-card-sets {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
-.loading,
-.error {
-  color: var(--color-white);
-  text-align: center;
-  padding: var(--spacing-2xl);
-  font-size: 1.2rem;
+.match-video-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--secondary) 16%, transparent);
+  color: var(--secondary);
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.error {
-  color: var(--color-error);
+.match-video-chip svg {
+  width: 14px;
+  height: 14px;
 }
 
-@media (max-width: 768px) {
-  .page.matches {
-    padding: 1rem;
-  }
-
-  .matches-list {
-    grid-template-columns: 1fr;
-  }
+.match-card-arrow {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
+.match-result-badge.is-draw .display {
+  color: var(--secondary);
+}

@@ -1,755 +1,442 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { XMarkIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../hooks/useAuth'
 import { useEvents } from '../hooks/useEvents'
 import { useMatches } from '../hooks/useMatches'
-import { useUserAttendance, useToggleAttendance, useSetAttendanceStatus, useAttendance, useAttendanceCount, useAbsentCount, useDeleteEventAttendance } from '../hooks/useAttendance'
-import { useUserMatchAttendance, useToggleMatchAttendance, useSetMatchAttendanceStatus, useMatchAttendance, useMatchAttendanceCount, useMatchAbsentCount, useDeleteMatchAttendance } from '../hooks/useMatchAttendance'
+import { useUserAttendance, useSetAttendanceStatus, useAttendance, useAttendanceCount, useAbsentCount, useDeleteEventAttendance } from '../hooks/useAttendance'
+import { useUserMatchAttendance, useSetMatchAttendanceStatus, useMatchAttendance, useMatchAttendanceCount, useMatchAbsentCount, useDeleteMatchAttendance } from '../hooks/useMatchAttendance'
 import { usePlayers } from '../hooks/usePlayers'
+import type { AttendanceTab } from '../utils/attendanceTab'
 import './attendance.css'
 
-type TabType = 'training' | 'sparing' | 'match'
+type Kind = 'event' | 'match'
+type Status = 'present' | 'absent'
+
+/** Wspólny kształt wydarzenia i meczu na tej stronie */
+type AttendanceItem = {
+  kind: Kind
+  id: string
+  title: string
+  date: string
+  location: string
+  description?: string
+  score?: string
+}
+
+const TABS: { id: AttendanceTab; label: string }[] = [
+  { id: 'training', label: 'Treningi' },
+  { id: 'sparing', label: 'Sparingi' },
+  { id: 'match', label: 'Mecze ligowe' },
+]
+
+const EMPTY_TEXT: Record<AttendanceTab, string> = {
+  training: 'Brak zaplanowanych treningów.',
+  sparing: 'Brak zaplanowanych sparingów.',
+  match: 'Brak zaplanowanych meczów ligowych.',
+}
+
+function isTab(value: string | null): value is AttendanceTab {
+  return value === 'training' || value === 'sparing' || value === 'match'
+}
+
+function startOfToday() {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  return now
+}
+
+function isTodayOrLater(date: string) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return d >= startOfToday()
+}
 
 export default function Attendance() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tabParam = searchParams.get('tab') as TabType | null
-  const [activeTab, setActiveTab] = useState<TabType>(tabParam && ['training', 'sparing', 'match'].includes(tabParam) ? tabParam : 'training')
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null)
+  const tabParam = searchParams.get('tab')
+  const focusId = searchParams.get('focus')
+  const [activeTab, setActiveTab] = useState<AttendanceTab>(isTab(tabParam) ? tabParam : 'training')
+  const [selected, setSelected] = useState<{ kind: Kind; id: string } | null>(null)
 
   // Aktualizuj aktywną zakładkę gdy zmieni się parametr URL
   useEffect(() => {
-    if (tabParam && ['training', 'sparing', 'match'].includes(tabParam)) {
-      setActiveTab(tabParam)
-    }
+    if (isTab(tabParam)) setActiveTab(tabParam)
   }, [tabParam])
 
   const { data: allEvents, isLoading: eventsLoading } = useEvents()
   const { data: allMatches, isLoading: matchesLoading } = useMatches()
-  const toggleAttendanceMutation = useToggleAttendance()
-  const toggleMatchAttendanceMutation = useToggleMatchAttendance()
-  const setAttendanceStatusMutation = useSetAttendanceStatus()
-  const setMatchAttendanceStatusMutation = useSetMatchAttendanceStatus()
+  const setEventStatus = useSetAttendanceStatus()
+  const setMatchStatus = useSetMatchAttendanceStatus()
 
-  // Filtruj wydarzenia według typu i usuń przeszłe wydarzenia
-  const getEventsByTab = () => {
-    if (!allEvents) return []
-
-    const now = new Date()
-    now.setHours(0, 0, 0, 0) // Ustaw na początek dnia dla porównania
-
-    let filtered: typeof allEvents = []
-
-    switch (activeTab) {
-      case 'training':
-        filtered = allEvents.filter(e => e.type === 'training')
-        break
-      case 'sparing':
-        filtered = allEvents.filter(e => e.type === 'friendly' || e.type === 'other')
-        break
-      case 'match':
-        return [] // Mecze ligowe będą z tabeli matches
-      default:
-        return []
+  // Przyszłe (od dziś) wydarzenia z aktywnej zakładki
+  const items = useMemo<AttendanceItem[]>(() => {
+    if (activeTab === 'match') {
+      return (allMatches ?? [])
+        .filter(m => isTodayOrLater(m.date))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .map(m => ({ kind: 'match', id: m.id, title: `vs ${m.opponent}`, date: m.date, location: m.location, score: m.score }))
     }
+    return (allEvents ?? [])
+      .filter(e => (activeTab === 'training' ? e.type === 'training' : e.type === 'friendly' || e.type === 'other'))
+      .filter(e => isTodayOrLater(e.date))
+      .map(e => ({ kind: 'event', id: e.id, title: e.title, date: e.date, location: e.location, description: e.description }))
+  }, [activeTab, allEvents, allMatches])
 
-    // Filtruj tylko przyszłe wydarzenia (data >= dzisiaj)
-    return filtered.filter(e => {
-      const eventDate = new Date(e.date)
-      eventDate.setHours(0, 0, 0, 0)
-      return eventDate >= now
-    })
-  }
+  const isLoading = eventsLoading || (activeTab === 'match' && matchesLoading)
 
-  // Pobierz mecze ligowe dla zakładki "Mecze ligowe" (tylko przyszłe)
-  const getLeagueMatches = () => {
-    if (!allMatches) return []
+  // Przewiń do wydarzenia wskazanego w ?focus= (np. po kliknięciu na stronie głównej)
+  const focusedRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!focusId || isLoading || focusedRef.current === focusId) return
+    const el = document.getElementById(`attendance-${focusId}`)
+    if (!el) return
+    focusedRef.current = focusId
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add('is-focused')
+    const timer = window.setTimeout(() => el.classList.remove('is-focused'), 2200)
+    return () => window.clearTimeout(timer)
+  }, [focusId, isLoading, items])
 
-    const now = new Date()
-    now.setHours(0, 0, 0, 0) // Ustaw na początek dnia dla porównania
-
-    // Filtruj tylko przyszłe mecze (data >= dzisiaj)
-    const futureMatches = allMatches.filter(m => {
-      const matchDate = new Date(m.date)
-      matchDate.setHours(0, 0, 0, 0)
-      return matchDate >= now
-    })
-
-    // Sortuj chronologicznie (rosnąco - najbliższe najpierw)
-    return [...futureMatches].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }
-
-  const events = getEventsByTab()
-  const leagueMatches = activeTab === 'match' ? getLeagueMatches() : []
-
-  const handleSetAttendanceStatus = (eventId: string, status: 'present' | 'absent') => {
+  const handleSetStatus = (item: AttendanceItem, status: Status) => {
     if (!user) return
-
-    setAttendanceStatusMutation.mutate({
-      eventId,
-      playerId: user.id,
-      status
-    })
+    if (item.kind === 'match') {
+      setMatchStatus.mutate({ matchId: item.id, playerId: user.id, status })
+    } else {
+      setEventStatus.mutate({ eventId: item.id, playerId: user.id, status })
+    }
   }
 
-  const handleSetMatchAttendanceStatus = (matchId: string, status: 'present' | 'absent') => {
-    if (!user) return
+  const selectTab = (tab: AttendanceTab) => {
+    setActiveTab(tab)
+    setSearchParams({ tab })
+  }
 
-    setMatchAttendanceStatusMutation.mutate({
-      matchId,
-      playerId: user.id,
-      status
-    })
+  const closeModal = () => {
+    if (selected) {
+      // Odśwież dane po zamknięciu okna
+      queryClient.invalidateQueries({ queryKey: [selected.kind === 'match' ? 'match-attendance' : 'attendance', selected.id] })
+    }
+    setSelected(null)
   }
 
   return (
     <div className="page attendance">
-      <div className="attendance-header">
-        <h2>Obecność</h2>
-        <p>Zaznacz czy dasz radę przyjść na wydarzenie.</p>
-      </div>
+      <header className="attendance-header">
+        <h1>Obecność</h1>
+        <p className="muted">Zaznacz, czy dasz radę przyjść.</p>
+      </header>
 
       {!user && (
-        <div className="attendance-warning">
+        <div className="attendance-login card">
           <p>Musisz być zalogowany, aby zaznaczać obecność.</p>
+          <Link to={`/login?redirect=${encodeURIComponent(`/attendance?tab=${activeTab}`)}`} className="btn btn-primary">
+            Zaloguj się
+          </Link>
         </div>
       )}
 
-      <div className="attendance-tabs">
-        <button
-          className={`tab ${activeTab === 'training' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('training')
-            setSearchParams({ tab: 'training' })
-          }}
-        >
-          Treningi
-        </button>
-        <button
-          className={`tab ${activeTab === 'sparing' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('sparing')
-            setSearchParams({ tab: 'sparing' })
-          }}
-        >
-          Sparingi
-        </button>
-        <button
-          className={`tab ${activeTab === 'match' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('match')
-            setSearchParams({ tab: 'match' })
-          }}
-        >
-          Mecze ligowe
-        </button>
+      <div className="segmented" role="tablist" aria-label="Rodzaj wydarzenia">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={activeTab === tab.id ? 'active' : ''}
+            onClick={() => selectTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {(eventsLoading || (activeTab === 'match' && matchesLoading)) ? (
-        <div className="loading">Ładowanie...</div>
-      ) : activeTab === 'match' ? (
-        leagueMatches.length === 0 ? (
-          <div className="no-events">
-            <p>Brak meczów ligowych.</p>
-          </div>
-        ) : (
-          <div className="events-list">
-            {leagueMatches.map(match => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                userId={user?.id}
-                onSetAttendanceStatus={handleSetMatchAttendanceStatus}
-                onShowAttendees={() => setSelectedMatchId(match.id)}
-                isToggling={toggleMatchAttendanceMutation.isPending || setMatchAttendanceStatusMutation.isPending}
-              />
-            ))}
-          </div>
-        )
-      ) : events.length === 0 ? (
-        <div className="no-events">
-          <p>Brak wydarzeń w tej kategorii.</p>
+      {isLoading ? (
+        <p className="muted attendance-empty">Ładowanie…</p>
+      ) : items.length === 0 ? (
+        <div className="card attendance-empty">
+          <p className="muted">{EMPTY_TEXT[activeTab]}</p>
         </div>
       ) : (
-        <div className="events-list">
-          {events.map(event => (
-            <EventCard
-              key={event.id}
-              event={event}
+        <div className="attendance-list">
+          {items.map(item => (
+            <AttendanceCard
+              key={item.id}
+              item={item}
               userId={user?.id}
-              onSetAttendanceStatus={handleSetAttendanceStatus}
-              onShowAttendees={() => setSelectedEventId(event.id)}
-              isToggling={toggleAttendanceMutation.isPending || setAttendanceStatusMutation.isPending}
+              onSetStatus={status => handleSetStatus(item, status)}
+              onShowAttendees={() => setSelected({ kind: item.kind, id: item.id })}
+              isSaving={setEventStatus.isPending || setMatchStatus.isPending}
             />
           ))}
         </div>
       )}
 
-      {selectedEventId && user && (
-        <AttendeesModal
-          eventId={selectedEventId}
-          onClose={() => {
-            setSelectedEventId(null)
-            // Odśwież dane po zamknięciu modala
-            queryClient.invalidateQueries({ queryKey: ['attendance', selectedEventId] })
-          }}
-        />
-      )}
-
-      {selectedMatchId && user && (
-        <MatchAttendeesModal
-          matchId={selectedMatchId}
-          onClose={() => {
-            setSelectedMatchId(null)
-            // Odśwież dane po zamknięciu modala
-            queryClient.invalidateQueries({ queryKey: ['match-attendance', selectedMatchId] })
-          }}
-        />
-      )}
+      {selected && user && <AttendeesModal kind={selected.kind} id={selected.id} onClose={closeModal} />}
     </div>
   )
 }
 
-function EventCard({
-  event,
+function AttendanceCard({
+  item,
   userId,
-  onSetAttendanceStatus,
+  onSetStatus,
   onShowAttendees,
-  isToggling
+  isSaving,
 }: {
-  event: any
+  item: AttendanceItem
   userId?: string
-  onSetAttendanceStatus: (eventId: string, status: 'present' | 'absent') => void
+  onSetStatus: (status: Status) => void
   onShowAttendees: () => void
-  isToggling: boolean
+  isSaving: boolean
 }) {
-  const { data: userAttendance } = useUserAttendance(event.id, userId)
-  const { data: attendanceCount } = useAttendanceCount(event.id)
-  const { data: absentCount } = useAbsentCount(event.id)
-  const isPresent = userAttendance?.status === 'present'
-  const isAbsent = userAttendance?.status === 'absent'
+  const isMatch = item.kind === 'match'
+  const eventId = isMatch ? '' : item.id
+  const matchId = isMatch ? item.id : ''
+
+  // Hooki zawsze wywoływane; nieużywany wariant jest wyłączony pustym id
+  const { data: eventAttendance } = useUserAttendance(eventId, userId)
+  const { data: matchAttendance } = useUserMatchAttendance(matchId, userId)
+  const { data: eventPresent } = useAttendanceCount(eventId)
+  const { data: eventAbsent } = useAbsentCount(eventId)
+  const { data: matchPresent } = useMatchAttendanceCount(matchId)
+  const { data: matchAbsent } = useMatchAbsentCount(matchId)
+
+  const status = (isMatch ? matchAttendance : eventAttendance)?.status
+  const presentCount = (isMatch ? matchPresent : eventPresent) ?? 0
+  const absentCount = (isMatch ? matchAbsent : eventAbsent) ?? 0
+
+  const date = new Date(item.date)
+  const day = date.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/Warsaw' })
+  const time = date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })
 
   return (
-    <div className="event-card">
-      <div className="event-info">
-        <h3>{event.title}</h3>
-        <div className="event-meta">
-          <span className="event-date">
-            {new Date(event.date).toLocaleDateString('pl-PL', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Europe/Warsaw'
-            })}
-          </span>
-          <span className="event-location">{event.location}</span>
+    <article id={`attendance-${item.id}`} className="card attendance-card">
+      <div className="attendance-card-head">
+        <div className="attendance-date">
+          <span className="display">{date.toLocaleDateString('pl-PL', { day: 'numeric', timeZone: 'Europe/Warsaw' })}</span>
+          <span>{date.toLocaleDateString('pl-PL', { month: 'short', timeZone: 'Europe/Warsaw' })}</span>
         </div>
-        {event.description && (
-          <p className="event-description">{event.description}</p>
-        )}
+        <div className="attendance-card-info">
+          <h2 className="attendance-card-title display">{item.title}</h2>
+          <div className="attendance-card-meta muted">
+            <span><ClockIcon aria-hidden="true" />{day}, {time}</span>
+            {item.location && <span><MapPinIcon aria-hidden="true" />{item.location}</span>}
+          </div>
+        </div>
       </div>
 
-      <div className="event-actions">
-        <div className="attendance-stats">
-          <div className="attendance-count">
-            <span className="count-number">{attendanceCount || 0}</span>
-            <span className="count-label">zapisanych</span>
-          </div>
-          {absentCount !== undefined && absentCount > 0 && (
-            <div className="absent-count">
-              <span className="count-number">{absentCount}</span>
-              <span className="count-label">nieobecnych</span>
-            </div>
-          )}
-        </div>
+      {item.description && <p className="attendance-card-desc">{item.description}</p>}
+      {item.score && <p className="attendance-card-desc">Wynik: <strong>{item.score}</strong></p>}
 
-        {userId && (
+      <div className="attendance-counts">
+        <span className="count count-present"><strong>{presentCount}</strong> będzie</span>
+        <span className="count count-absent"><strong>{absentCount}</strong> nie będzie</span>
+      </div>
+
+      {userId && (
+        <>
           <div className="attendance-buttons">
             <button
-              className={`attendance-button ${isPresent ? 'present' : ''}`}
-              onClick={() => onSetAttendanceStatus(event.id, 'present')}
-              disabled={isToggling}
+              type="button"
+              className={`btn ${status === 'absent' ? 'btn-secondary' : 'btn-primary'}`}
+              onClick={() => onSetStatus('present')}
+              disabled={isSaving}
+              aria-pressed={status === 'present'}
             >
-              {isPresent ? '✓ Obecny' : 'Zaznacz obecność'}
+              {status === 'present' ? '✓ Będę' : 'Będę'}
             </button>
             <button
-              className={`attendance-button absent ${isAbsent ? 'active' : ''}`}
-              onClick={() => onSetAttendanceStatus(event.id, 'absent')}
-              disabled={isToggling}
+              type="button"
+              className={`btn ${status === 'absent' ? 'btn-absent' : 'btn-secondary'}`}
+              onClick={() => onSetStatus('absent')}
+              disabled={isSaving}
+              aria-pressed={status === 'absent'}
             >
-              {isAbsent ? '✗ Nieobecny' : 'Nieobecny'}
+              {status === 'absent' ? '✓ Nie będę' : 'Nie będę'}
             </button>
           </div>
-        )}
-
-        {userId && (
-          <button
-            className="view-attendees-button"
-            onClick={onShowAttendees}
-          >
+          <button type="button" className="btn btn-ghost attendance-who" onClick={onShowAttendees}>
             Sprawdź kto się zapisał
           </button>
-        )}
-      </div>
-    </div>
+        </>
+      )}
+    </article>
   )
 }
 
-function MatchCard({
-  match,
-  userId,
-  onSetAttendanceStatus,
-  onShowAttendees,
-  isToggling
-}: {
-  match: any
-  userId?: string
-  onSetAttendanceStatus: (matchId: string, status: 'present' | 'absent') => void
-  onShowAttendees: () => void
-  isToggling: boolean
-}) {
-  const { data: userAttendance } = useUserMatchAttendance(match.id, userId)
-  const { data: attendanceCount } = useMatchAttendanceCount(match.id)
-  const { data: absentCount } = useMatchAbsentCount(match.id)
-  const isPresent = userAttendance?.status === 'present'
-  const isAbsent = userAttendance?.status === 'absent'
-
-  return (
-    <div className="event-card">
-      <div className="event-info">
-        <h3>vs {match.opponent}</h3>
-        <div className="event-meta">
-          <span className="event-date">
-            {new Date(match.date).toLocaleDateString('pl-PL', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Europe/Warsaw'
-            })}
-          </span>
-          <span className="event-location">{match.location}</span>
-        </div>
-        {match.score && (
-          <p className="event-description">Wynik: <strong>{match.score}</strong></p>
-        )}
-      </div>
-
-      <div className="event-actions">
-        <div className="attendance-stats">
-          <div className="attendance-count">
-            <span className="count-number">{attendanceCount || 0}</span>
-            <span className="count-label">zapisanych</span>
-          </div>
-          {absentCount !== undefined && absentCount > 0 && (
-            <div className="absent-count">
-              <span className="count-number">{absentCount}</span>
-              <span className="count-label">nieobecnych</span>
-            </div>
-          )}
-        </div>
-
-        {userId && (
-          <div className="attendance-buttons">
-            <button
-              className={`attendance-button ${isPresent ? 'present' : ''}`}
-              onClick={() => onSetAttendanceStatus(match.id, 'present')}
-              disabled={isToggling}
-            >
-              {isPresent ? '✓ Obecny' : 'Zaznacz obecność'}
-            </button>
-            <button
-              className={`attendance-button absent ${isAbsent ? 'active' : ''}`}
-              onClick={() => onSetAttendanceStatus(match.id, 'absent')}
-              disabled={isToggling}
-            >
-              {isAbsent ? '✗ Nieobecny' : 'Nieobecny'}
-            </button>
-          </div>
-        )}
-
-        {userId && (
-          <button
-            className="view-attendees-button"
-            onClick={onShowAttendees}
-          >
-            Sprawdź kto się zapisał
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function AttendeesModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
+function AttendeesModal({ kind, id, onClose }: { kind: Kind; id: string; onClose: () => void }) {
   const { user, profile, loading } = useAuth()
-  const { data: attendance, isLoading } = useAttendance(eventId)
+  const isMatch = kind === 'match'
+  const eventId = isMatch ? '' : id
+  const matchId = isMatch ? id : ''
+
+  const { data: eventAttendance, isLoading: eventLoading } = useAttendance(eventId)
+  const { data: matchAttendance, isLoading: matchLoading } = useMatchAttendance(matchId)
   const { data: allSystemPlayers } = usePlayers()
-  const setAttendanceStatusMutation = useSetAttendanceStatus()
-  const deleteAttendanceMutation = useDeleteEventAttendance()
-  const allPlayers = attendance || []
+  const setEventStatus = useSetAttendanceStatus()
+  const setMatchStatus = useSetMatchAttendanceStatus()
+  const deleteEventAttendance = useDeleteEventAttendance()
+  const deleteMatchAttendance = useDeleteMatchAttendance()
+
+  const attendance = (isMatch ? matchAttendance : eventAttendance) ?? []
+  const isLoading = isMatch ? matchLoading : eventLoading
+  const isSaving = setEventStatus.isPending || setMatchStatus.isPending
+  const isDeleting = deleteEventAttendance.isPending || deleteMatchAttendance.isPending
+
+  // Zamknij okno klawiszem Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
-  if (!user) {
-    return null
-  }
-
-  // Poczekaj aż profil się załaduje, żeby poprawnie określić uprawnienia admina
-  if (loading && user && profile === null) {
-    return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Lista obecności</h3>
-            <button className="modal-close" onClick={onClose}>×</button>
-          </div>
-          <div className="modal-body">
-            <div className="loading">Ładowanie profilu...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    return null
-  }
+  if (!user) return null
 
   const isAdmin = profile?.role === 'admin'
 
-  const handleStatusChange = (playerId: string, newStatus: 'present' | 'absent') => {
+  const handleStatusChange = (playerId: string, status: Status) => {
     // Użytkownik może zmieniać tylko swój status, chyba że jest adminem
-    if (!isAdmin && playerId !== user.id) {
-      return
+    if (!isAdmin && playerId !== user.id) return
+    if (isMatch) {
+      setMatchStatus.mutate({ matchId: id, playerId, status })
+    } else {
+      setEventStatus.mutate({ eventId: id, playerId, status })
     }
+  }
 
-    setAttendanceStatusMutation.mutate({
-      eventId,
-      playerId,
-      status: newStatus
-    })
+  const handleDelete = (attendanceId: string) => {
+    if (isMatch) {
+      deleteMatchAttendance.mutate({ attendanceId, matchId: id })
+    } else {
+      deleteEventAttendance.mutate({ attendanceId, eventId: id })
+    }
+  }
+
+  const present = attendance.filter(a => a.status === 'present')
+  const absent = attendance.filter(a => a.status === 'absent')
+  const other = attendance.filter(a => a.status !== 'present' && a.status !== 'absent')
+  const notAnswered = (allSystemPlayers ?? []).filter(p => !attendance.some(a => a.player_id === p.id))
+
+  const renderRow = (att: (typeof attendance)[number]) => {
+    const canEdit = isAdmin || att.player_id === user.id
+    return (
+      <li key={att.id} className={`attendee attendee-${att.status}`}>
+        <span className="attendee-name">{att.profiles?.full_name || att.profiles?.username || 'Nieznany zawodnik'}</span>
+        {canEdit && (
+          <div className="attendee-actions">
+            <button
+              type="button"
+              className={`status-button present ${att.status === 'present' ? 'active' : ''}`}
+              onClick={() => handleStatusChange(att.player_id, 'present')}
+              disabled={isSaving}
+              title="Zaznacz obecność"
+              aria-label="Zaznacz obecność"
+            >
+              ✓
+            </button>
+            <button
+              type="button"
+              className={`status-button absent ${att.status === 'absent' ? 'active' : ''}`}
+              onClick={() => handleStatusChange(att.player_id, 'absent')}
+              disabled={isSaving}
+              title="Zaznacz nieobecność"
+              aria-label="Zaznacz nieobecność"
+            >
+              ✗
+            </button>
+            <button
+              type="button"
+              className="status-button delete"
+              onClick={() => handleDelete(att.id)}
+              disabled={isDeleting}
+              title="Usuń wpis obecności"
+            >
+              Usuń
+            </button>
+          </div>
+        )}
+      </li>
+    )
   }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="attendees-title" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Lista obecności</h3>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <h2 id="attendees-title" className="display">Lista obecności</h2>
+          <button type="button" className="icon-button" onClick={onClose} aria-label="Zamknij">
+            <XMarkIcon aria-hidden="true" />
+          </button>
         </div>
 
         <div className="modal-body">
-          {isLoading ? (
-            <div className="loading">Ładowanie...</div>
+          {isLoading || (loading && !profile) ? (
+            <p className="muted">Ładowanie…</p>
+          ) : attendance.length === 0 && !isAdmin ? (
+            <p className="muted">Nikt się jeszcze nie zapisał.</p>
           ) : (
             <>
-              <div className="attendees-section">
-                <h4 className="attendees-section-title">Lista zawodników ({allPlayers.length})</h4>
-                {allPlayers.length === 0 ? (
-                  <p className="no-attendees">Nikt się jeszcze nie zapisał.</p>
-                ) : (
-                  <ul className="attendees-list">
-                    {allPlayers.map((att) => {
-                      const isPresent = att.status === 'present'
-                      const isAbsent = att.status === 'absent'
-                      const canEdit = isAdmin || att.player_id === user.id
+              <section className="attendees-group">
+                <h3 className="label">Będą ({present.length})</h3>
+                {present.length === 0 ? <p className="muted attendees-none">Nikt.</p> : <ul>{present.map(renderRow)}</ul>}
+              </section>
 
-                      return (
-                        <li key={att.id} className={isPresent ? 'present' : isAbsent ? 'absent' : ''}>
-                          <div className="attendee-item">
-                            <div className="attendee-info">
-                              <span className="attendee-status-icon">
-                                {isPresent ? (
-                                  <span className="status-icon present">✓</span>
-                                ) : isAbsent ? (
-                                  <span className="status-icon absent">✗</span>
-                                ) : (
-                                  <span className="status-icon unknown">?</span>
-                                )}
-                              </span>
-                              <span className="attendee-name">
-                                {att.profiles?.full_name || att.profiles?.username || 'Nieznany zawodnik'}
-                              </span>
-                            </div>
-                            <div className="attendee-actions">
-                              {canEdit && (
-                                <>
-                                  <button
-                                    className={`status-button present ${isPresent ? 'active' : ''}`}
-                                    onClick={() => handleStatusChange(att.player_id, 'present')}
-                                    disabled={setAttendanceStatusMutation.isPending}
-                                    title="Zaznacz obecność"
-                                  >
-                                    ✓
-                                  </button>
-                                  <button
-                                    className={`status-button absent ${isAbsent ? 'active' : ''}`}
-                                    onClick={() => handleStatusChange(att.player_id, 'absent')}
-                                    disabled={setAttendanceStatusMutation.isPending}
-                                    title="Zaznacz nieobecność"
-                                  >
-                                    ✗
-                                  </button>
-                                </>
-                              )}
-                              {canEdit && (
-                                <button
-                                  className="status-button delete"
-                                  onClick={() => {
-                                    deleteAttendanceMutation.mutate({ attendanceId: att.id, eventId })
-                                  }}
-                                  disabled={deleteAttendanceMutation.isPending}
-                                  title="Usuń wpis obecności"
-                                >
-                                  Usuń
-                                </button>
-                              )}
-                            </div>
+              <section className="attendees-group">
+                <h3 className="label label-absent">Nie będą ({absent.length})</h3>
+                {absent.length === 0 ? <p className="muted attendees-none">Nikt.</p> : <ul>{absent.map(renderRow)}</ul>}
+              </section>
+
+              {other.length > 0 && (
+                <section className="attendees-group">
+                  <h3 className="label label-muted">Bez statusu ({other.length})</h3>
+                  <ul>{other.map(renderRow)}</ul>
+                </section>
+              )}
+
+              {isAdmin && allSystemPlayers && (
+                <section className="attendees-group">
+                  <h3 className="label label-muted">Nie zaznaczyli obecności ({notAnswered.length})</h3>
+                  {notAnswered.length === 0 ? (
+                    <p className="muted attendees-none">Wszyscy odpowiedzieli.</p>
+                  ) : (
+                    <ul>
+                      {notAnswered.map(player => (
+                        <li key={player.id} className="attendee attendee-unknown">
+                          <span className="attendee-name">{player.full_name || player.username || 'Nieznany zawodnik'}</span>
+                          <div className="attendee-actions">
+                            <button
+                              type="button"
+                              className="status-button present"
+                              onClick={() => handleStatusChange(player.id, 'present')}
+                              disabled={isSaving}
+                              title="Zaznacz obecność"
+                              aria-label="Zaznacz obecność"
+                            >
+                              ✓
+                            </button>
+                            <button
+                              type="button"
+                              className="status-button absent"
+                              onClick={() => handleStatusChange(player.id, 'absent')}
+                              disabled={isSaving}
+                              title="Zaznacz nieobecność"
+                              aria-label="Zaznacz nieobecność"
+                            >
+                              ✗
+                            </button>
                           </div>
                         </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </div>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
             </>
-          )}
-
-          {isAdmin && !isLoading && allSystemPlayers && (
-            <div className="attendees-section" style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-              <h4 className="attendees-section-title" style={{ color: '#aaa' }}>
-                Nie zaznaczyli obecności ({
-                  allSystemPlayers.filter(p => !allPlayers.some(a => a.player_id === p.id)).length
-                })
-              </h4>
-              <ul className="attendees-list">
-                {allSystemPlayers
-                  .filter(p => !allPlayers.some(a => a.player_id === p.id))
-                  .map(player => (
-                    <li key={player.id} className="">
-                      <div className="attendee-item">
-                        <div className="attendee-info">
-                          <span className="attendee-status-icon">
-                            <span className="status-icon unknown">?</span>
-                          </span>
-                          <span className="attendee-name">
-                            {player.full_name || player.username || 'Nieznany zawodnik'}
-                          </span>
-                        </div>
-                        <div className="attendee-actions">
-                          <button
-                            className="status-button present"
-                            onClick={() => handleStatusChange(player.id, 'present')}
-                            disabled={setAttendanceStatusMutation.isPending}
-                            title="Zaznacz obecność"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            className="status-button absent"
-                            onClick={() => handleStatusChange(player.id, 'absent')}
-                            disabled={setAttendanceStatusMutation.isPending}
-                            title="Zaznacz nieobecność"
-                          >
-                            ✗
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MatchAttendeesModal({ matchId, onClose }: { matchId: string; onClose: () => void }) {
-  const { user, profile, loading } = useAuth()
-  const { data: attendance, isLoading } = useMatchAttendance(matchId)
-  const { data: allSystemPlayers } = usePlayers()
-  const setMatchAttendanceStatusMutation = useSetMatchAttendanceStatus()
-  const deleteMatchAttendanceMutation = useDeleteMatchAttendance()
-  const allPlayers = attendance || []
-
-  // Dodatkowa ochrona - jeśli użytkownik nie jest zalogowany, nie wyświetlaj danych
-  if (!user) {
-    return null
-  }
-
-  // Poczekaj aż profil się załaduje, żeby poprawnie określić uprawnienia admina
-  if (loading && user && profile === null) {
-    return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Lista obecności</h3>
-            <button className="modal-close" onClick={onClose}>×</button>
-          </div>
-          <div className="modal-body">
-            <div className="loading">Ładowanie profilu...</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    return null
-  }
-
-  const isAdmin = profile?.role === 'admin'
-
-  const handleStatusChange = (playerId: string, newStatus: 'present' | 'absent') => {
-    // Użytkownik może zmieniać tylko swój status, chyba że jest adminem
-    if (!isAdmin && playerId !== user.id) {
-      return
-    }
-
-    setMatchAttendanceStatusMutation.mutate({
-      matchId,
-      playerId,
-      status: newStatus
-    })
-  }
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>Lista obecności</h3>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-
-        <div className="modal-body">
-          {isLoading ? (
-            <div className="loading">Ładowanie...</div>
-          ) : (
-            <>
-              <div className="attendees-section">
-                <h4 className="attendees-section-title">Lista zawodników ({allPlayers.length})</h4>
-                {allPlayers.length === 0 ? (
-                  <p className="no-attendees">Nikt się jeszcze nie zapisał.</p>
-                ) : (
-                  <ul className="attendees-list">
-                    {allPlayers.map((att) => {
-                      const isPresent = att.status === 'present'
-                      const isAbsent = att.status === 'absent'
-                      const canEdit = isAdmin || att.player_id === user.id
-
-                      return (
-                        <li key={att.id} className={isPresent ? 'present' : isAbsent ? 'absent' : ''}>
-                          <div className="attendee-item">
-                            <div className="attendee-info">
-                              <span className="attendee-status-icon">
-                                {isPresent ? (
-                                  <span className="status-icon present">✓</span>
-                                ) : isAbsent ? (
-                                  <span className="status-icon absent">✗</span>
-                                ) : (
-                                  <span className="status-icon unknown">?</span>
-                                )}
-                              </span>
-                              <span className="attendee-name">
-                                {att.profiles?.full_name || att.profiles?.username || 'Nieznany zawodnik'}
-                              </span>
-                            </div>
-                            <div className="attendee-actions">
-                              {canEdit && (
-                                <>
-                                  <button
-                                    className={`status-button present ${isPresent ? 'active' : ''}`}
-                                    onClick={() => handleStatusChange(att.player_id, 'present')}
-                                    disabled={setMatchAttendanceStatusMutation.isPending}
-                                    title="Zaznacz obecność"
-                                  >
-                                    ✓
-                                  </button>
-                                  <button
-                                    className={`status-button absent ${isAbsent ? 'active' : ''}`}
-                                    onClick={() => handleStatusChange(att.player_id, 'absent')}
-                                    disabled={setMatchAttendanceStatusMutation.isPending}
-                                    title="Zaznacz nieobecność"
-                                  >
-                                    ✗
-                                  </button>
-                                </>
-                              )}
-                              {canEdit && (
-                                <button
-                                  className="status-button delete"
-                                  onClick={() => {
-                                    deleteMatchAttendanceMutation.mutate({ attendanceId: att.id, matchId })
-                                  }}
-                                  disabled={deleteMatchAttendanceMutation.isPending}
-                                  title="Usuń wpis obecności"
-                                >
-                                  Usuń
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </div>
-            </>
-          )}
-
-          {isAdmin && !isLoading && allSystemPlayers && (
-            <div className="attendees-section" style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-              <h4 className="attendees-section-title" style={{ color: '#aaa' }}>
-                Nie zaznaczyli obecności ({
-                  allSystemPlayers.filter(p => !allPlayers.some(a => a.player_id === p.id)).length
-                })
-              </h4>
-              <ul className="attendees-list">
-                {allSystemPlayers
-                  .filter(p => !allPlayers.some(a => a.player_id === p.id))
-                  .map(player => (
-                    <li key={player.id} className="">
-                      <div className="attendee-item">
-                        <div className="attendee-info">
-                          <span className="attendee-status-icon">
-                            <span className="status-icon unknown">?</span>
-                          </span>
-                          <span className="attendee-name">
-                            {player.full_name || player.username || 'Nieznany zawodnik'}
-                          </span>
-                        </div>
-                        <div className="attendee-actions">
-                          <button
-                            className="status-button present"
-                            onClick={() => handleStatusChange(player.id, 'present')}
-                            disabled={setMatchAttendanceStatusMutation.isPending}
-                            title="Zaznacz obecność"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            className="status-button absent"
-                            onClick={() => handleStatusChange(player.id, 'absent')}
-                            disabled={setMatchAttendanceStatusMutation.isPending}
-                            title="Zaznacz nieobecność"
-                          >
-                            ✗
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-            </div>
           )}
         </div>
       </div>

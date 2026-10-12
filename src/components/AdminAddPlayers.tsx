@@ -20,7 +20,7 @@ const PLAYERS_LIST = [
 export default function AdminAddPlayers() {
   return (
     <div className="admin-add-players">
-      <h3>Lista zawodników (v1.1)</h3>
+      <h3>Lista zawodników</h3>
 
       <p className="info-text">
         Poniżej znajduje się lista wszystkich {PLAYERS_LIST.length} zawodników z numerami legitymacji ligowej:
