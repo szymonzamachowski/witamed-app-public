@@ -3,17 +3,18 @@ import './admin-add-players.css'
 const PLAYERS_LIST = [
   { username: 'nowak', fullName: 'Nowak Maciej', leagueLicense: '9000000009', email: 'nowak@witamed.local', isAdmin: false },
   { username: 'kozlowski', fullName: 'Kozłowski Maciej', leagueLicense: '9000000002', email: 'kozlowski@witamed.local', isAdmin: false },
+  { username: 'mazur', fullName: 'Mazur Patryk', leagueLicense: '9000000008', email: 'mazur@witamed.local', isAdmin: false },
   { username: 'jankowski', fullName: 'Jankowski Michał', leagueLicense: '9000000013', email: 'jankowski@witamed.local', isAdmin: false },
   { username: 'lewandowska', fullName: 'Lewandowski Mateusz', leagueLicense: '9000000011', email: 'lewandowska@witamed.local', isAdmin: false },
+  { username: 'pawlowski', fullName: 'Pawłowski Witold', leagueLicense: '9000000016', email: 'pawlowski@witamed.local', isAdmin: false },
   { username: 'wozniak', fullName: 'Woźniak Piotr', leagueLicense: '9000000004', email: 'wozniak@witamed.local', isAdmin: false },
   { username: 'szymanska', fullName: 'Szymański Jakub', leagueLicense: '9000000014', email: 'szymanska@witamed.local', isAdmin: false },
   { username: 'kaminski', fullName: 'Kamiński Michał', leagueLicense: '9000000007', email: 'kaminski@witamed.local', isAdmin: true },
-  { username: 'dabrowski', fullName: 'Dąbrowski Mateusz', leagueLicense: '9000000010', email: 'dabrowski@witamed.local', isAdmin: false },
   { username: 'zielinski', fullName: 'Zieliński Marcin', leagueLicense: '9000000005', email: 'zielinski@witamed.local', isAdmin: false },
+  { username: 'grabowski', fullName: 'Grabowski Adrian', leagueLicense: '9000000003', email: 'grabowski@witamed.local', isAdmin: false },
   { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', email: 'kowalczyk@witamed.local', isAdmin: false },
   { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', email: 'wojcik@witamed.local', isAdmin: true },
   { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', email: 'zamachowski@witamed.local', isAdmin: true },
-  { username: 'piotrowski', fullName: 'Piotrowski Piotr', leagueLicense: '0000000000', email: 'piotrowski@witamed.local', isAdmin: false },
 ]
 
 export default function AdminAddPlayers() {
@@ -70,7 +71,7 @@ export default function AdminAddPlayers() {
         <p><strong>Informacje:</strong></p>
         <ul>
           <li>Hasło dla wszystkich zawodników: <code>HASLO_STARTOWE</code></li>
-          <li>Logowanie odbywa się przez username lub email</li>
+          <li>Logowanie odbywa się tylko loginem (nazwiskiem)</li>
           <li>Email w formacie: <code>username@witamed.local</code></li>
         </ul>
       </div>

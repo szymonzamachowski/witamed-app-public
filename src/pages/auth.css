@@ -159,23 +159,8 @@
   transform: none;
 }
 
-.auth-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
-}
 
-.auth-footer a {
-  color: var(--color-pear-green-light);
-  font-weight: 600;
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
 
-.auth-footer a:hover {
-  color: #2ecc71;
-}
 
 @media (max-width: 768px) {
   .auth-page {

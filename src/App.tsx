@@ -8,7 +8,6 @@ import Attendance from './pages/Attendance'
 import CalendarPage from './pages/Calendar'
 import Statistics from './pages/Statistics'
 import Login from './pages/Login'
-import SignUp from './pages/SignUp'
 import MyAccount from './pages/MyAccount'
 import AdminPanel from './pages/AdminPanel'
 
@@ -25,7 +24,6 @@ function App() {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
           <Route path="/account" element={<MyAccount />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<Navigate to="/" replace />} />

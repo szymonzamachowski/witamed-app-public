@@ -20,7 +20,6 @@ export default function MyAccount() {
   
   // Stan dla edycji profilu
   const [showEditProfile, setShowEditProfile] = useState(false)
-  const [editEmail, setEditEmail] = useState(user?.email || '')
   const [editPhone, setEditPhone] = useState(profile?.phone_number || '')
   const [editUsername, setEditUsername] = useState(profile?.username || '')
   const [profileError, setProfileError] = useState<string | null>(null)
@@ -35,10 +34,9 @@ export default function MyAccount() {
   
   // Aktualizuj wartości formularza gdy profile się zmienia
   useEffect(() => {
-    if (user?.email) setEditEmail(user.email)
     if (profile?.phone_number) setEditPhone(profile.phone_number)
     if (profile?.username) setEditUsername(profile.username)
-  }, [user, profile])
+  }, [profile])
 
   useEffect(() => {
     if (!loading && !user) {
@@ -67,19 +65,8 @@ export default function MyAccount() {
   }
   
   const updateProfileMutation = useMutation({
-    mutationFn: async ({ email, phone_number, username }: { email: string; phone_number: string; username: string }) => {
+    mutationFn: async ({ phone_number, username }: { phone_number: string; username: string }) => {
       if (!user) throw new Error('Użytkownik nie jest zalogowany')
-      
-      // Aktualizuj email w auth.users (jeśli się zmienił)
-      if (email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: email
-        })
-        
-        if (emailError) {
-          throw emailError
-        }
-      }
       
       // Aktualizuj profil w profiles
       const { error: profileError } = await supabase
@@ -111,18 +98,12 @@ export default function MyAccount() {
     setProfileError(null)
     setProfileSuccess(null)
     
-    if (!editEmail || !editEmail.includes('@')) {
-      setProfileError('Podaj prawidłowy adres email')
-      return
-    }
-    
     if (editUsername && editUsername.trim().length < 3) {
       setProfileError('Username musi mieć co najmniej 3 znaki')
       return
     }
     
     updateProfileMutation.mutate({
-      email: editEmail.trim(),
       phone_number: editPhone.trim() || '',
       username: editUsername.trim() || ''
     })
@@ -215,10 +196,6 @@ export default function MyAccount() {
           
           {!showEditProfile ? (
             <div className="info-grid">
-              <div className="info-item">
-                <label>Email</label>
-                <div className="info-value">{user.email}</div>
-              </div>
               {profile?.full_name && (
                 <div className="info-item">
                   <label>Imię i nazwisko</label>
@@ -243,13 +220,6 @@ export default function MyAccount() {
                   <div className="info-value">{profile.league_license_number}</div>
                 </div>
               )}
-              <div className="info-item">
-                <label>Rola</label>
-                <div className="info-value">
-                  {profile?.role === 'admin' ? 'Administrator' : 
-                   profile?.role === 'coach' ? 'Trener' : 'Zawodnik'}
-                </div>
-              </div>
             </div>
           ) : (
             <form onSubmit={handleUpdateProfile} className="edit-profile-form">
@@ -259,19 +229,6 @@ export default function MyAccount() {
               {profileSuccess && (
                 <div className="form-success">{profileSuccess}</div>
               )}
-              
-              <div className="form-group">
-                <label htmlFor="edit-email">Email *</label>
-                <input
-                  id="edit-email"
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  placeholder="Wprowadź adres email"
-                  required
-                  disabled={updateProfileMutation.isPending}
-                />
-              </div>
               
               <div className="form-group">
                 <label htmlFor="edit-username">Nazwa użytkownika (ksywka)</label>
@@ -336,7 +293,6 @@ export default function MyAccount() {
                     setProfileError(null)
                     setProfileSuccess(null)
                     // Przywróć oryginalne wartości
-                    if (user?.email) setEditEmail(user.email)
                     if (profile?.phone_number) setEditPhone(profile.phone_number)
                     if (profile?.username) setEditUsername(profile.username)
                   }}

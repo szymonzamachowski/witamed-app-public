@@ -59,27 +59,21 @@ export function useAuth() {
     }
   }, [user, fetchProfile])
 
-  const signIn = useCallback(async (usernameOrEmail: string, password: string, _rememberMe: boolean = true) => {
-    // Sprawdź czy to email czy username
-    let email = usernameOrEmail.trim()
-    
-    // Jeśli nie zawiera @, to prawdopodobnie username - użyj username@witamed.local
-    if (!email.includes('@')) {
-      // Sprawdź czy użytkownik istnieje w profilach
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', email)
-        .single()
-      
-      if (profile) {
-        // Użyj username@witamed.local (zgodnie z konwencją z rejestracji)
-        email = `${email}@witamed.local`
-      } else {
-        // Jeśli nie znaleziono użytkownika, spróbuj użyć jako email
-        email = `${email}@witamed.local`
-      }
+  const signIn = useCallback(async (login: string, password: string, _rememberMe: boolean = true) => {
+    // Logowanie tylko loginem (nazwiskiem) - konto w auth to login@witamed.local.
+    // Normalizujemy: małe litery, bez polskich znaków (np. "Nowak" -> "nowak")
+    const normalizedLogin = login
+      .trim()
+      .toLowerCase()
+      .replace(/ł/g, 'l')
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+
+    if (!normalizedLogin || normalizedLogin.includes('@')) {
+      return { error: new Error('Podaj login (nazwisko), nie adres email.') }
     }
+
+    const email = `${normalizedLogin}@witamed.local`
 
     // persistSession jest domyślnie true w Supabase, więc jeśli rememberMe jest false,
     // musimy użyć setSession z null po wylogowaniu lub użyć innego podejścia
@@ -89,18 +83,6 @@ export function useAuth() {
       password
     })
     return { error }
-  }, [])
-
-  const signUp = useCallback(async (email: string, password: string, userData: Omit<Profile, 'id' | 'created_at'>) => {
-    const { data, error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: userData,
-        emailRedirectTo: undefined // Wyłącz przekierowanie email
-      }
-    })
-    return { data, error }
   }, [])
 
   const signOut = useCallback(async () => {
@@ -138,7 +120,6 @@ export function useAuth() {
     profile,
     loading,
     signIn,
-    signUp,
     signOut
   }
 }

@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import './auth.css'
 
 export default function Login() {
-  const [usernameOrEmail, setUsernameOrEmail] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -17,10 +17,10 @@ export default function Login() {
     setError(null)
     setLoading(true)
 
-    const { error } = await signIn(usernameOrEmail, password, rememberMe)
+    const { error } = await signIn(login, password, rememberMe)
 
     if (error) {
-      setError(error.message)
+      setError(error.message === 'Invalid login credentials' ? 'Nieprawidłowy login lub hasło.' : error.message)
       setLoading(false)
     } else {
       navigate('/')
@@ -43,18 +43,20 @@ export default function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="usernameOrEmail">Nazwa użytkownika lub Email</label>
+            <label htmlFor="login">Login</label>
             <input
-              id="usernameOrEmail"
+              id="login"
               type="text"
-              value={usernameOrEmail}
-              onChange={(e) => setUsernameOrEmail(e.target.value)}
+              value={login}
+              onChange={(e) => setLogin(e.target.value)}
               required
-              placeholder="nazwa_uzytkownika lub email"
+              placeholder="nazwisko"
+              autoComplete="username"
+              autoCapitalize="none"
               disabled={loading}
             />
             <small className="form-hint">
-              Możesz zalogować się używając nazwy użytkownika lub emaila
+              Loginem jest Twoje nazwisko
             </small>
           </div>
 
@@ -89,11 +91,6 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="auth-footer">
-          <p>
-            Nie masz konta? <Link to="/signup">Zarejestruj się</Link>
-          </p>
-        </div>
       </div>
     </div>
   )

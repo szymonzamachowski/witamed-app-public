@@ -275,110 +275,6 @@ export async function quickLogin(email: string, password: string) {
 }
 
 /**
- * Rejestruje nowego użytkownika i tworzy profil (dostępne z konsoli)
- * @param email - Email użytkownika
- * @param password - Hasło (min. 6 znaków)
- * @param profileData - Dane profilu (opcjonalne)
- * @returns Promise z wynikiem rejestracji
- */
-export async function quickSignUp(
-  email: string, 
-  password: string,
-  profileData?: {
-    username?: string
-    full_name?: string
-    phone_number?: string
-    league_license_number?: string
-    role?: 'player' | 'admin' | 'coach'
-  }
-) {
-  console.log('📝 Rejestracja nowego użytkownika...')
-
-  const defaultProfile = {
-    username: email.split('@')[0],
-    full_name: 'Test User',
-    phone_number: '',
-    league_license_number: '',
-    role: 'player' as const,
-    ...profileData
-  }
-
-  try {
-    // Rejestracja użytkownika
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: defaultProfile
-      }
-    })
-
-    if (authError) {
-      console.error('❌ Błąd rejestracji:', authError.message)
-      return {
-        success: false,
-        error: authError.message
-      }
-    }
-
-    if (!authData.user) {
-      return {
-        success: false,
-        error: 'Nie udało się utworzyć użytkownika'
-      }
-    }
-
-    console.log('✅ Użytkownik zarejestrowany:', authData.user.email)
-
-    // Utworzenie profilu
-    try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          ...defaultProfile
-        })
-        .select()
-        .single()
-
-      if (profileError) {
-        console.warn('⚠️ Błąd przy tworzeniu profilu:', profileError.message)
-        // Może profil już istnieje lub jest problem z RLS
-        return {
-          success: true,
-          user: authData.user,
-          warning: 'Użytkownik utworzony, ale wystąpił problem z profilem: ' + profileError.message,
-          message: 'Możesz spróbować się zalogować'
-        }
-      }
-
-      console.log('✅ Profil utworzony:', profile)
-      return {
-        success: true,
-        user: authData.user,
-        profile: profile,
-        message: 'Użytkownik i profil utworzone pomyślnie!'
-      }
-    } catch (profileErr) {
-      console.warn('⚠️ Błąd przy tworzeniu profilu:', profileErr)
-      return {
-        success: true,
-        user: authData.user,
-        warning: 'Użytkownik utworzony, ale wystąpił problem z profilem',
-        message: 'Możesz spróbować się zalogować'
-      }
-    }
-
-  } catch (error) {
-    console.error('❌ Błąd:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Nieznany błąd'
-    }
-  }
-}
-
-/**
  * Sprawdza aktualnie zalogowanego użytkownika
  * @returns Promise z informacją o użytkowniku
  */
@@ -645,7 +541,6 @@ if (typeof window !== 'undefined') {
   ;(window as any).addTestNews = addTestNews
   ;(window as any).getAllNews = getAllNews
   ;(window as any).quickLogin = quickLogin
-  ;(window as any).quickSignUp = quickSignUp
   ;(window as any).getCurrentUser = getCurrentUser
   ;(window as any).quickLogout = quickLogout
   ;(window as any).makeCurrentUserAdmin = makeCurrentUserAdmin
