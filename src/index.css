@@ -17,6 +17,7 @@
   --radius-full: 999px;
 
   --nav-h: 60px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --bottom-nav-h: 64px;
 
   --space-1: 4px;

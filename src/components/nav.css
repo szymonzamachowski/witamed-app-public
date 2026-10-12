@@ -4,8 +4,11 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  height: var(--nav-h);
-  background: var(--nav-bg);
+  /* Na iPhonie (aplikacja z ekranu głównego) pasek zaczyna się pod zegarem */
+  height: calc(var(--nav-h) + var(--safe-top));
+  padding-top: var(--safe-top);
+  /* Pas pod zegarem zawsze ciemny, bo iOS rysuje tam biały tekst */
+  background: linear-gradient(to bottom, #0B1622 var(--safe-top), var(--nav-bg) var(--safe-top));
   border-bottom: 1px solid var(--border);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
