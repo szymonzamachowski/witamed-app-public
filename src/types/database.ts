@@ -71,6 +71,27 @@ export type MatchErrors = {
   own_errors_other_set3?: number
   own_errors_other_set4?: number
   own_errors_other_set5?: number
+  // Błędy własne per set w podziale na kategorie
+  own_serve_set1?: number
+  own_serve_set2?: number
+  own_serve_set3?: number
+  own_serve_set4?: number
+  own_serve_set5?: number
+  own_reception_set1?: number
+  own_reception_set2?: number
+  own_reception_set3?: number
+  own_reception_set4?: number
+  own_reception_set5?: number
+  own_attack_set1?: number
+  own_attack_set2?: number
+  own_attack_set3?: number
+  own_attack_set4?: number
+  own_attack_set5?: number
+  own_blocked_set1?: number
+  own_blocked_set2?: number
+  own_blocked_set3?: number
+  own_blocked_set4?: number
+  own_blocked_set5?: number
 }
 
 export type Event = {

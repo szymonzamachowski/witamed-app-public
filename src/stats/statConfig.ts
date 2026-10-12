@@ -49,7 +49,8 @@ export type StatColumn = {
   /** Krótka nazwa (nagłówek na telefonie) */
   short: string
   format: 'int' | 'pct'
-  value: (s: RawStats) => number
+  /** null = brak akcji (pokazujemy „–”) */
+  value: (s: RawStats) => number | null
   /** Znaczenie liczby (kolor kafelka): suma akcji, dobra, zła albo neutralna */
   tone: 'total' | 'positive' | 'negative' | 'neutral'
   /** Pokaż w zakładce grupy na telefonie (max ~4 kolumny na zakładkę) */
@@ -61,16 +62,18 @@ export type StatColumn = {
 }
 
 const n = (v: number | null | undefined) => v ?? 0
-const pct = (part: number, total: number) => (total > 0 ? Math.round((part / total) * 100) : 0)
+/** Procent; null gdy nie było żadnej akcji (wtedy „–”, nie 0%). */
+const pct = (part: number, total: number) => (total > 0 ? Math.round((part / total) * 100) : null)
 
 export const STAT_COLUMNS: StatColumn[] = [
   // Zagrywka
   { key: 'serve_total', group: 'serve', tone: 'total', label: 'Total', short: 'Total', format: 'int', value: s => n(s.serve_total), mobile: true },
   { key: 'serve_errors', group: 'serve', tone: 'negative', label: 'Błąd', short: 'Bł.', format: 'int', value: s => n(s.serve_errors), mobile: true },
   { key: 'serve_aces', group: 'serve', tone: 'positive', label: 'As', short: 'Asy', format: 'int', value: s => n(s.serve_aces), mobile: true },
-  { key: 'serve_pct', group: 'serve', tone: 'positive', label: '%', short: '%', format: 'pct', value: s => pct(n(s.serve_aces), n(s.serve_total)), mobile: false },
+  // Zagrywki w boisku (bez błędu) — kluczowa liczba zagrywki; asy i błędy pokazujemy obok jako bilans
+  { key: 'serve_pct', group: 'serve', tone: 'positive', label: '% w boisku', short: '% boisko', format: 'pct', value: s => pct(n(s.serve_total) - n(s.serve_errors), n(s.serve_total)), mobile: true },
 
-  // Przyjęcie
+  // Przyjęcie — Poz% = pozytywne / wszystkie (jak w TAURON Lidze)
   { key: 'reception_total', group: 'reception', tone: 'total', label: 'Total', short: 'Total', format: 'int', value: s => n(s.reception_total), mobile: true },
   { key: 'reception_positive', group: 'reception', tone: 'positive', label: 'Pozytywne', short: 'Poz.', format: 'int', value: s => n(s.reception_positive), mobile: true },
   { key: 'reception_other', group: 'reception', tone: 'neutral', label: 'Pozostałe', short: 'Pozost.', format: 'int', value: s => n(s.reception_other), mobile: false },
@@ -104,7 +107,8 @@ export const POINTS_COLUMN = {
   value: (s: RawStats) => n(s.attack_points) + n(s.serve_aces) + n(s.block_total),
 }
 
-export function formatStat(value: number, format: 'int' | 'pct') {
+export function formatStat(value: number | null, format: 'int' | 'pct') {
+  if (value === null) return '–'
   return format === 'pct' ? `${value}%` : String(value)
 }
 

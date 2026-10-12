@@ -206,7 +206,7 @@ export default function MyAccount() {
                 </div>
               </div>
 
-              <StatGroupTiles stats={playerStats} previous={playerStats.before_last_match} />
+              <StatGroupTiles stats={playerStats} previous={playerStats.before_last_match} series={playerStats.per_match} />
             </div>
           ) : (
             <div className="card account-empty">

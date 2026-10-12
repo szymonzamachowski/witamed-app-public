@@ -1,6 +1,7 @@
 import type { MatchStatisticsWithPlayer } from '../hooks/useMatchStatistics'
 import type { MatchErrors } from '../types/database'
 import StatsBoard, { type StatsRow } from './StatsBoard'
+import TeamSummary from './TeamSummary'
 import '../styles/data-table.css'
 
 type Props = {
@@ -53,21 +54,47 @@ export default function MatchStatsTable({ statistics, matchErrors }: Props) {
             (total, set) => total + ((matchErrors[`${prefix}_set${set}` as keyof MatchErrors] as number) || 0),
             0
           )
-        const ownTotal = sum('own_errors', ownSets)
         const otherTotal = sum('own_errors_other', ownSets)
+        const byCategory = {
+          own_serve: sum('own_serve', ownSets),
+          own_reception: sum('own_reception', ownSets),
+          own_attack: sum('own_attack', ownSets),
+          own_blocked: sum('own_blocked', ownSets),
+        }
+        const categoriesEntered = Object.values(byCategory).some(v => v > 0)
+        const ownTotal = categoriesEntered ? Object.values(byCategory).reduce((a, b) => a + b, 0) : sum('own_errors', ownSets)
 
         return (
+          <>
+          <h3 className="match-team-title display">Drużyna</h3>
+          <TeamSummary
+            players={statistics}
+            opponentErrors={sum('opponent_errors', opponentSets)}
+            ownByCategory={categoriesEntered ? byCategory : null}
+            ownOther={otherTotal}
+          />
           <div className="match-errors-grid">
             <ErrorTable title="Błędy przeciwnika" sets={opponentSets} rows={[{ prefix: 'opponent_errors' }]} matchErrors={matchErrors} total={`${sum('opponent_errors', opponentSets)}`} />
             <ErrorTable title="Wybloki" sets={blocksSets} rows={[{ prefix: 'blocks_against' }]} matchErrors={matchErrors} total={`${sum('blocks_against', blocksSets)}`} />
             <ErrorTable
               title="Błędy własne"
               sets={ownSets}
-              rows={[{ prefix: 'own_errors' }, { prefix: 'own_errors_other', label: 'Inne' }]}
+              rows={
+                categoriesEntered
+                  ? [
+                      { prefix: 'own_serve', label: 'Serwis' },
+                      { prefix: 'own_reception', label: 'Przyjęcie' },
+                      { prefix: 'own_attack', label: 'Atak' },
+                      { prefix: 'own_blocked', label: 'Zablok.' },
+                      { prefix: 'own_errors_other', label: 'Inne' },
+                    ]
+                  : [{ prefix: 'own_errors' }, { prefix: 'own_errors_other', label: 'Inne' }]
+              }
               matchErrors={matchErrors}
               total={`${ownTotal}${otherTotal > 0 ? ` (+${otherTotal})` : ''}`}
             />
           </div>
+          </>
         )
       })()}
     </div>

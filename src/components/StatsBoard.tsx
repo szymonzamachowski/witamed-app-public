@@ -9,7 +9,7 @@ import {
   type RawStats,
   type StatGroupId,
 } from '../stats/statConfig'
-import StatGroupTiles from './StatGroupTiles'
+import StatGroupTiles, { type MatchSeriesItem } from './StatGroupTiles'
 import '../styles/data-table.css'
 import './stats-board.css'
 
@@ -21,6 +21,8 @@ export type StatsRow = {
   stats: RawStats
   /** Sezon bez ostatniego meczu (strzałki trendu w panelu zawodnika) */
   previous?: RawStats | null
+  /** Statystyki mecz po meczu (wykres formy w panelu zawodnika) */
+  series?: MatchSeriesItem[]
 }
 
 type Column = {
@@ -28,7 +30,7 @@ type Column = {
   label: string
   short: string
   format: 'int' | 'pct'
-  value: (row: StatsRow) => number
+  value: (row: StatsRow) => number | null
 }
 
 type Sort = { key: string; dir: 'asc' | 'desc' }
@@ -92,7 +94,11 @@ export default function StatsBoard({
     const sign = sort.dir === 'asc' ? 1 : -1
     return [...filtered].sort((a, b) => {
       if (sort.key === 'name' || !column) return sign * a.name.localeCompare(b.name, 'pl')
-      return sign * (column.value(a) - column.value(b)) || a.name.localeCompare(b.name, 'pl')
+      const va = column.value(a)
+      const vb = column.value(b)
+      // Brak akcji („–”) zawsze na końcu, niezależnie od kierunku
+      if (va === null || vb === null) return va === vb ? a.name.localeCompare(b.name, 'pl') : va === null ? 1 : -1
+      return sign * (va - vb) || a.name.localeCompare(b.name, 'pl')
     })
   }, [rows, filter, sort, columnByKey])
 
@@ -267,7 +273,7 @@ function PlayerSheet({
             <span className="display">{POINTS.value(row)}</span>
             <span className="label">Punkty</span>
           </div>
-          <StatGroupTiles stats={row.stats} previous={row.previous} />
+          <StatGroupTiles stats={row.stats} previous={row.previous} series={row.series} />
         </div>
       </div>
     </div>

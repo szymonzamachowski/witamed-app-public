@@ -1,9 +1,29 @@
-import { useState, useMemo, useEffect } from 'react'
+import { Fragment, useState, useMemo, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { MatchStatisticsWithPlayer } from '../hooks/useMatchStatistics'
 import type { MatchErrors } from '../types/database'
 import './admin-match-stats-table.css'
+
+/** Błędy własne wpisywane per set w podziale na kategorie (jak w arkuszu statystyków). */
+const OWN_ERROR_CATEGORIES = [
+  { prefix: 'own_serve', label: 'SERWIS', playerField: 'serve_errors' },
+  { prefix: 'own_reception', label: 'PRZYJĘCIE', playerField: 'reception_errors' },
+  { prefix: 'own_attack', label: 'ATAK', playerField: 'attack_errors' },
+  { prefix: 'own_blocked', label: 'ZABLOKOWANE', playerField: 'attack_blocked' },
+] as const
+
+/** Suma błędów własnych w secie = suma kategorii (gdy kategorie są wpisane). */
+function withOwnErrorSums(errors: MatchErrors): MatchErrors {
+  const next: MatchErrors = { ...errors }
+  for (let set = 1; set <= 5; set++) {
+    const parts = OWN_ERROR_CATEGORIES.map(c => errors[`${c.prefix}_set${set}` as keyof MatchErrors] as number | undefined)
+    if (parts.some(v => v !== undefined && v !== null)) {
+      ;(next as Record<string, number>)[`own_errors_set${set}`] = parts.reduce<number>((sum, v) => sum + (v || 0), 0)
+    }
+  }
+  return next
+}
 
 type PlayerStatsEdit = {
   player_id: string
@@ -290,12 +310,13 @@ export default function AdminMatchStatsTable({
         sum + ((localMatchErrors[`blocks_against_set${set}` as keyof MatchErrors] as number) || 0), 0
       )
       
+      const summed = withOwnErrorSums(localMatchErrors)
       const ownErrorsTotal = Array.from({ length: numberOfSets }, (_, i) => i + 1).reduce((sum, set) => 
-        sum + ((localMatchErrors[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
+        sum + ((summed[`own_errors_set${set}` as keyof MatchErrors] as number) || 0), 0
       )
 
       const errorsWithTotals = {
-        ...localMatchErrors,
+        ...withOwnErrorSums(localMatchErrors),
         opponent_errors_total: opponentTotal,
         blocks_against_total: blocksTotal,
         own_errors_total: ownErrorsTotal
@@ -657,27 +678,46 @@ export default function AdminMatchStatsTable({
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    {Array.from({ length: numberOfSets }, (_, i) => i + 1).map(set => {
-                      const errorsKey = `own_errors_set${set}` as keyof MatchErrors
-                      return (
-                        <td key={set}>
-                          <input
-                            type="number"
-                            min="0"
-                            value={(localMatchErrors[errorsKey] as number) ?? 0}
-                            onChange={(e) => {
-                              const newErrors = { ...localMatchErrors, [errorsKey]: parseInt(e.target.value) || 0 }
-                              setLocalMatchErrors(newErrors)
-                              onErrorsChange(newErrors)
-                            }}
-                            className="error-input"
-                            placeholder="0"
-                          />
-                        </td>
-                      )
-                    })}
-                  </tr>
+                  {OWN_ERROR_CATEGORIES.map(cat => {
+                    const catTotal = Array.from({ length: numberOfSets }, (_, i) => i + 1).reduce(
+                      (sum, set) => sum + ((localMatchErrors[`${cat.prefix}_set${set}` as keyof MatchErrors] as number) || 0),
+                      0
+                    )
+                    const playersTotal = Array.from(playerStats.values()).reduce((sum, ps) => sum + (Number(ps[cat.playerField]) || 0), 0)
+                    return (
+                      <Fragment key={cat.prefix}>
+                        <tr className="error-category">
+                          <td colSpan={numberOfSets} className="error-category-label">
+                            {cat.label}
+                            {catTotal !== playersTotal && (
+                              <span className="own-errors-mismatch"> · zawodnicy mają {playersTotal}, w setach {catTotal}</span>
+                            )}
+                          </td>
+                        </tr>
+                        <tr>
+                          {Array.from({ length: numberOfSets }, (_, i) => i + 1).map(set => {
+                            const key = `${cat.prefix}_set${set}` as keyof MatchErrors
+                            return (
+                              <td key={set}>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={(localMatchErrors[key] as number) ?? 0}
+                                  onChange={(e) => {
+                                    const newErrors = withOwnErrorSums({ ...localMatchErrors, [key]: parseInt(e.target.value) || 0 })
+                                    setLocalMatchErrors(newErrors)
+                                    onErrorsChange(newErrors)
+                                  }}
+                                  className="error-input"
+                                  placeholder="0"
+                                />
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      </Fragment>
+                    )
+                  })}
                   <tr className="error-category">
                     <td colSpan={numberOfSets} className="error-category-label">INNE</td>
                   </tr>

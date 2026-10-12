@@ -1,0 +1,97 @@
+.team-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.team-block {
+  --tone: var(--primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.team-block.tone-bad {
+  --tone: var(--danger);
+}
+
+.team-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.team-block-total {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.team-parts {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.team-parts li {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+}
+
+.team-part-label {
+  font-weight: 600;
+}
+
+.team-part-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.team-part-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--tone);
+}
+
+.team-part-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 64px;
+  text-align: right;
+}
+
+.team-part-value small {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.team-balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.team-balance .display {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.team-balance .is-good {
+  color: var(--label);
+}
+
+.team-balance .is-bad {
+  color: var(--danger);
+}
+
+.team-balance .muted {
+  font-size: 13px;
+}

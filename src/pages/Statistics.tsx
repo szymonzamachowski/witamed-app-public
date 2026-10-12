@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { usePlayerStatistics } from '../hooks/usePlayerStatistics'
 import { useAllMatchErrors } from '../hooks/useAllMatchErrors'
 import StatsBoard, { type StatsRow } from '../components/StatsBoard'
+import TeamSummary from '../components/TeamSummary'
 import './statistics.css'
 
 export default function Statistics() {
@@ -16,12 +17,10 @@ export default function Statistics() {
         matches: stat.matches_played,
         stats: stat,
         previous: stat.before_last_match,
+        series: stat.per_match,
       })),
     [playerStats]
   )
-
-  const ownTotal = allMatchErrors?.own_errors_total || 0
-  const otherTotal = (allMatchErrors as { own_errors_other_total?: number } | undefined)?.own_errors_other_total || 0
 
   return (
     <div className="page statistics">
@@ -46,24 +45,14 @@ export default function Statistics() {
 
           {allMatchErrors && (
             <section className="statistics-errors">
-              <h2>Błędy w sezonie</h2>
-              <div className="error-summary">
-                <div className="card error-summary-tile">
-                  <span className="label">Błędy przeciwnika</span>
-                  <span className="display">{allMatchErrors.opponent_errors_total || 0}</span>
-                </div>
-                <div className="card error-summary-tile">
-                  <span className="label">Wybloki</span>
-                  <span className="display">{allMatchErrors.blocks_against_total || 0}</span>
-                </div>
-                <div className="card error-summary-tile">
-                  <span className="label">Błędy własne</span>
-                  <span className="display">
-                    {ownTotal}
-                    {otherTotal > 0 && <small> (+{otherTotal})</small>}
-                  </span>
-                </div>
-              </div>
+              <h2>Drużyna w sezonie</h2>
+              <TeamSummary
+                players={rows.map(r => r.stats)}
+                opponentErrors={allMatchErrors.opponent_errors_total || 0}
+                ownByCategory={allMatchErrors.own_by_category}
+                ownOther={allMatchErrors.own_errors_other_total || 0}
+              />
+              <p className="muted statistics-blocks">Wybloki w sezonie: <strong>{allMatchErrors.blocks_against_total || 0}</strong></p>
             </section>
           )}
         </>

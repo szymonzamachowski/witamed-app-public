@@ -35,6 +35,8 @@ export type PlayerStatistics = {
   block_total: number
   /** Suma statystyk sezonu bez ostatniego meczu zawodnika (do strzałek trendu); null przy < 2 meczach */
   before_last_match: RawStats | null
+  /** Statystyki z każdego meczu (rosnąco po dacie) — wykres formy */
+  per_match: { matchId: string; date: string; opponent: string; stats: RawStats }[]
 }
 
 export function usePlayerStatistics() {
@@ -44,7 +46,7 @@ export function usePlayerStatistics() {
       // Pobierz wszystkie statystyki z informacjami o zawodnikach
       const { data: allStats, error: statsError } = await supabase
         .from('match_statistics')
-        .select('*, profiles(*), matches(id, date)')
+        .select('*, profiles(*), matches(id, date, opponent)')
 
       if (statsError) {
         console.error('❌ Błąd przy pobieraniu statystyk:', statsError)
@@ -121,8 +123,16 @@ export function usePlayerStatistics() {
             attack_percentage: 0,
             block_total: 0,
             before_last_match: null,
+            per_match: [],
           })
         }
+
+        playerStatsMap.get(playerId)!.per_match.push({
+          matchId,
+          date: stat.matches?.date ?? '',
+          opponent: stat.matches?.opponent ?? '',
+          stats: stat,
+        })
 
         const matchDate = new Date(stat.matches?.date ?? 0).getTime()
         const previousLast = lastMatchRow.get(playerId)
@@ -179,6 +189,8 @@ export function usePlayerStatistics() {
         // Punkty = skończone ataki + asy + bloki
         stats.total_points = (stats.attack_points || 0) + (stats.serve_aces || 0) + (stats.block_total || 0)
         
+        stats.per_match.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
         // Sezon bez ostatniego meczu - do porównania „po ostatnim meczu lepiej/gorzej”
         const last = lastMatchRow.get(stats.player_id)
         if (last && stats.matches_played >= 2) {

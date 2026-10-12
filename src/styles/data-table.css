@@ -171,3 +171,8 @@
     max-width: 130px;
   }
 }
+
+.match-team-title {
+  font-size: 1.4rem;
+  margin: var(--space-3) 0 0;
+}

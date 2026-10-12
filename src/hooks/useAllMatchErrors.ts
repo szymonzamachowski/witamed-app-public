@@ -21,6 +21,7 @@ export function useAllMatchErrors() {
       let blocksTotal = 0
       let ownErrorsTotal = 0
       let ownErrorsOtherTotal = 0
+      const byCategory = { own_serve: 0, own_reception: 0, own_attack: 0, own_blocked: 0 }
 
       matches?.forEach((match) => {
         const errors = match.match_errors as MatchErrors | null
@@ -44,6 +45,9 @@ export function useAllMatchErrors() {
           const otherKey = `own_errors_other_set${set}` as keyof MatchErrors
           ownErrorsTotal += ((errors[errorsKey] as number) || 0)
           ownErrorsOtherTotal += ((errors[otherKey] as number) || 0)
+          for (const cat of Object.keys(byCategory) as (keyof typeof byCategory)[]) {
+            byCategory[cat] += ((errors[`${cat}_set${set}` as keyof MatchErrors] as number) || 0)
+          }
         }
       })
 
@@ -51,7 +55,8 @@ export function useAllMatchErrors() {
         opponent_errors_total: opponentTotal,
         blocks_against_total: blocksTotal,
         own_errors_total: ownErrorsTotal,
-        own_errors_other_total: ownErrorsOtherTotal
+        own_errors_other_total: ownErrorsOtherTotal,
+        own_by_category: byCategory,
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minut

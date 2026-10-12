@@ -431,3 +431,9 @@
   }
 }
 
+
+.own-errors-mismatch {
+  color: var(--danger);
+  font-weight: 600;
+  text-transform: none;
+}
