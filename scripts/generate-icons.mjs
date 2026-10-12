@@ -5,7 +5,7 @@
 import { Jimp } from 'jimp'
 import { mkdirSync } from 'fs'
 
-const SRC = 'photos/logo.png'
+const SRC = 'public/photos/logo.png'
 const OUT = 'public/icons'
 mkdirSync(OUT, { recursive: true })
 

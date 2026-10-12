@@ -1,179 +1,80 @@
-# Witamed App - Aplikacja Zarządzania Drużyną Siatkarską
+# Witamed
 
-Aplikacja webowa do zarządzania drużyną siatkarską, umożliwiająca komunikację między zawodnikami, trenerem i menedżerem. System wspiera organizację treningów, meczów ligowych, sparingów oraz śledzenie statystyk i obecności zawodników.
+Aplikacja drużyny siatkarskiej Witamed: obecność na treningach i meczach, wyniki, wideo, statystyki zawodników i powiadomienia na telefon.
 
-## 🎯 Główne funkcjonalności
+Produkcja: https://your-app.vercel.app (Vercel, wdrożenie z gałęzi `main`).
 
-### Dla wszystkich użytkowników
+## Funkcje
 
-- **Strona główna** - Wyświetla najbliższe ważne wydarzenie oraz aktualności drużyny
-- **Terminarz** - Kalendarz z wszystkimi wydarzeniami (mecze ligowe, sparingi, treningi)
-- **Mecze** - Lista wszystkich rozegranych meczów ligowych z możliwością obejrzenia wideo i statystyk
-- **Statystyki** - Agregowane statystyki wszystkich zawodników ze wszystkich meczów z możliwością sortowania
-- **Obecność** - System zaznaczania obecności na wydarzeniach (treningi, sparingi, mecze ligowe) z możliwością oznaczenia jako "obecny" lub "nieobecny"
+- **Główna** — najbliższe wydarzenie z szybkim „Będę / Nie będę”, ostatni mecz, aktualności.
+- **Obecność** — treningi, sparingi i mecze ligowe; lista kto będzie / nie będzie (admin może zmieniać statusy).
+- **Mecze** — wyniki (wygrana / porażka / remis), wideo z YouTube, statystyki i błędy meczu.
+- **Statystyki** — łączne statystyki sezonu; na telefonie zakładki kategorii i panel zawodnika ze strzałkami trendu.
+- **Terminarz** — kalendarz miesiąca z listą wydarzeń.
+- **Moje konto** — dane, statystyki, zmiana hasła, powiadomienia.
+- **Panel admina** — aktualności, wydarzenia, mecze, wpisywanie statystyk, lista zawodników.
+- **PWA + powiadomienia push** — instalacja na ekranie głównym (iOS 16.4+ / Android), przypomnienia (mecz: tydzień przed; trening/sparing: dzień przed o 18:00 i 3h przed), info o nowym wideo i statystykach.
+- Motyw jasny / ciemny.
 
-### Dla zalogowanych zawodników
+## Logowanie
 
-- **Moje konto** - Profil zawodnika z:
-  - Statystykami osobistymi (punkty, rozegrane mecze, bloki)
-  - Szczegółowymi statystykami (zagrywka, przyjęcie, atak)
-  - Informacjami kontaktowymi
-  - Możliwością zmiany hasła
-- **Zarządzanie obecnością** - Zaznaczanie obecności/nieobecności na wydarzeniach
-- **Sprawdzanie obecności** - Podgląd listy zawodników zapisanych na wydarzenia (tylko dla zalogowanych użytkowników)
+- Loginem jest **nazwisko** zawodnika (bez znaczenia wielkość liter i polskie znaki); konto w Supabase Auth to `nazwisko@witamed.local`.
+- Rejestracja jest wyłączona — konta zakłada admin (klucz service role).
 
-### Dla administratorów
+## Technologie
 
-- **Panel administratora** - Kompleksowe zarządzanie aplikacją:
-  - **Aktualności** - Dodawanie, edycja i usuwanie aktualności
-  - **Mecze** - Zarządzanie meczami ligowymi (dodawanie, edycja, usuwanie)
-  - **Statystyki meczu** - Wprowadzanie szczegółowych statystyk zawodników oraz błędów meczu
-  - **Wydarzenia** - Zarządzanie treningami i sparingami
-  - **Zawodnicy** - Masowe dodawanie zawodników do systemu
+React 19 + TypeScript + Vite, React Router, TanStack Query, zwykłe CSS (tokeny motywu w `src/index.css`), Supabase (Postgres + RLS, Auth, Edge Functions, pg_cron, pg_net, Vault).
 
-## 🛠️ Technologie
+## Uruchomienie lokalne
 
-- **Frontend:**
-  - React 19 + TypeScript
-  - Vite (build tool)
-  - React Router (routing)
-  - TanStack Query (data fetching)
-  - CSS Modules
-
-- **Backend:**
-  - Supabase (BaaS)
-    - PostgreSQL (baza danych)
-    - Row Level Security (RLS)
-    - Authentication
-
-## 📦 Instalacja i uruchomienie
-
-### Wymagania
-
-- Node.js 18+ 
-- npm lub yarn
-- Konto Supabase z skonfigurowaną bazą danych
-
-### Kroki instalacji
-
-1. **Sklonuj repozytorium:**
-```bash
-git clone https://github.com/szymonzamachowski/witamed-app.git
-cd witamed-app
-```
-
-2. **Zainstaluj zależności:**
 ```bash
 npm install
+npm run dev   # http://localhost:5173
 ```
 
-3. **Skonfiguruj zmienne środowiskowe:**
-Utwórz plik `.env` w głównym katalogu projektu:
+Plik `.env.local` (nie trafia do repo):
+
 ```env
-VITE_SUPABASE_URL=twoj_supabase_url
-VITE_SUPABASE_ANON_KEY=twoj_supabase_anon_key
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+VITE_VAPID_PUBLIC_KEY=...          # publiczny klucz powiadomień push
+# tylko do skryptów/administracji, nigdy we froncie:
+SUPABASE_SERVICE_ROLE_KEY=...
+VAPID_PRIVATE_KEY=...
+PUSH_CRON_SECRET=...
 ```
 
-4. **Skonfiguruj bazę danych:**
-   - Uruchom skrypt `supabase/schema.sql` w Supabase SQL Editor
-   - Uruchom migracje z folderu `supabase/migrations/` w kolejności chronologicznej
+Na Vercelu muszą być ustawione `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` i `VITE_VAPID_PUBLIC_KEY`.
 
-5. **Uruchom aplikację w trybie deweloperskim:**
+## Struktura
+
+```
+src/
+  pages/            strony (Home, Attendance, Matches, MatchDetail, Statistics, Calendar,
+                    Login, MyAccount, AdminPanel, Install) + ich CSS
+  components/       komponenty (NavBar, BottomNav, StatsBoard, StatGroupTiles,
+                    NotificationsCard/Banner, Admin*)
+  hooks/            dane z Supabase (useMatches, useAttendance, usePlayerStatistics,
+                    usePushNotifications, useTheme…)
+  stats/statConfig.ts  definicja kolumn statystyk — jedno miejsce do zmian
+  styles/           wspólne style tabel
+  utils/            pomocnicze (wynik meczu, przekierowania, daty, YouTube)
+public/             manifest PWA, ikony, service worker (sw.js)
+supabase/
+  schema.sql, migrations/   schemat i migracje bazy
+  functions/send-push/      funkcja wysyłająca powiadomienia
+scripts/generate-icons.mjs  generowanie ikon PWA z logo
+docs/                       projekty zmian, plany, poradnik PDF
+```
+
+## Statystyki — zmiany po konsultacji z trenerem
+
+Kolumny, skróty, wzory procentów i kolory kafelków są w `src/stats/statConfig.ts` (opis na górze pliku). Nowa liczba zbierana w meczu wymaga dodatkowo kolumny w `match_statistics` i pola w formularzu admina.
+
+## Powiadomienia — wdrożenie funkcji
+
 ```bash
-npm run dev
+npx supabase functions deploy send-push --project-ref <ref> --no-verify-jwt --use-api
 ```
 
-Aplikacja będzie dostępna pod adresem `http://localhost:5173`
-
-### Build produkcyjny
-
-```bash
-npm run build
-```
-
-Zbudowane pliki znajdziesz w folderze `dist/`
-
-## 📁 Struktura projektu
-
-```
-witamed-app/
-├── src/
-│   ├── components/          # Komponenty React
-│   │   ├── Admin*.tsx       # Komponenty panelu administratora
-│   │   ├── MatchStatsTable.tsx
-│   │   ├── NewsList.tsx
-│   │   └── NavBar.tsx
-│   ├── hooks/               # Custom hooks
-│   │   ├── useAuth.ts       # Autentykacja
-│   │   ├── useMatches.ts    # Mecze
-│   │   ├── usePlayerStatistics.ts  # Statystyki zawodników
-│   │   └── ...
-│   ├── pages/               # Strony aplikacji
-│   │   ├── Home.tsx         # Strona główna
-│   │   ├── Matches.tsx      # Lista meczów
-│   │   ├── Statistics.tsx   # Statystyki ogólne
-│   │   ├── Attendance.tsx   # Obecność
-│   │   ├── Calendar.tsx     # Terminarz
-│   │   ├── MyAccount.tsx    # Profil zawodnika
-│   │   └── AdminPanel.tsx   # Panel administratora
-│   ├── lib/
-│   │   └── supabase.ts      # Konfiguracja Supabase
-│   └── types/
-│       └── database.ts       # Typy TypeScript dla bazy danych
-├── supabase/
-│   ├── schema.sql           # Główny schemat bazy danych
-│   └── migrations/          # Migracje bazy danych
-├── public/                   # Pliki statyczne
-└── package.json
-```
-
-## 🔐 Autentykacja
-
-Aplikacja używa Supabase Authentication z następującymi funkcjami:
-- Rejestracja przez username (email opcjonalny)
-- Logowanie przez username lub email
-- Opcja "Zapamiętaj mnie" dla trwałej sesji
-- Role użytkowników: `player`, `admin`, `coach`
-
-## 📊 Statystyki
-
-System statystyk obejmuje:
-- **Zagrywka:** total, błędy, asy, skuteczność
-- **Przyjęcie:** total, pozytywne, pozostałe, błędy, skuteczność
-- **Atak:** total, punktowe, nieskończone, błędy, zablokowane, skuteczność
-- **Blok:** total bloków
-- **Punkty:** suma punktowych ataków + asy + bloki
-
-Statystyki są agregowane ze wszystkich meczów ligowych i wyświetlane zarówno w widoku ogólnym, jak i per mecz.
-
-## 🎬 Wideo z meczów
-
-Aplikacja obsługuje wideo z meczów poprzez integrację z YouTube:
-- Obsługa pojedynczych wideo
-- Obsługa playlist YouTube (automatyczne odtwarzanie kolejnych wideo)
-
-## 📱 Responsywność
-
-Aplikacja jest w pełni responsywna i działa na:
-- Desktop
-- Tablety
-- Telefony komórkowe
-
-## 🚀 Deployment
-
-Aplikacja jest gotowa do wdrożenia na:
-- **Vercel** (zalecane) - automatyczne wdrożenia z GitHub
-- **Netlify** - konfiguracja w `netlify.toml`
-- Inne platformy wspierające Vite
-
-## 📝 Licencja
-
-Projekt prywatny - Wszystkie prawa zastrzeżone
-
-## 👥 Autorzy
-
-- Szymon Zamachowski
-
----
-
-**Uwaga:** Aplikacja wymaga skonfigurowanej bazy danych Supabase z odpowiednimi tabelami i politykami bezpieczeństwa (RLS). Szczegóły konfiguracji znajdują się w plikach w folderze `supabase/`.
+Sekrety funkcji: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `PUSH_CRON_SECRET`. W Vault bazy: `push_function_url`, `push_cron_secret` (patrz `supabase/migrations/20261012_push_notifications.sql`).
