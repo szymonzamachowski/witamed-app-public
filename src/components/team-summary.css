@@ -36,13 +36,29 @@
 .team-parts li {
   display: grid;
   grid-template-columns: 96px 1fr auto;
-  align-items: center;
+  align-items: end;
   gap: var(--space-2);
   font-size: 14px;
 }
 
 .team-part-label {
   font-weight: 600;
+}
+
+/* Procent nad paskiem, żeby nie sklejał się z liczbą */
+.team-part-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 5px;
+}
+
+.team-part-share {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .team-part-bar {
@@ -62,13 +78,8 @@
 .team-part-value {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  min-width: 64px;
+  min-width: 36px;
   text-align: right;
-}
-
-.team-part-value small {
-  font-weight: 600;
-  color: var(--text-muted);
 }
 
 .team-balance {

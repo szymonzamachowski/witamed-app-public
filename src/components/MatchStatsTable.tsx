@@ -1,12 +1,18 @@
-import type { MatchStatisticsWithPlayer } from '../hooks/useMatchStatistics'
 import type { MatchErrors } from '../types/database'
+import type { RawStats } from '../stats/statConfig'
 import StatsBoard, { type StatsRow } from './StatsBoard'
 import TeamSummary from './TeamSummary'
 import '../styles/data-table.css'
 
+/** Wiersz statystyk zawodnika w meczu (bieżący sezon lub archiwum) */
+export type MatchStatRow = RawStats & {
+  id: string
+  profiles: { full_name: string | null; username: string | null } | null
+}
+
 type Props = {
-  statistics: MatchStatisticsWithPlayer[]
-  matchErrors?: MatchErrors
+  statistics: MatchStatRow[]
+  matchErrors?: MatchErrors | null
 }
 
 export default function MatchStatsTable({ statistics, matchErrors }: Props) {

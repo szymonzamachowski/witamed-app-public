@@ -18,12 +18,13 @@ function Breakdown({ title, total, parts, tone }: { title: string; total: number
           return (
             <li key={p.label}>
               <span className="team-part-label">{p.label}</span>
-              <span className="team-part-bar" aria-hidden="true">
-                <span style={{ width: `${share}%` }} />
+              <span className="team-part-meter">
+                <small className="team-part-share">{total > 0 ? `${share}%` : '–'}</small>
+                <span className="team-part-bar" aria-hidden="true">
+                  <span style={{ width: `${share}%` }} />
+                </span>
               </span>
-              <span className="team-part-value">
-                {p.value} <small>{total > 0 ? `${share}%` : '–'}</small>
-              </span>
+              <span className="team-part-value">{p.value}</span>
             </li>
           )
         })}

@@ -1,0 +1,54 @@
+.last-season-record {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  max-width: 720px;
+}
+
+.last-season-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+}
+
+.last-season-kpi .display {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.last-season-kpi.is-win .display {
+  color: var(--success);
+}
+
+.last-season-kpi.is-loss .display {
+  color: var(--danger);
+}
+
+.last-season-tabs {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 360px;
+}
+
+.last-season-matches {
+  max-width: 720px;
+}
+
+@media (max-width: 600px) {
+  .last-season-record {
+    gap: var(--space-2);
+  }
+
+  .last-season-kpi {
+    padding: var(--space-3) var(--space-2);
+    align-items: center;
+  }
+
+  .last-season-kpi .display {
+    font-size: 1.7rem;
+  }
+
+  .last-season-kpi .label {
+    font-size: 9px;
+  }
+}

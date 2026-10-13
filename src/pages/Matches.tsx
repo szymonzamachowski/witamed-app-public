@@ -1,7 +1,5 @@
-import { Link } from 'react-router-dom'
-import { VideoCameraIcon, MapPinIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { useMatches } from '../hooks/useMatches'
-import { parseMatchScore, matchOutcome, OUTCOME_LABEL } from '../utils/matchScore'
+import MatchCard from '../components/MatchCard'
 import './matches.css'
 
 export default function Matches() {
@@ -29,40 +27,9 @@ export default function Matches() {
         </div>
       ) : (
         <div className="matches-list">
-          {playedMatches.map(match => {
-            const result = parseMatchScore(match.score)
-            const outcome = matchOutcome(result)
-            const date = new Date(match.date)
-
-            return (
-              <Link key={match.id} to={`/matches/${match.id}`} className="card match-card">
-                <div className={`match-result-badge ${outcome ? `is-${outcome}` : ''}`}>
-                  <span className="display">{result ? `${result.ours}:${result.theirs}` : '–'}</span>
-                  <span className="match-result-label">{outcome ? OUTCOME_LABEL[outcome] : 'Wynik'}</span>
-                </div>
-
-                <div className="match-card-body">
-                  <h2 className="match-card-title display">vs {match.opponent}</h2>
-                  <div className="match-card-meta muted">
-                    <span>
-                      {date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' })}
-                      {', '}
-                      {date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })}
-                    </span>
-                    {match.location && (
-                      <span><MapPinIcon aria-hidden="true" />{match.location}</span>
-                    )}
-                  </div>
-                  {result?.sets && <div className="match-card-sets muted">{result.sets}</div>}
-                  {match.video_url && (
-                    <span className="match-video-chip"><VideoCameraIcon aria-hidden="true" />Wideo</span>
-                  )}
-                </div>
-
-                <ChevronRightIcon className="match-card-arrow" aria-hidden="true" />
-              </Link>
-            )
-          })}
+          {playedMatches.map(match => (
+            <MatchCard key={match.id} match={match} to={`/matches/${match.id}`} />
+          ))}
         </div>
       )}
     </div>

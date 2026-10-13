@@ -68,6 +68,7 @@ export default function NavBar() {
                 <div className="profile-dropdown" role="menu">
                   {profile?.full_name && <div className="profile-dropdown-name">{profile.full_name}</div>}
                   <NavLink to="/account" role="menuitem">Moje konto</NavLink>
+                  <NavLink to="/zeszly-sezon" role="menuitem">Zeszły sezon</NavLink>
                   {isAdmin && <NavLink to="/admin" role="menuitem">Panel Admina</NavLink>}
                   <NavLink to="/instalacja" role="menuitem">Aplikacja na telefon</NavLink>
                 </div>

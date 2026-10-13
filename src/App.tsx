@@ -12,6 +12,8 @@ import Login from './pages/Login'
 import MyAccount from './pages/MyAccount'
 import AdminPanel from './pages/AdminPanel'
 import Install from './pages/Install'
+import LastSeason from './pages/LastSeason'
+import ArchiveMatchDetail from './pages/ArchiveMatchDetail'
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="/account" element={<MyAccount />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/instalacja" element={<Install />} />
+          <Route path="/zeszly-sezon" element={<LastSeason />} />
+          <Route path="/zeszly-sezon/:id" element={<ArchiveMatchDetail />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
