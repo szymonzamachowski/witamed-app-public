@@ -1,5 +1,5 @@
-import { Fragment, useState, useMemo, useEffect } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Fragment, useState, useMemo, useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { MatchStatisticsWithPlayer } from '../hooks/useMatchStatistics'
 import type { MatchErrors } from '../types/database'
@@ -98,116 +98,127 @@ export default function AdminMatchStatsTable({
   }, [players, existingStats])
 
   const [playerStats, setPlayerStats] = useState<Map<string, PlayerStatsEdit>>(allPlayerStats)
+  // Zawodnicy z niezapisanymi zmianami — odświeżenie danych z bazy ich nie nadpisuje
+  const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set())
+  const dirtyRef = useRef(dirtyIds)
+  dirtyRef.current = dirtyIds
 
-  // Aktualizuj statystyki gdy existingStats się zmienia
+  // Nowy mecz = czysta karta
   useEffect(() => {
-    setPlayerStats(allPlayerStats)
+    setDirtyIds(new Set())
+  }, [matchId])
+
+  // Synchronizuj z bazą, zachowując niezapisane wpisy
+  useEffect(() => {
+    setPlayerStats(prev => {
+      const next = new Map<string, PlayerStatsEdit>()
+      allPlayerStats.forEach((fromDb, id) => {
+        const local = prev.get(id)
+        next.set(id, local && dirtyRef.current.has(id)
+          ? { ...local, existing_id: fromDb.existing_id ?? local.existing_id }
+          : fromDb)
+      })
+      return next
+    })
   }, [allPlayerStats])
 
-  const savePlayerStatsMutation = useMutation({
-    mutationFn: async ({ playerId, stats }: { playerId: string; stats: PlayerStatsEdit }) => {
-      const statsData = {
-        serve_total: stats.serve_total,
-        serve_errors: stats.serve_errors,
-        serve_aces: stats.serve_aces,
-        reception_total: stats.reception_total,
-        reception_positive: stats.reception_positive,
-        reception_other: stats.reception_other,
-        reception_errors: stats.reception_errors,
-        attack_total: stats.attack_total,
-        attack_points: stats.attack_points,
-        attack_unfinished: stats.attack_unfinished,
-        attack_errors: stats.attack_errors,
-        attack_blocked: stats.attack_blocked,
-        block_total: stats.block_total,
-      }
-
-      if (stats.existing_id) {
-        // Aktualizuj istniejące statystyki
-        const { data, error } = await supabase
-          .from('match_statistics')
-          .update(statsData)
-          .eq('id', stats.existing_id)
-          .select()
-          .single()
-        
-        if (error) throw error
-        return data
-      } else {
-        // Dodaj nowe statystyki
-        const { data, error } = await supabase
-          .from('match_statistics')
-          .insert([{
-            match_id: matchId,
-            player_id: playerId,
-            ...statsData
-          }])
-          .select()
-          .single()
-        
-        if (error) throw error
-        return data
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['match-statistics', matchId] })
-      setSuccess('Statystyki zostały zapisane!')
-      setTimeout(() => setSuccess(null), 2000)
-    },
-    onError: (err: any) => {
-      setError(err.message || 'Błąd przy zapisywaniu statystyk')
-      setTimeout(() => setError(null), 5000)
-    }
+  const toStatsData = (stats: PlayerStatsEdit) => ({
+    serve_total: stats.serve_total,
+    serve_errors: stats.serve_errors,
+    serve_aces: stats.serve_aces,
+    reception_total: stats.reception_total,
+    reception_positive: stats.reception_positive,
+    reception_other: stats.reception_other,
+    reception_errors: stats.reception_errors,
+    attack_total: stats.attack_total,
+    attack_points: stats.attack_points,
+    attack_unfinished: stats.attack_unfinished,
+    attack_errors: stats.attack_errors,
+    attack_blocked: stats.attack_blocked,
+    block_total: stats.block_total,
   })
 
-  const handleStatChange = (playerId: string, field: keyof PlayerStatsEdit, value: number) => {
-    const newStats = new Map(playerStats)
-    const current = newStats.get(playerId)!
-    newStats.set(playerId, { ...current, [field]: value })
-    setPlayerStats(newStats)
+  /** Zapisuje wskazanych zawodników; zwraca liczbę nieudanych zapisów. */
+  const savePlayers = async (ids: string[]) => {
+    const rows = ids.map(id => playerStats.get(id)).filter((s): s is PlayerStatsEdit => !!s)
+    // Id wierszy już istniejących w bazie (także te dodane w międzyczasie)
+    const { data: inDb, error: fetchError } = await supabase
+      .from('match_statistics')
+      .select('id, player_id')
+      .eq('match_id', matchId)
+      .in('player_id', rows.map(r => r.player_id))
+    if (fetchError) throw fetchError
+    const idByPlayer = new Map((inDb || []).map(r => [r.player_id, r.id]))
+
+    const toInsert = rows.filter(r => !idByPlayer.has(r.player_id))
+    const toUpdate = rows.filter(r => idByPlayer.has(r.player_id))
+    const failed: string[] = []
+    const saved = new Set<string>()
+
+    if (toInsert.length) {
+      const { error } = await supabase
+        .from('match_statistics')
+        .insert(toInsert.map(r => ({ match_id: matchId, player_id: r.player_id, ...toStatsData(r) })))
+      if (error) failed.push(...toInsert.map(r => `${r.player_name}: ${error.message}`))
+      else toInsert.forEach(r => saved.add(r.player_id))
+    }
+
+    const results = await Promise.all(toUpdate.map(r =>
+      supabase
+        .from('match_statistics')
+        .update(toStatsData(r))
+        .eq('id', idByPlayer.get(r.player_id)!)
+        .select('id')
+        .then(({ data, error }) => ({ r, error: error?.message ?? (data?.length ? null : 'brak uprawnień do zapisu') }))
+    ))
+    results.forEach(({ r, error }) => {
+      if (error) failed.push(`${r.player_name}: ${error}`)
+      else saved.add(r.player_id)
+    })
+
+    setDirtyIds(prev => {
+      const next = new Set(prev)
+      saved.forEach(id => next.delete(id))
+      return next
+    })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['match-statistics', matchId] }),
+      queryClient.invalidateQueries({ queryKey: ['player-statistics'] }),
+    ])
+    return failed
   }
 
-  const handleSavePlayer = async (playerId: string) => {
-    setSavingPlayerId(playerId)
+  const runSave = async (ids: string[], savingKey: string) => {
+    setSavingPlayerId(savingKey)
     setError(null)
-    const stats = playerStats.get(playerId)!
+    setSuccess(null)
     try {
-      const saved = await savePlayerStatsMutation.mutateAsync({ playerId, stats })
-      // Aktualizuj existing_id po zapisaniu
-      const newStats = new Map(playerStats)
-      const current = newStats.get(playerId)!
-      newStats.set(playerId, { ...current, existing_id: saved.id })
-      setPlayerStats(newStats)
+      const failed = await savePlayers(ids)
+      if (failed.length) {
+        setError(`Nie zapisano: ${failed.join('; ')}`)
+      } else {
+        setSuccess(ids.length > 1 ? `Zapisano statystyki ${ids.length} zawodników!` : 'Statystyki zostały zapisane!')
+        setTimeout(() => setSuccess(null), 3000)
+      }
     } catch (err) {
-      // Błąd już jest obsłużony w mutation
+      setError((err as Error).message || 'Błąd przy zapisywaniu statystyk')
     } finally {
       setSavingPlayerId(null)
     }
   }
 
-  const handleSaveAll = async () => {
-    setError(null)
-    setSuccess(null)
-    
-    const newStats = new Map(playerStats)
-    
-    for (const [playerId, stats] of playerStats.entries()) {
-      setSavingPlayerId(playerId)
-      try {
-        const saved = await savePlayerStatsMutation.mutateAsync({ playerId: stats.player_id, stats })
-        // Aktualizuj existing_id po zapisaniu
-        const current = newStats.get(playerId)!
-        newStats.set(playerId, { ...current, existing_id: saved.id })
-      } catch (err) {
-        console.error(`Błąd przy zapisywaniu statystyk dla ${stats.player_name}:`, err)
-      }
-    }
-    
-    setPlayerStats(newStats)
-    setSavingPlayerId(null)
-    setSuccess('Wszystkie statystyki zostały zapisane!')
-    setTimeout(() => setSuccess(null), 3000)
+  const handleStatChange = (playerId: string, field: keyof PlayerStatsEdit, value: number) => {
+    setPlayerStats(prev => {
+      const next = new Map(prev)
+      next.set(playerId, { ...next.get(playerId)!, [field]: value })
+      return next
+    })
+    setDirtyIds(prev => prev.has(playerId) ? prev : new Set(prev).add(playerId))
   }
+
+  const handleSavePlayer = (playerId: string) => runSave([playerId], playerId)
+
+  const handleSaveAll = () => runSave(Array.from(playerStats.keys()), 'all')
 
   const calculateReceptionPercentage = (stats: PlayerStatsEdit) => {
     if (stats.reception_total === 0) return 0
@@ -351,9 +362,9 @@ export default function AdminMatchStatsTable({
         <button
           onClick={handleSaveAll}
           className="admin-button"
-          disabled={savePlayerStatsMutation.isPending}
+          disabled={savingPlayerId !== null}
         >
-          {savePlayerStatsMutation.isPending ? 'Zapisywanie...' : 'Zapisz wszystkie statystyki'}
+          {savingPlayerId === 'all' ? 'Zapisywanie...' : 'Zapisz wszystkie statystyki'}
         </button>
       </div>
 
@@ -512,9 +523,9 @@ export default function AdminMatchStatsTable({
                   <button
                     onClick={() => handleSavePlayer(stats.player_id)}
                     className="save-btn"
-                    disabled={savingPlayerId === stats.player_id}
+                    disabled={savingPlayerId !== null}
                   >
-                    {savingPlayerId === stats.player_id ? '...' : 'Zapisz'}
+                    {savingPlayerId === stats.player_id || savingPlayerId === 'all' ? '...' : dirtyIds.has(stats.player_id) ? 'Zapisz •' : 'Zapisz'}
                   </button>
                 </td>
               </tr>
