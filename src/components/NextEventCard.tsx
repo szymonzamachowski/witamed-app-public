@@ -59,8 +59,8 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
   const isSaving = setEventStatus.isPending || setMatchStatus.isPending
 
   const tab = attendanceTabFor(event)
-  // Zawodnik „tylko treningi” nie zaznacza obecności na meczach i sparingach
-  const canMark = !profile?.training_only || tab === 'training'
+  // Zawodnik „tylko treningi” nie zaznacza obecności na meczach ligowych
+  const canMark = !profile?.training_only || !isMatch
   const date = new Date(event.date)
   const title = isMatch && 'opponent' in event ? `vs ${event.opponent}` : event.title
   const description = !isMatch && 'description' in event ? event.description : undefined

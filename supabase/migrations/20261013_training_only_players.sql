@@ -1,5 +1,5 @@
--- Zawodnicy „tylko treningi”: mogą zaznaczać obecność wyłącznie na treningach
--- i dostają powiadomienia tylko o treningach (filtr w funkcji send-push).
+-- Zawodnicy „tylko treningi”: mogą zaznaczać obecność na treningach i sparingach,
+-- ale nie na meczach ligowych; powiadomień o meczach nie dostają (filtr w send-push).
 
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS training_only BOOLEAN NOT NULL DEFAULT false;
@@ -28,7 +28,7 @@ BEGIN
 END;
 $$;
 
--- Obecność zawodnika „tylko treningi” tylko na wydarzeniach typu training
+-- Zawodnik „tylko treningi” nie zaznacza obecności na meczach ligowych
 CREATE OR REPLACE FUNCTION public.check_training_only_attendance()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -36,10 +36,9 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM public.profiles WHERE id = NEW.player_id AND training_only)
-     AND (NEW.match_id IS NOT NULL
-          OR NOT EXISTS (SELECT 1 FROM public.events WHERE id = NEW.event_id AND type = 'training')) THEN
-    RAISE EXCEPTION 'Ten zawodnik może zaznaczać obecność tylko na treningach';
+  IF NEW.match_id IS NOT NULL
+     AND EXISTS (SELECT 1 FROM public.profiles WHERE id = NEW.player_id AND training_only) THEN
+    RAISE EXCEPTION 'Ten zawodnik nie zaznacza obecności na meczach ligowych';
   END IF;
   RETURN NEW;
 END;

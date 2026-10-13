@@ -148,7 +148,7 @@ async function runReminders() {
     db.from('profiles').select('id, training_only'),
   ])
   const allPlayers = (players ?? []).map(p => p.id)
-  // Zawodnicy „tylko treningi” nie dostają nic o meczach i sparingach
+  // Zawodnicy „tylko treningi” nie dostają nic o meczach ligowych
   const matchPlayers = (players ?? []).filter(p => !p.training_only).map(p => p.id)
 
   const items: Item[] = [
@@ -174,7 +174,7 @@ async function runReminders() {
     const when = `${fmtDay(item.start)}, ${fmtTime(item.start)}`
     const place = item.location ? ` · ${item.location}` : ''
     const threeHours = new Date(item.start.getTime() - 3 * 3600_000)
-    const audience = item.tab === 'training' ? allPlayers : matchPlayers
+    const audience = item.isMatch ? matchPlayers : allPlayers
 
     if (item.isMatch) {
       // Mecz: tydzień przed
