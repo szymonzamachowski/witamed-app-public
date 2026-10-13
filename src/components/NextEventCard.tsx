@@ -35,7 +35,7 @@ function formatDateTime(date: Date) {
 
 export default function NextEventCard({ event }: { event: UpcomingEvent }) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [error, setError] = useState<string | null>(null)
 
   const isMatch = event.type === 'match'
@@ -59,6 +59,8 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
   const isSaving = setEventStatus.isPending || setMatchStatus.isPending
 
   const tab = attendanceTabFor(event)
+  // Zawodnik „tylko treningi” nie zaznacza obecności na meczach i sparingach
+  const canMark = !profile?.training_only || tab === 'training'
   const date = new Date(event.date)
   const title = isMatch && 'opponent' in event ? `vs ${event.opponent}` : event.title
   const description = !isMatch && 'description' in event ? event.description : undefined
@@ -111,6 +113,7 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
         <strong>{presentCount}</strong> będzie · <strong>{absentCount}</strong> nie będzie
       </p>
 
+      {canMark && (
       <div className="next-event-actions">
         <button
           type="button"
@@ -131,11 +134,12 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
           {currentStatus === 'absent' && '✓ '}Nie będę
         </button>
       </div>
+      )}
 
       {error && <p className="next-event-error">{error}</p>}
 
       <div className="next-event-links">
-        <Link to={`/attendance?tab=${tab}&focus=${event.id}`}>Kto będzie?</Link>
+        {canMark && <Link to={`/attendance?tab=${tab}&focus=${event.id}`}>Kto będzie?</Link>}
         <Link to="/calendar">Zobacz terminarz</Link>
       </div>
     </article>

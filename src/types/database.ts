@@ -5,6 +5,7 @@ export type Profile = {
   phone_number: string
   league_license_number: string
   role: 'player' | 'admin' | 'coach'
+  training_only: boolean // tylko treningi: bez meczów i sparingów
   created_at: string
 }
 

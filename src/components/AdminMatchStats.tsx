@@ -1,4 +1,4 @@
-import { useState, type FormEvent, useEffect } from 'react'
+import { useState, type FormEvent, useEffect, useMemo } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { usePlayers } from '../hooks/usePlayers'
 import { useMatchStatistics } from '../hooks/useMatchStatistics'
@@ -15,7 +15,9 @@ type Props = {
 
 export default function AdminMatchStats(_props: Props = {}) {
   const { data: matches, isLoading: matchesLoading } = useMatches()
-  const { data: players, isLoading: playersLoading } = usePlayers()
+  const { data: allPlayers, isLoading: playersLoading } = usePlayers()
+  // Zawodnicy „tylko treningi” nie grają meczów
+  const players = useMemo(() => allPlayers?.filter(p => !p.training_only), [allPlayers])
   const queryClient = useQueryClient()
   
   const [selectedMatchId, setSelectedMatchId] = useState<string>('')

@@ -54,12 +54,16 @@ function isTodayOrLater(date: string) {
 }
 
 export default function Attendance() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
+  const trainingOnly = !!profile?.training_only
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const focusId = searchParams.get('focus')
-  const [activeTab, setActiveTab] = useState<AttendanceTab>(isTab(tabParam) ? tabParam : 'training')
+  const [requestedTab, setActiveTab] = useState<AttendanceTab>(isTab(tabParam) ? tabParam : 'training')
+  // Zawodnik „tylko treningi” widzi wyłącznie treningi
+  const activeTab: AttendanceTab = trainingOnly ? 'training' : requestedTab
+  const visibleTabs = trainingOnly ? TABS.filter(tab => tab.id === 'training') : TABS
   const [selected, setSelected] = useState<{ kind: Kind; id: string } | null>(null)
 
   // Aktualizuj aktywną zakładkę gdy zmieni się parametr URL
@@ -140,7 +144,7 @@ export default function Attendance() {
       )}
 
       <div className="segmented" role="tablist" aria-label="Rodzaj wydarzenia">
-        {TABS.map(tab => (
+        {visibleTabs.map(tab => (
           <button
             key={tab.id}
             type="button"
@@ -175,7 +179,9 @@ export default function Attendance() {
         </div>
       )}
 
-      {selected && user && <AttendeesModal kind={selected.kind} id={selected.id} onClose={closeModal} />}
+      {selected && user && (
+        <AttendeesModal kind={selected.kind} id={selected.id} isTraining={activeTab === 'training'} onClose={closeModal} />
+      )}
     </div>
   )
 }
@@ -268,7 +274,7 @@ function AttendanceCard({
   )
 }
 
-function AttendeesModal({ kind, id, onClose }: { kind: Kind; id: string; onClose: () => void }) {
+function AttendeesModal({ kind, id, isTraining, onClose }: { kind: Kind; id: string; isTraining: boolean; onClose: () => void }) {
   const { user, profile, loading } = useAuth()
   const isMatch = kind === 'match'
   const eventId = isMatch ? '' : id
@@ -320,7 +326,9 @@ function AttendeesModal({ kind, id, onClose }: { kind: Kind; id: string; onClose
   const present = attendance.filter(a => a.status === 'present')
   const absent = attendance.filter(a => a.status === 'absent')
   const other = attendance.filter(a => a.status !== 'present' && a.status !== 'absent')
-  const notAnswered = (allSystemPlayers ?? []).filter(p => !attendance.some(a => a.player_id === p.id))
+  const notAnswered = (allSystemPlayers ?? [])
+    .filter(p => isTraining || !p.training_only)
+    .filter(p => !attendance.some(a => a.player_id === p.id))
 
   const renderRow = (att: (typeof attendance)[number]) => {
     const canEdit = isAdmin || att.player_id === user.id

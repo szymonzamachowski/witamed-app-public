@@ -145,9 +145,11 @@ async function runReminders() {
   const [{ data: matches }, { data: events }, { data: players }] = await Promise.all([
     db.from('matches').select('id, opponent, date, location, score').gt('date', now.toISOString()).lte('date', horizon),
     db.from('events').select('id, title, date, location, type').gt('date', now.toISOString()).lte('date', horizon),
-    db.from('profiles').select('id'),
+    db.from('profiles').select('id, training_only'),
   ])
   const allPlayers = (players ?? []).map(p => p.id)
+  // Zawodnicy „tylko treningi” nie dostają nic o meczach i sparingach
+  const matchPlayers = (players ?? []).filter(p => !p.training_only).map(p => p.id)
 
   const items: Item[] = [
     ...(matches ?? [])
@@ -172,13 +174,14 @@ async function runReminders() {
     const when = `${fmtDay(item.start)}, ${fmtTime(item.start)}`
     const place = item.location ? ` · ${item.location}` : ''
     const threeHours = new Date(item.start.getTime() - 3 * 3600_000)
+    const audience = item.tab === 'training' ? allPlayers : matchPlayers
 
     if (item.isMatch) {
       // Mecz: tydzień przed
       const weekBefore = new Date(item.start.getTime() - 7 * 24 * 3600_000)
       if (now >= weekBefore) {
         const statuses = await statusesFor(item)
-        const recipients = allPlayers.filter(id => statuses.get(id) !== 'absent')
+        const recipients = audience.filter(id => statuses.get(id) !== 'absent')
         sent += await notifyPlayers('match_week', item.id, recipients, id => ({
           title: `Mecz ${item.title} — ${fmtDay(item.start)}`,
           body:
@@ -195,7 +198,7 @@ async function runReminders() {
     // Trening / sparing: dzień przed o 18:00 (jeśli to jeszcze przed oknem „3h przed”)
     if (now >= dayBefore18(item.start) && now < threeHours) {
       const statuses = await statusesFor(item)
-      const recipients = allPlayers.filter(id => statuses.get(id) !== 'absent')
+      const recipients = audience.filter(id => statuses.get(id) !== 'absent')
       sent += await notifyPlayers('day_before', item.id, recipients, id => ({
         title: `Jutro ${item.label.toLowerCase()} o ${fmtTime(item.start)}`,
         body:
@@ -210,7 +213,7 @@ async function runReminders() {
     // 3h przed: tylko zapisani na „Będę”
     if (now >= threeHours) {
       const statuses = await statusesFor(item)
-      const recipients = allPlayers.filter(id => statuses.get(id) === 'present')
+      const recipients = audience.filter(id => statuses.get(id) === 'present')
       sent += await notifyPlayers('three_hours', item.id, recipients, () => ({
         title: `Dziś ${item.label.toLowerCase()} o ${fmtTime(item.start)}`,
         body: `${item.title}${place}`,
@@ -225,7 +228,7 @@ async function runReminders() {
 async function runMatchNews(kind: 'video' | 'stats', matchId: string) {
   const { data: match } = await db.from('matches').select('id, opponent').eq('id', matchId).single()
   if (!match) return 0
-  const { data: players } = await db.from('profiles').select('id')
+  const { data: players } = await db.from('profiles').select('id').eq('training_only', false)
   const payload: Payload =
     kind === 'video'
       ? { title: `📹 Wideo z meczu vs ${match.opponent}`, body: 'Nagranie jest już dostępne.', url: `/matches/${match.id}`, tag: `video-${match.id}` }
