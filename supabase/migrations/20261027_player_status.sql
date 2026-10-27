@@ -58,3 +58,10 @@ UPDATE public.profiles SET player_status = 'staff' WHERE username = 'wojcik';
 -- Ich dotychczasowe deklaracje nie powinny zaniżać licznika „nie będzie”
 DELETE FROM public.attendance
 WHERE player_id IN (SELECT id FROM public.profiles WHERE player_status <> 'active');
+
+-- Admin zmienia status zawodników w panelu (pozostałe ograniczenia pilnuje protect_profile_role)
+DROP POLICY IF EXISTS "Admins can update profiles" ON public.profiles;
+CREATE POLICY "Admins can update profiles" ON public.profiles
+  FOR UPDATE
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));

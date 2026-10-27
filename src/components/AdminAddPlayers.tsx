@@ -1,81 +1,113 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { supabase } from '../lib/supabase'
+import type { PlayerStatus, Profile } from '../types/database'
 import './admin-add-players.css'
 
-const PLAYERS_LIST = [
-  { username: 'nowak', fullName: 'Nowak Maciej', leagueLicense: '9000000009', email: 'nowak@witamed.local', isAdmin: false },
-  { username: 'kozlowski', fullName: 'Kozłowski Maciej', leagueLicense: '9000000002', email: 'kozlowski@witamed.local', isAdmin: false },
-  { username: 'mazur', fullName: 'Mazur Patryk', leagueLicense: '9000000008', email: 'mazur@witamed.local', isAdmin: false },
-  { username: 'jankowski', fullName: 'Jankowski Michał', leagueLicense: '9000000013', email: 'jankowski@witamed.local', isAdmin: false },
-  { username: 'lewandowska', fullName: 'Lewandowski Mateusz', leagueLicense: '9000000011', email: 'lewandowska@witamed.local', isAdmin: false },
-  { username: 'pawlowski', fullName: 'Pawłowski Witold', leagueLicense: '9000000016', email: 'pawlowski@witamed.local', isAdmin: false },
-  { username: 'wozniak', fullName: 'Woźniak Piotr', leagueLicense: '9000000004', email: 'wozniak@witamed.local', isAdmin: false },
-  { username: 'szymanska', fullName: 'Szymański Jakub', leagueLicense: '9000000014', email: 'szymanska@witamed.local', isAdmin: false },
-  { username: 'kaminski', fullName: 'Kamiński Michał', leagueLicense: '9000000007', email: 'kaminski@witamed.local', isAdmin: true },
-  { username: 'zielinski', fullName: 'Zieliński Marcin', leagueLicense: '9000000005', email: 'zielinski@witamed.local', isAdmin: false },
-  { username: 'grabowski', fullName: 'Grabowski Adrian', leagueLicense: '9000000003', email: 'grabowski@witamed.local', isAdmin: false },
-  { username: 'kowalczyk', fullName: 'Kowalczyk Łukasz', leagueLicense: '9000000006', email: 'kowalczyk@witamed.local', isAdmin: false },
-  { username: 'wojcik', fullName: 'Wójcik Weronika', leagueLicense: '9000000015', email: 'wojcik@witamed.local', isAdmin: true },
-  { username: 'zamachowski', fullName: 'Zamachowski Szymon', leagueLicense: '9000000012', email: 'zamachowski@witamed.local', isAdmin: true },
+const STATUS_OPTIONS: { value: PlayerStatus; label: string }[] = [
+  { value: 'active', label: 'Zawodnik' },
+  { value: 'injured', label: 'Kontuzjowany' },
+  { value: 'staff', label: 'Sztab' },
 ]
 
 export default function AdminAddPlayers() {
+  const queryClient = useQueryClient()
+
+  const { data: profiles, isLoading, error } = useQuery({
+    queryKey: ['all-profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*').order('full_name')
+      if (error) throw error
+      return data as Profile[]
+    },
+  })
+
+  // Panel zmienia tylko status w kadrze; roli admina stąd nie da się nadać ani odebrać
+  const setStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: PlayerStatus }) => {
+      const { error } = await supabase.from('profiles').update({ player_status: status }).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-profiles'] })
+      queryClient.invalidateQueries({ queryKey: ['players'] })
+    },
+  })
+
   return (
     <div className="admin-add-players">
-      <h3>Lista zawodników</h3>
+      <h3>Użytkownicy aplikacji</h3>
 
       <p className="info-text">
-        Poniżej znajduje się lista wszystkich {PLAYERS_LIST.length} zawodników z numerami legitymacji ligowej:
+        Kontuzjowani i sztab mają dostęp do aplikacji, ale nie zaznaczają obecności i nie ma ich w statystykach meczu.
+        Sztab dostaje przypomnienia, kontuzjowani nie.
       </p>
 
-      <div className="players-table-container">
-        <table className="players-table">
-          <thead>
-            <tr>
-              <th>Lp.</th>
-              <th>Imię i nazwisko</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Numer legitymacji</th>
-              <th>Rola</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PLAYERS_LIST.map((player, index) => (
-              <tr key={player.username}>
-                <td>{index + 1}</td>
-                <td>
-                  <strong>{player.fullName}</strong>
-                </td>
-                <td>
-                  <code>{player.username}</code>
-                </td>
-                <td>
-                  <code>{player.email}</code>
-                </td>
-                <td>
-                  <code>{player.leagueLicense}</code>
-                </td>
-                <td>
-                  {player.isAdmin ? (
-                    <span className="admin-badge">ADMIN</span>
-                  ) : (
-                    <span className="player-badge">Zawodnik</span>
-                  )}
-                </td>
+      {isLoading && <p className="muted">Ładowanie…</p>}
+      {error && <p className="admin-error">Nie udało się pobrać listy: {(error as Error).message}</p>}
+      {setStatus.error && <p className="admin-error">Nie udało się zmienić statusu: {(setStatus.error as Error).message}</p>}
+
+      {profiles && (
+        <div className="players-table-container">
+          <table className="players-table">
+            <thead>
+              <tr>
+                <th>Lp.</th>
+                <th>Imię i nazwisko</th>
+                <th>Login</th>
+                <th>Numer legitymacji</th>
+                <th>Rola</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {profiles.map((player, index) => (
+                <tr key={player.id}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <strong>{player.full_name}</strong>
+                    {player.training_only && <span className="muted"> · tylko treningi</span>}
+                  </td>
+                  <td>
+                    <code>{player.username}</code>
+                  </td>
+                  <td>{player.league_license_number ? <code>{player.league_license_number}</code> : '—'}</td>
+                  <td>
+                    {player.role === 'admin' ? (
+                      <span className="admin-badge">ADMIN</span>
+                    ) : (
+                      <span className="player-badge">Użytkownik</span>
+                    )}
+                  </td>
+                  <td>
+                    <select
+                      className="match-select player-status-select"
+                      aria-label={`Status: ${player.full_name}`}
+                      value={player.player_status ?? 'active'}
+                      disabled={setStatus.isPending}
+                      onChange={e => setStatus.mutate({ id: player.id, status: e.target.value as PlayerStatus })}
+                    >
+                      {STATUS_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="info-box">
         <p><strong>Informacje:</strong></p>
         <ul>
-          <li>Hasło dla wszystkich zawodników: <code>HASLO_STARTOWE</code></li>
+          <li>Hasło startowe: <code>HASLO_STARTOWE</code></li>
           <li>Logowanie odbywa się tylko loginem (nazwiskiem)</li>
-          <li>Email w formacie: <code>username@witamed.local</code></li>
+          <li>Rolę admina zmienia się poza panelem</li>
         </ul>
       </div>
     </div>
   )
 }
-
