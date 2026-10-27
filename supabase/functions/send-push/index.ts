@@ -145,9 +145,11 @@ async function runReminders() {
   const [{ data: matches }, { data: events }, { data: players }] = await Promise.all([
     db.from('matches').select('id, opponent, date, location, score').gt('date', now.toISOString()).lte('date', horizon),
     db.from('events').select('id, title, date, location, type').gt('date', now.toISOString()).lte('date', horizon),
-    db.from('profiles').select('id, training_only').eq('player_status', 'active'),
+    // Kontuzjowani nie dostają przypomnień; sztab dostaje, choć się nie zaznacza
+    db.from('profiles').select('id, training_only, player_status').neq('player_status', 'injured'),
   ])
   const allPlayers = (players ?? []).map(p => p.id)
+  const staff = new Set((players ?? []).filter(p => p.player_status === 'staff').map(p => p.id))
   // Zawodnicy „tylko treningi” nie dostają nic o meczach ligowych
   const matchPlayers = (players ?? []).filter(p => !p.training_only).map(p => p.id)
 
@@ -170,6 +172,12 @@ async function runReminders() {
 
   let sent = 0
   for (const item of items) {
+    // Sztab traktujemy jak zapisanych na „Będę” (bez próśb o zaznaczenie obecności)
+    const statusesWithStaff = async () => {
+      const statuses = await statusesFor(item)
+      staff.forEach(id => statuses.set(id, 'present'))
+      return statuses
+    }
     const url = `/attendance?tab=${item.tab}&focus=${item.id}`
     const when = `${fmtDay(item.start)}, ${fmtTime(item.start)}`
     const place = item.location ? ` · ${item.location}` : ''
@@ -180,7 +188,7 @@ async function runReminders() {
       // Mecz: tydzień przed
       const weekBefore = new Date(item.start.getTime() - 7 * 24 * 3600_000)
       if (now >= weekBefore) {
-        const statuses = await statusesFor(item)
+        const statuses = await statusesWithStaff()
         const recipients = audience.filter(id => statuses.get(id) !== 'absent')
         sent += await notifyPlayers('match_week', item.id, recipients, id => ({
           title: `Mecz ${item.title} — ${fmtDay(item.start)}`,
@@ -197,7 +205,7 @@ async function runReminders() {
 
     // Trening / sparing: dzień przed o 18:00 (jeśli to jeszcze przed oknem „3h przed”)
     if (now >= dayBefore18(item.start) && now < threeHours) {
-      const statuses = await statusesFor(item)
+      const statuses = await statusesWithStaff()
       const recipients = audience.filter(id => statuses.get(id) !== 'absent')
       sent += await notifyPlayers('day_before', item.id, recipients, id => ({
         title: `Jutro ${item.label.toLowerCase()} o ${fmtTime(item.start)}`,
@@ -212,7 +220,7 @@ async function runReminders() {
 
     // 3h przed: tylko zapisani na „Będę”
     if (now >= threeHours) {
-      const statuses = await statusesFor(item)
+      const statuses = await statusesWithStaff()
       const recipients = audience.filter(id => statuses.get(id) === 'present')
       sent += await notifyPlayers('three_hours', item.id, recipients, () => ({
         title: `Dziś ${item.label.toLowerCase()} o ${fmtTime(item.start)}`,
