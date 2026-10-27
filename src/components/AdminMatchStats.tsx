@@ -5,7 +5,7 @@ import { useMatchStatistics } from '../hooks/useMatchStatistics'
 import { useMatchAttendance } from '../hooks/useMatchAttendance'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import type { MatchErrors } from '../types/database'
+import { isActivePlayer, type MatchErrors } from '../types/database'
 import AdminMatchStatsTable from './AdminMatchStatsTable'
 import './admin-match-stats.css'
 
@@ -16,8 +16,8 @@ type Props = {
 export default function AdminMatchStats(_props: Props = {}) {
   const { data: matches, isLoading: matchesLoading } = useMatches()
   const { data: allPlayers, isLoading: playersLoading } = usePlayers()
-  // Zawodnicy „tylko treningi” nie grają meczów
-  const players = useMemo(() => allPlayers?.filter(p => !p.training_only), [allPlayers])
+  // Zawodnicy „tylko treningi”, kontuzjowani i sztab nie grają meczów
+  const players = useMemo(() => allPlayers?.filter(p => !p.training_only && isActivePlayer(p)), [allPlayers])
   const queryClient = useQueryClient()
   
   const [selectedMatchId, setSelectedMatchId] = useState<string>('')

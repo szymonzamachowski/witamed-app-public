@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import type { Event, Match } from '../types/database'
+import { isActivePlayer, type Event, type Match } from '../types/database'
 import { useAuth } from '../hooks/useAuth'
 import { useUserAttendance, useSetAttendanceStatus, useAttendanceCount, useAbsentCount } from '../hooks/useAttendance'
 import {
@@ -59,8 +59,9 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
   const isSaving = setEventStatus.isPending || setMatchStatus.isPending
 
   const tab = attendanceTabFor(event)
-  // Zawodnik „tylko treningi” nie zaznacza obecności na meczach ligowych
-  const canMark = !profile?.training_only || !isMatch
+  // Kontuzjowani i sztab nie zaznaczają się wcale; „tylko treningi” – bez meczów ligowych
+  const canSee = !profile?.training_only || !isMatch
+  const canMark = canSee && isActivePlayer(profile)
   const date = new Date(event.date)
   const title = isMatch && 'opponent' in event ? `vs ${event.opponent}` : event.title
   const description = !isMatch && 'description' in event ? event.description : undefined
@@ -139,7 +140,7 @@ export default function NextEventCard({ event }: { event: UpcomingEvent }) {
       {error && <p className="next-event-error">{error}</p>}
 
       <div className="next-event-links">
-        {canMark && <Link to={`/attendance?tab=${tab}&focus=${event.id}`}>Kto będzie?</Link>}
+        {canSee && <Link to={`/attendance?tab=${tab}&focus=${event.id}`}>Kto będzie?</Link>}
         <Link to="/calendar">Zobacz terminarz</Link>
       </div>
     </article>

@@ -9,6 +9,7 @@ import { useUserAttendance, useSetAttendanceStatus, useAttendance, useAttendance
 import { useUserMatchAttendance, useSetMatchAttendanceStatus, useMatchAttendance, useMatchAttendanceCount, useMatchAbsentCount, useDeleteMatchAttendance } from '../hooks/useMatchAttendance'
 import { usePlayers } from '../hooks/usePlayers'
 import type { AttendanceTab } from '../utils/attendanceTab'
+import { isActivePlayer } from '../types/database'
 import './attendance.css'
 
 type Kind = 'event' | 'match'
@@ -56,6 +57,7 @@ function isTodayOrLater(date: string) {
 export default function Attendance() {
   const { user, profile } = useAuth()
   const trainingOnly = !!profile?.training_only
+  const canMark = isActivePlayer(profile)
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
@@ -143,6 +145,14 @@ export default function Attendance() {
         </div>
       )}
 
+      {user && !canMark && (
+        <p className="card attendance-empty muted">
+          {profile?.player_status === 'injured'
+            ? 'Jesteś na liście kontuzjowanych — nie zaznaczasz obecności. Wracaj do zdrowia!'
+            : 'Jako członek sztabu nie zaznaczasz obecności — możesz podglądać, kto będzie.'}
+        </p>
+      )}
+
       <div className="segmented" role="tablist" aria-label="Rodzaj wydarzenia">
         {visibleTabs.map(tab => (
           <button
@@ -171,6 +181,7 @@ export default function Attendance() {
               key={item.id}
               item={item}
               userId={user?.id}
+              canMark={canMark}
               onSetStatus={status => handleSetStatus(item, status)}
               onShowAttendees={() => setSelected({ kind: item.kind, id: item.id })}
               isSaving={setEventStatus.isPending || setMatchStatus.isPending}
@@ -189,12 +200,14 @@ export default function Attendance() {
 function AttendanceCard({
   item,
   userId,
+  canMark,
   onSetStatus,
   onShowAttendees,
   isSaving,
 }: {
   item: AttendanceItem
   userId?: string
+  canMark: boolean
   onSetStatus: (status: Status) => void
   onShowAttendees: () => void
   isSaving: boolean
@@ -245,6 +258,7 @@ function AttendanceCard({
 
       {userId && (
         <>
+          {canMark && (
           <div className="attendance-buttons">
             <button
               type="button"
@@ -265,6 +279,7 @@ function AttendanceCard({
               {status === 'absent' ? '✓ Nie będę' : 'Nie będę'}
             </button>
           </div>
+          )}
           <button type="button" className="btn btn-ghost attendance-who" onClick={onShowAttendees}>
             Sprawdź kto się zapisał
           </button>
@@ -327,7 +342,7 @@ function AttendeesModal({ kind, id, onClose }: { kind: Kind; id: string; onClose
   const absent = attendance.filter(a => a.status === 'absent')
   const other = attendance.filter(a => a.status !== 'present' && a.status !== 'absent')
   const notAnswered = (allSystemPlayers ?? [])
-    .filter(p => !isMatch || !p.training_only)
+    .filter(p => isActivePlayer(p) && (!isMatch || !p.training_only))
     .filter(p => !attendance.some(a => a.player_id === p.id))
 
   const renderRow = (att: (typeof attendance)[number]) => {

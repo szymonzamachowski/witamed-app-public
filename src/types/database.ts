@@ -1,3 +1,9 @@
+// 'injured' (kontuzja) i 'staff' (sztab) mają dostęp do aplikacji, ale nie zaznaczają obecności i nie mają statystyk
+export type PlayerStatus = 'active' | 'injured' | 'staff'
+
+export const isActivePlayer = (p: { player_status?: PlayerStatus } | null | undefined) =>
+  !p?.player_status || p.player_status === 'active'
+
 export type Profile = {
   id: string
   username: string
@@ -6,6 +12,7 @@ export type Profile = {
   league_license_number: string
   role: 'player' | 'admin' | 'coach'
   training_only: boolean // tylko treningi i sparingi: bez meczów ligowych
+  player_status: PlayerStatus
   created_at: string
 }
 

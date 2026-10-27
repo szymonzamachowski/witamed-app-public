@@ -145,7 +145,7 @@ async function runReminders() {
   const [{ data: matches }, { data: events }, { data: players }] = await Promise.all([
     db.from('matches').select('id, opponent, date, location, score').gt('date', now.toISOString()).lte('date', horizon),
     db.from('events').select('id, title, date, location, type').gt('date', now.toISOString()).lte('date', horizon),
-    db.from('profiles').select('id, training_only'),
+    db.from('profiles').select('id, training_only').eq('player_status', 'active'),
   ])
   const allPlayers = (players ?? []).map(p => p.id)
   // Zawodnicy „tylko treningi” nie dostają nic o meczach ligowych
