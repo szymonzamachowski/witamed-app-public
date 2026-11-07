@@ -103,7 +103,7 @@ export default function AdminAddPlayers() {
       <div className="info-box">
         <p><strong>Informacje:</strong></p>
         <ul>
-          <li>Hasło startowe: <code>HASLO_STARTOWE</code></li>
+          <li>Hasło startowe przekazuje admin (poza aplikacją)</li>
           <li>Logowanie odbywa się tylko loginem (nazwiskiem)</li>
           <li>Rolę admina zmienia się poza panelem</li>
         </ul>

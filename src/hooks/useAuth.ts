@@ -61,7 +61,7 @@ export function useAuth() {
 
   const signIn = useCallback(async (login: string, password: string, _rememberMe: boolean = true) => {
     // Logowanie tylko loginem (nazwiskiem) - konto w auth to login@witamed.local.
-    // Normalizujemy: małe litery, bez polskich znaków (np. "Nowak" -> "nowak")
+    // Normalizujemy: małe litery, bez polskich znaków (np. "Wójcik" -> "wojcik")
     const normalizedLogin = login
       .trim()
       .toLowerCase()
