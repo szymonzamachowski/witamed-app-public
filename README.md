@@ -2,7 +2,7 @@
 
 Aplikacja drużyny siatkarskiej Witamed: obecność na treningach i meczach, wyniki, wideo, statystyki zawodników i powiadomienia na telefon.
 
-Aplikacja działa na https://your-app.vercel.app i korzysta z niej drużyna na co dzień. Logowanie mają tylko zawodnicy, a konta zakłada admin.
+Aplikacja działa produkcyjnie i korzysta z niej drużyna na co dzień. Logowanie mają tylko zawodnicy, a konta zakłada admin.
 To repozytorium to publiczna kopia kodu: dane zawodników zostały z niego usunięte.
 
 ## Funkcje
