@@ -2,7 +2,8 @@
 
 Aplikacja drużyny siatkarskiej Witamed: obecność na treningach i meczach, wyniki, wideo, statystyki zawodników i powiadomienia na telefon.
 
-Produkcja: https://your-app.vercel.app (Vercel, wdrożenie z gałęzi `main`).
+Aplikacja działa na https://your-app.vercel.app i korzysta z niej drużyna na co dzień. Logowanie mają tylko zawodnicy, a konta zakłada admin.
+To repozytorium to publiczna kopia kodu: dane zawodników zostały z niego usunięte.
 
 ## Funkcje
 
@@ -64,7 +65,7 @@ supabase/
   schema.sql, migrations/   schemat i migracje bazy
   functions/send-push/      funkcja wysyłająca powiadomienia
 scripts/generate-icons.mjs  generowanie ikon PWA z logo
-docs/                       projekty zmian, plany, poradnik PDF
+docs/                       projekty i plany zmian
 ```
 
 ## Statystyki — zmiany po konsultacji z trenerem
